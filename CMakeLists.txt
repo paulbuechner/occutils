@@ -1,109 +1,80 @@
-cmake_minimum_required(VERSION 3.5)
+option(occutils_build_tests "Build all of occutils's own tests." OFF)
 
-project(liboccutils)
+cmake_minimum_required(VERSION 3.24)
 
-# Typical OpenCASCADE install paths
-include_directories (/usr/include/opencascade /usr/include/occt /usr/include/freetype2)
+project(occutils)
 
-add_library(occutils SHARED
-    src/Surface.cxx
-    src/ShapeComponents.cxx
-    src/Shape.cxx
-    src/Plane.cxx
-    src/Pipe.cxx
-    src/IO.cxx
-    src/Curve.cxx
-    src/STEPExport.cxx
-    src/Primitive.cxx
-    src/Direction.cxx
-    src/Boolean.cxx
-    src/ExtendedSTEP.cxx
-    src/PrintOCC.cxx
-    src/Fillet.cxx
-    src/Wire.cxx
-    src/Edge.cxx
-    src/Face.cxx
-    src/Equality.cxx
-    src/Axis.cxx
-    src/Point.cxx
-    src/Line.cxx
-    src/Compound.cxx
-)
+# Boost
+set(Boost_USE_STATIC_LIBS ON)
+find_package(Boost REQUIRED COMPONENTS system filesystem unit_test_framework)
 
-#target_include_directories(occutils
-#    PUBLIC
-#        $<INSTALL_INTERFACE:include>
-#        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-#)
+# Set OCCT cmake directory on windows
+if (WIN32)
+  set(OpenCASCADE_DIR "C:/Program Files/OCCT/cmake")
+endif ()
+find_package(OpenCASCADE REQUIRED)
 
-set_target_properties(occutils
-  PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/include"
-  INTERFACE_LINK_LIBRARIES "occutils"
-)
+# Where liboccutils's .h files can be found
+set(occutils_include_dirs
+    "${Boost_INCLUDE_DIRS}"
+    "${OpenCASCADE_INCLUDE_DIR}"
+    "${occutils_SOURCE_DIR}/include"
+    "${occutils_SOURCE_DIR}")
+include_directories(SYSTEM ${occutils_include_dirs})
 
-target_include_directories(occutils PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include")
-target_compile_options(occutils PRIVATE -Werror)
-target_compile_features(occutils PRIVATE cxx_std_17)
+# Define helper functions and macros used by liboccutils
+include(cmake/internal_utils.cmake)
 
-install(TARGETS occutils
-  LIBRARY DESTINATION lib
-  PUBLIC_HEADER DESTINATION include)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN" OR CMAKE_SYSTEM_NAME MATCHES "MSYS")
+  set(CMAKE_CXX_EXTENSIONS ON)
+endif ()
+
+cxx_library(${PROJECT_NAME} src/occutils-all.cc)
+
+if (MSVC)
+  # warning level 4 and all warnings as errors
+  target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+else ()
+  # lots of warnings and all warnings as errors
+  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
+endif ()
+
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+
+target_include_directories(${PROJECT_NAME} INTERFACE "${PROJECT_SOURCE_DIR}/include")
+
+#set_target_properties(${PROJECT_NAME}
+#                      PROPERTIES
+#                      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/include"
+#                      INTERFACE_LINK_LIBRARIES "${PROJECT_NAME}")
+
+target_link_occt_libraries(${PROJECT_NAME})
+
+# Configure install
+install(TARGETS ${PROJECT_NAME}
+        LIBRARY DESTINATION lib
+        PUBLIC_HEADER DESTINATION include)
 install(DIRECTORY
-  "${CMAKE_CURRENT_LIST_DIR}/include/"
-  DESTINATION include)
+        "${CMAKE_CURRENT_LIST_DIR}/include/"
+        DESTINATION include)
 
-#
-# Compile test suite
-#
-find_package(Boost COMPONENTS system filesystem unit_test_framework REQUIRED)
+# Testing
+if (${occutils_build_tests})
+  enable_testing()
+  # Compile test suite
+  add_executable(test_occutils tests/TestLine.cpp)
 
-add_executable(test_occutils
-    tests/TestLine.cpp
-)
-target_include_directories(test_occutils PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include")
-target_compile_options(occutils PRIVATE -Werror)
-target_compile_features(test_occutils PRIVATE cxx_std_17)
+  target_include_directories(test_occutils PUBLIC "${PROJECT_NAME}/include")
+  target_compile_features(test_occutils PRIVATE cxx_std_17)
 
-target_link_libraries(test_occutils
-                      occutils
-                      ${Boost_FILESYSTEM_LIBRARY}
-                      ${Boost_SYSTEM_LIBRARY}
-                      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-                      TKBO 
-                      TKBRep
-                      TKOffset
-                      TKFeat 
-                      TKFillet
-                      TKXDESTEP
-                      TKG2d 
-                      TKG3d 
-                      TKGeomAlgo 
-                      TKGeomBase 
-                      TKHLR 
-                      TKIGES 
-                      TKOffset 
-                      TKPrim 
-                      TKShHealing 
-                      TKSTEP 
-                      TKSTEP209 
-                      TKSTEPAttr 
-                      TKSTEPBase 
-                      TKXSBase
-                      TKSTL 
-                      TKTopAlgo 
-                      TKV3d
-                      )
-add_test(test_occutils test_occutils)
-# make "make test" run the test program
-add_custom_target(test
-    DEPENDS test_occutils
-    COMMAND ./test_occutils
-)
+  set(boost_test_libs
+      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+      ${Boost_FILESYSTEM_LIBRARY}
+      ${Boost_SYSTEM_LIBRARY})
+  target_link_libraries(test_occutils ${PROJECT_NAME} ${boost_test_libs})
 
-#export (
-#  TARGETS 
-#    occutils
-#  FILE
-#    occutils.cmake
-#)
+  # Configure test suite
+  add_test(NAME test_occutils COMMAND test_occutils)
+endif ()
