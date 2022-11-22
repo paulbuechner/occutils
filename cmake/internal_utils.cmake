@@ -38,13 +38,11 @@
    endforeach ()
  endmacro ()
 
- # Defines the gtest & gtest_main libraries.  User tests should link
- # with one of them.
+ # Defines the occutils library the user should link with
  function (cxx_library_with_type name type)
    # type can be either STATIC or SHARED to denote a static or shared library.
    # ARGN refers to additional arguments after 'type'.
    add_library(${name} ${type} ${ARGN})
-   add_library(${cmake_package_name}::${name} ALIAS ${name})
    # Set the output directory for build artifacts
    set_target_properties(${name}
                          PROPERTIES
