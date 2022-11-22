@@ -4,9 +4,23 @@ cmake_minimum_required(VERSION 3.24)
 
 project(occutils)
 
+include(GNUInstallDirs)
+
 # Boost
 set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost REQUIRED COMPONENTS system filesystem unit_test_framework)
+find_package(Boost COMPONENTS system filesystem unit_test_framework)
+if (NOT Boost_FOUND)
+  message(STATUS "No local Boost installation found. Try loading Boost modules via FetchContent.")
+  include(FetchContent)
+  FetchContent_Declare(
+    Boost
+    GIT_REPOSITORY https://github.com/boostorg/boost.git
+    GIT_TAG boost-1.80.0
+    GIT_SHALLOW TRUE
+    GIT_PROGRESS TRUE
+  )
+  FetchContent_MakeAvailable(Boost)
+endif ()
 
 # Set OCCT cmake directory on windows
 if (WIN32)
@@ -14,7 +28,7 @@ if (WIN32)
 endif ()
 find_package(OpenCASCADE REQUIRED)
 
-# Where liboccutils's .h files can be found
+# Where occutils's .h files can be found
 set(occutils_include_dirs
     "${Boost_INCLUDE_DIRS}"
     "${OpenCASCADE_INCLUDE_DIR}"
@@ -22,7 +36,7 @@ set(occutils_include_dirs
     "${occutils_SOURCE_DIR}")
 include_directories(SYSTEM ${occutils_include_dirs})
 
-# Define helper functions and macros used by liboccutils
+# Define helper functions and macros used by occutils
 include(cmake/internal_utils.cmake)
 
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -32,25 +46,24 @@ if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN" OR CMAKE_SYSTEM_NAME MATCHES "MSYS")
 endif ()
 
 cxx_library(${PROJECT_NAME} src/occutils-all.cc)
+# If the CMake version supports it, attach header directory information
+# to the targets for when we are part of a parent build (ie being pulled
+# in via add_subdirectory() rather than being a standalone build).
+if (DEFINED CMAKE_VERSION AND NOT "${CMAKE_VERSION}" VERSION_LESS "2.8.11")
+  string(REPLACE ";" "$<SEMICOLON>" dirs "${occutils_include_dirs}")
+  target_include_directories(${PROJECT_NAME} SYSTEM INTERFACE
+                             "$<BUILD_INTERFACE:${dirs}>"
+                             "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+endif ()
 
 if (MSVC)
   # warning level 4 and all warnings as errors
-  target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+  target_compile_options(${PROJECT_NAME} PUBLIC /W4 /WX)
 else ()
   # lots of warnings and all warnings as errors
-  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
+  target_compile_options(${PROJECT_NAME} PUBLIC -Wall -Wextra -pedantic -Werror)
 endif ()
-
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
-
-target_include_directories(${PROJECT_NAME} INTERFACE "${PROJECT_SOURCE_DIR}/include")
-
-#set_target_properties(${PROJECT_NAME}
-#                      PROPERTIES
-#                      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_LIST_DIR}/include"
-#                      INTERFACE_LINK_LIBRARIES "${PROJECT_NAME}")
-
-target_link_occt_libraries(${PROJECT_NAME})
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 # Configure install
 install(TARGETS ${PROJECT_NAME}
@@ -70,10 +83,12 @@ if (${occutils_build_tests})
   target_compile_features(test_occutils PRIVATE cxx_std_17)
 
   set(boost_test_libs
-      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-      ${Boost_FILESYSTEM_LIBRARY}
-      ${Boost_SYSTEM_LIBRARY})
-  target_link_libraries(test_occutils ${PROJECT_NAME} ${boost_test_libs})
+      Boost::unit_test_framework
+      Boost::system
+      Boost::filesystem)
+  target_link_libraries(test_occutils debug ${PROJECT_NAME} ${boost_test_libs})
+  target_link_libraries(test_occutils optimized ${PROJECT_NAME} ${boost_test_libs})
+  target_link_occt_libraries(test_occutils)
 
   # Configure test suite
   add_test(NAME test_occutils COMMAND test_occutils)
