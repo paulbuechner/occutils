@@ -14,15 +14,23 @@ namespace Shape {
 bool IsSolid(const TopoDS_Shape& shape) {
   return shape.ShapeType() == TopAbs_SOLID;
 }
+
 bool IsFace(const TopoDS_Shape& shape) {
   return shape.ShapeType() == TopAbs_FACE;
 }
+
+bool IsShell(const TopoDS_Shape& shape) {
+  return shape.ShapeType() == TopAbs_SHELL;
+}
+
 bool IsEdge(const TopoDS_Shape& shape) {
   return shape.ShapeType() == TopAbs_EDGE;
 }
+
 bool IsWire(const TopoDS_Shape& shape) {
   return shape.ShapeType() == TopAbs_WIRE;
 }
+
 bool IsVertex(const TopoDS_Shape& shape) {
   return shape.ShapeType() == TopAbs_VERTEX;
 }

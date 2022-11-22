@@ -14,6 +14,7 @@
 namespace OCCUtils {
 
 namespace Shape {
+
 /**
  * @return true if the given shape is a TopoDS_Solid
  */
@@ -23,6 +24,11 @@ bool IsSolid(const TopoDS_Shape& shape);
  * @return true if the given shape is a TopoDS_Face
  */
 bool IsFace(const TopoDS_Shape& shape);
+
+/**
+ * @return true if the given shape is a TopoDS_Shell
+ */
+bool IsShell(const TopoDS_Shape& shape);
 
 /**
  * @return true if the given shape is a TopoDS_Edge
