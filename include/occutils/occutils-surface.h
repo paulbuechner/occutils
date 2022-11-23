@@ -123,7 +123,7 @@ std::vector<gp_XY> UniformUVSampleLocationsWithin(
  * @returns nullopt if there is no intersection or the Algorithm fails, the 3D
  * point else
  */
-std::optional<gp_Pnt> Intersection(Handle(Geom_Line) curve,
+std::optional<gp_Pnt> Intersection(const gp_Lin& line,
                                    const GeomAdaptor_Surface& surface);
 
 // TODO These are not implemented yet!
