@@ -4,6 +4,7 @@
  * Utilities for analyzing surfaces
  */
 #include <GeomAdaptor_Surface.hxx>
+#include <Geom_Line.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>
 #include <functional>
@@ -116,6 +117,14 @@ std::vector<gp_XY> UniformUVSampleLocations(const GeomAdaptor_Surface& surf,
 std::vector<gp_XY> UniformUVSampleLocationsWithin(
     const GeomAdaptor_Surface& surf, size_t uSamples = 10,
     size_t vSamples = 10);
+
+/**
+ * Commute the 3D intersection between a line and a surface.
+ * @returns nullopt if there is no intersection or the Algorithm fails, the 3D
+ * point else
+ */
+std::optional<gp_Pnt> Intersection(Handle(Geom_Line) curve,
+                                   const GeomAdaptor_Surface& surface);
 
 // TODO These are not implemented yet!
 /**

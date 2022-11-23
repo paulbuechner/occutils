@@ -3,6 +3,7 @@
 #include <BRepGProp.hxx>
 #include <BRepLib_FindSurface.hxx>
 #include <GProp_GProps.hxx>
+#include <GeomAPI_IntCS.hxx>
 #include <GeomLProp_SLProps.hxx>
 #include <algorithm>
 #include <sstream>
@@ -159,6 +160,19 @@ vector<gp_XY> UniformUVSampleLocationsWithin(const GeomAdaptor_Surface& surf,
     }
   }
   return ret;
+}
+
+std::optional<gp_Pnt> Intersection(Handle(Geom_Line) curve,
+                                   const GeomAdaptor_Surface& surface) {
+  auto intersector = GeomAPI_IntCS(curve, surface.Surface());
+  if (!intersector
+           .IsDone()) {  // Algorithm failure, returned as no intersection
+    return std::nullopt;
+  }
+  if (intersector.NbPoints() == 0 || intersector.NbPoints() > 1) {
+    return std::nullopt;
+  }
+  return intersector.Point(1);
 }
 
 }  // namespace Surface
