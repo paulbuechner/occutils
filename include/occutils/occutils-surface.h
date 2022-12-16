@@ -119,12 +119,20 @@ std::vector<gp_XY> UniformUVSampleLocationsWithin(
     size_t vSamples = 10);
 
 /**
- * Commute the 3D intersection between a line and a surface.
+ * Compute the 3D intersection between a line and a surface.
  * @returns nullopt if there is no intersection or the Algorithm fails, the 3D
  * point else
  */
 std::optional<gp_Pnt> Intersection(const gp_Lin& line,
                                    const GeomAdaptor_Surface& surface);
+
+/**
+ * Compute the 3D intersection between a two surfaces.
+ * @returns nullopt if there is no intersection or the Algorithm fails, the 3D
+ * curve else
+ */
+std::optional<TopoDS_Edge> Intersection(const GeomAdaptor_Surface& S1,
+                                        const GeomAdaptor_Surface& S2);
 
 // TODO These are not implemented yet!
 /**

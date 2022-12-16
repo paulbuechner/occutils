@@ -5,6 +5,7 @@
 #include <GC_MakeLine.hxx>
 #include <GProp_GProps.hxx>
 #include <GeomAPI_IntCS.hxx>
+#include <GeomAPI_IntSS.hxx>
 #include <GeomLProp_SLProps.hxx>
 #include <algorithm>
 #include <sstream>
@@ -125,8 +126,8 @@ gp_Pnt PointAt(const GeomAdaptor_Surface& surf, const gp_XY& uv) {
   return surf.Value(uv.X(), uv.Y());
 }
 
-vector<gp_XY> UniformUVSampleLocations(const GeomAdaptor_Surface& surf,
-                                       size_t uSamples, size_t vSamples) {
+std::vector<gp_XY> UniformUVSampleLocations(const GeomAdaptor_Surface& surf,
+                                            size_t uSamples, size_t vSamples) {
   double u0 = surf.FirstUParameter();
   double v0 = surf.FirstVParameter();
 
@@ -135,7 +136,7 @@ vector<gp_XY> UniformUVSampleLocations(const GeomAdaptor_Surface& surf,
   double vInterval = (surf.LastVParameter() - v0) /
                      (vSamples - 1);  // -1: include both end points
 
-  vector<gp_XY> ret;
+  std::vector<gp_XY> ret;
   ret.reserve(uSamples * vSamples);
   for (size_t u = 0; u < uSamples; u++) {
     for (size_t v = 0; v < vSamples; v++) {
@@ -145,15 +146,15 @@ vector<gp_XY> UniformUVSampleLocations(const GeomAdaptor_Surface& surf,
   return ret;
 }
 
-vector<gp_XY> UniformUVSampleLocationsWithin(const GeomAdaptor_Surface& surf,
-                                             size_t uSamples, size_t vSamples) {
+std::vector<gp_XY> UniformUVSampleLocationsWithin(
+    const GeomAdaptor_Surface& surf, size_t uSamples, size_t vSamples) {
   double u0 = surf.FirstUParameter();
   double v0 = surf.FirstVParameter();
 
   double uInterval = (surf.LastUParameter() - u0) / (uSamples + 1);
   double vInterval = (surf.LastVParameter() - v0) / (vSamples + 1);
 
-  vector<gp_XY> ret;
+  std::vector<gp_XY> ret;
   ret.reserve(uSamples * vSamples);
   for (size_t u = 1; u < uSamples; u++) {
     for (size_t v = 1; v < vSamples; v++) {
@@ -178,6 +179,20 @@ std::optional<gp_Pnt> Intersection(const gp_Lin& line,
     return std::nullopt;
   }
   return intersector.Point(1);
+}
+
+std::optional<TopoDS_Edge> Intersection(const GeomAdaptor_Surface& S1,
+                                        const GeomAdaptor_Surface& S2) {
+  auto intersector = GeomAPI_IntSS(S1.Surface(), S2.Surface(),
+                                   Precision::Confusion());
+  if (!intersector
+           .IsDone()) {  // Algorithm failure, returned as no intersection
+    return std::nullopt;
+  }
+  if (intersector.NbLines() == 0 || intersector.NbLines() > 1) {
+    return std::nullopt;
+  }
+  return BRepBuilderAPI_MakeEdge(intersector.Line(1)).Edge();
 }
 
 }  // namespace Surface
@@ -239,7 +254,7 @@ size_t SurfaceTypeStats::Count(GeomAbs_SurfaceType typ) {
 }
 
 std::string SurfaceTypeStats::Summary() {
-  ostringstream ss;
+  std::ostringstream ss;
   ss << "{\n";
   if (Count(GeomAbs_Plane)) {
     ss << "\tGeomAbs_Plane = " << Count(GeomAbs_Plane) << '\n';
