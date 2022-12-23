@@ -22,6 +22,7 @@ endif ()
 
 # Dependencies
 find_package(OpenCASCADE CONFIG REQUIRED)
+find_package(freetype CONFIG REQUIRED) # freetype is a dependency of OpenCASCADE
 find_package(Boost REQUIRED COMPONENTS system filesystem unit_test_framework)
 
 # Where occutils's .h files can be found
