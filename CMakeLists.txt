@@ -6,27 +6,23 @@ project(occutils)
 
 include(GNUInstallDirs)
 
-# Boost
-set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost COMPONENTS system filesystem unit_test_framework)
-if (NOT Boost_FOUND)
-  message(STATUS "No local Boost installation found. Try loading Boost modules via FetchContent.")
-  include(FetchContent)
-  FetchContent_Declare(
-    Boost
-    GIT_REPOSITORY https://github.com/boostorg/boost.git
-    GIT_TAG boost-1.80.0
-    GIT_SHALLOW TRUE
-    GIT_PROGRESS TRUE
-  )
-  FetchContent_MakeAvailable(Boost)
+# Check if vcpkg is being used
+set(VCPKG_IS_USED OFF)
+if (CMAKE_TOOLCHAIN_FILE MATCHES ".*/vcpkg/scripts/buildsystems/vcpkg.cmake$")
+  set(VCPKG_IS_USED ON)
 endif ()
 
-# Set OCCT cmake directory on windows
-if (WIN32)
-  set(OpenCASCADE_DIR "C:/Program Files/OCCT/cmake")
+# Check if should use local install of OpenCascade
+set(USE_LOCAL_OCC OFF CACHE BOOL "Use local OpenCascade install")
+if (CUSTOM_OpenCASCADE_DIR)
+  message(STATUS "Using manually specified OpenCASCADE_DIR: ${CUSTOM_OpenCASCADE_DIR}")
+  set(OpenCASCADE_DIR ${CUSTOM_OpenCASCADE_DIR})
+  set(USE_LOCAL_OCC ON)
 endif ()
-find_package(OpenCASCADE REQUIRED)
+
+# Dependencies
+find_package(OpenCASCADE CONFIG REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system filesystem unit_test_framework)
 
 # Where occutils's .h files can be found
 set(occutils_include_dirs
@@ -67,11 +63,11 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 # Configure install
 install(TARGETS ${PROJECT_NAME}
-        LIBRARY DESTINATION lib
-        PUBLIC_HEADER DESTINATION include)
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(DIRECTORY
         "${CMAKE_CURRENT_LIST_DIR}/include/"
-        DESTINATION include)
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # Testing
 if (${occutils_build_tests})
@@ -83,12 +79,18 @@ if (${occutils_build_tests})
   target_compile_features(test_occutils PRIVATE cxx_std_17)
 
   set(boost_test_libs
+      Boost::boost
       Boost::unit_test_framework
       Boost::system
       Boost::filesystem)
   target_link_libraries(test_occutils debug ${PROJECT_NAME} ${boost_test_libs})
   target_link_libraries(test_occutils optimized ${PROJECT_NAME} ${boost_test_libs})
-  target_link_occt_libraries(test_occutils)
+
+  if (VCPKG_IS_USED AND NOT USE_LOCAL_OCC)
+    target_link_occt_libraries_vcpkg(test_occutils)
+  else ()
+    target_link_occt_libraries(test_occutils)
+  endif ()
 
   # Configure test suite
   add_test(NAME test_occutils COMMAND test_occutils)
