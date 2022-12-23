@@ -53,6 +53,20 @@ if (DEFINED CMAKE_VERSION AND NOT "${CMAKE_VERSION}" VERSION_LESS "2.8.11")
                              "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
 endif ()
 
+set(boost_test_libs
+    Boost::boost
+    Boost::unit_test_framework
+    Boost::system
+    Boost::filesystem)
+target_link_libraries(${PROJECT_NAME} debug ${boost_test_libs})
+target_link_libraries(${PROJECT_NAME} optimized ${boost_test_libs})
+
+if (VCPKG_IS_USED AND NOT USE_LOCAL_OCC)
+  target_link_occt_libraries_vcpkg(${PROJECT_NAME})
+else ()
+  target_link_occt_libraries(${PROJECT_NAME})
+endif ()
+
 if (MSVC)
   # warning level 4 and all warnings as errors
   target_compile_options(${PROJECT_NAME} PUBLIC /W4 /WX)
@@ -76,22 +90,11 @@ if (${occutils_build_tests})
   # Compile test suite
   add_executable(test_occutils tests/TestLine.cpp)
 
+  target_link_libraries(test_occutils debug ${PROJECT_NAME})
+  target_link_libraries(test_occutils optimized ${PROJECT_NAME})
+
   target_include_directories(test_occutils PUBLIC "${PROJECT_NAME}/include")
   target_compile_features(test_occutils PRIVATE cxx_std_17)
-
-  set(boost_test_libs
-      Boost::boost
-      Boost::unit_test_framework
-      Boost::system
-      Boost::filesystem)
-  target_link_libraries(test_occutils debug ${PROJECT_NAME} ${boost_test_libs})
-  target_link_libraries(test_occutils optimized ${PROJECT_NAME} ${boost_test_libs})
-
-  if (VCPKG_IS_USED AND NOT USE_LOCAL_OCC)
-    target_link_occt_libraries_vcpkg(test_occutils)
-  else ()
-    target_link_occt_libraries(test_occutils)
-  endif ()
 
   # Configure test suite
   add_test(NAME test_occutils COMMAND test_occutils)
