@@ -1,11 +1,12 @@
-option(occutils_build_tests "Build all of occutils's own tests." OFF)
-
 cmake_minimum_required(VERSION 3.24)
 
-project(occutils)
+set(OCCUtils_VERSION 0.1.0)
+project(occutils VERSION ${OCCUtils_VERSION} LANGUAGES CXX)
 
 # Define helper functions and macros used by occutils
 include(cmake/internal_utils.cmake)
+
+enable_testing()
 
 include(GNUInstallDirs)
 
@@ -86,27 +87,5 @@ install(DIRECTORY
 
 # Testing
 if (${occutils_build_tests})
-  enable_testing()
-  # Compile test suite
-  add_executable(test_occutils test/TestLine.cpp)
-
-  target_include_directories(test_occutils PUBLIC "${PROJECT_NAME}/include")
-  target_compile_features(test_occutils PRIVATE cxx_std_17)
-
-  set(boost_test_libs
-      Boost::boost
-      Boost::unit_test_framework
-      Boost::system
-      Boost::filesystem)
-  target_link_libraries(test_occutils debug ${PROJECT_NAME} ${boost_test_libs})
-  target_link_libraries(test_occutils optimized ${PROJECT_NAME} ${boost_test_libs})
-
-  if (VCPKG_IS_USED AND NOT USE_LOCAL_OCC)
-    target_link_occt_libraries_vcpkg(test_occutils)
-  else ()
-    target_link_occt_libraries(test_occutils)
-  endif ()
-
-  # Configure test suite
-  add_test(NAME test_occutils COMMAND test_occutils)
+  add_subdirectory(test)
 endif ()
