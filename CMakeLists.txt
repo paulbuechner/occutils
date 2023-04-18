@@ -3,10 +3,11 @@ cmake_minimum_required(VERSION 3.24)
 set(OCCUtils_VERSION 0.1.0)
 project(occutils VERSION ${OCCUtils_VERSION} LANGUAGES CXX)
 
+# testing options
+option(OCCUTILS_BUILD_TESTS "Build tests" OFF)
+
 # Define helper functions and macros used by occutils
 include(cmake/internal_utils.cmake)
-
-enable_testing()
 
 include(GNUInstallDirs)
 
@@ -58,9 +59,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN" OR CMAKE_SYSTEM_NAME MATCHES "MSYS")
   set(CMAKE_CXX_EXTENSIONS ON)
 endif ()
 
-cxx_library(${PROJECT_NAME} src/occutils-all.cc)
+cxx_library(occutils src/occutils-all.cc)
 
-add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+add_library(occutils::occutils ALIAS occutils)
 
 # If the CMake version supports it, attach header directory information
 # to the targets for when we are part of a parent build (ie being pulled
@@ -80,6 +81,28 @@ else ()
 endif ()
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
+# Prepare package config and version files
+include(CMakePackageConfigHelpers)
+set(config_targets_file "${PROJECT_NAME}-targets.cmake")
+set(export_dest_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+set(project_config_in "${CMAKE_CURRENT_SOURCE_DIR}/cmake/${PROJECT_NAME}-config.cmake.in")
+set(project_config_out "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake")
+set(version_config_file "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake")
+
+# Export target and install
+export(TARGETS ${PROJECT_NAME} NAMESPACE ${PROJECT_NAME}:: FILE ${config_targets_file})
+install(EXPORT ${PROJECT_NAME} DESTINATION ${export_dest_dir} NAMESPACE ${PROJECT_NAME}:: FILE ${config_targets_file})
+
+# Configure package config file
+configure_package_config_file("${project_config_in}" "${project_config_out}"
+                              INSTALL_DESTINATION ${export_dest_dir})
+
+# Write version config file
+write_basic_package_version_file("${version_config_file}" COMPATIBILITY SameMajorVersion)
+
+# Install package config and version files
+install(FILES "${project_config_out}" "${version_config_file}" DESTINATION "${export_dest_dir}")
+
 # Configure install
 install(TARGETS ${PROJECT_NAME}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -89,6 +112,8 @@ install(DIRECTORY
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # Testing
-if (${occutils_build_tests})
+if (OCCUTILS_BUILD_TESTS)
+  message(STATUS "Generating tests")
+  enable_testing()
   add_subdirectory(test)
 endif ()
