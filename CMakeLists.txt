@@ -22,7 +22,7 @@ if (CMAKE_TOOLCHAIN_FILE MATCHES ".*/vcpkg/scripts/buildsystems/vcpkg.cmake$")
   # Check if should use local install of OpenCascade
   set(USE_LOCAL_OCC OFF CACHE BOOL "Use local OpenCascade install")
   if (CUSTOM_OpenCASCADE_DIR)
-    message(STATUS "Use local OpenCascade install: ${CUSTOM_OpenCASCADE_DIR}")
+    message(STATUS "Using local OpenCascade install: ${CUSTOM_OpenCASCADE_DIR}")
     set(OpenCASCADE_DIR ${CUSTOM_OpenCASCADE_DIR})
     set(USE_LOCAL_OCC ON)
     # Do not copy dependencies to the output directory
@@ -59,6 +59,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN" OR CMAKE_SYSTEM_NAME MATCHES "MSYS")
 endif ()
 
 cxx_library(${PROJECT_NAME} src/occutils-all.cc)
+
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
 # If the CMake version supports it, attach header directory information
 # to the targets for when we are part of a parent build (ie being pulled
 # in via add_subdirectory() rather than being a standalone build).
