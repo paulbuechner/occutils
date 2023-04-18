@@ -1,11 +1,11 @@
-option(occutils_build_tests "Build all of occutils's own tests." OFF)
-
 cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 project(occutils-test VERSION ${OCCUtils_VERSION} LANGUAGES CXX)
 
 # Define helper functions and macros used by occutils
 include(cmake/internal_utils.cmake)
+
+find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 
 # Compile test suite
 add_executable(${PROJECT_NAME} TestLine.cpp)

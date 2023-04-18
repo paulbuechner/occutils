@@ -43,7 +43,7 @@ else ()
   find_package(OpenCASCADE REQUIRED)
 endif ()
 
-find_package(Boost REQUIRED COMPONENTS system filesystem unit_test_framework)
+find_package(Boost REQUIRED COMPONENTS system filesystem)
 
 # Where occutils's .h files can be found
 set(occutils_include_dirs
@@ -81,6 +81,17 @@ else ()
 endif ()
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
+# Configure install
+install(TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY
+        "${CMAKE_CURRENT_LIST_DIR}/include/"
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
 # Prepare package config and version files
 include(CMakePackageConfigHelpers)
 set(config_targets_file "${PROJECT_NAME}-targets.cmake")
@@ -90,7 +101,7 @@ set(project_config_out "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
 set(version_config_file "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake")
 
 # Export target and install
-export(TARGETS ${PROJECT_NAME} NAMESPACE ${PROJECT_NAME}:: FILE ${config_targets_file})
+export(TARGETS ${PROJECT_NAME} NAMESPACE ${PROJECT_NAME}:: FILE "${CMAKE_CURRENT_BINARY_DIR}/${config_targets_file}")
 install(EXPORT ${PROJECT_NAME} DESTINATION ${export_dest_dir} NAMESPACE ${PROJECT_NAME}:: FILE ${config_targets_file})
 
 # Configure package config file
@@ -102,14 +113,6 @@ write_basic_package_version_file("${version_config_file}" COMPATIBILITY SameMajo
 
 # Install package config and version files
 install(FILES "${project_config_out}" "${version_config_file}" DESTINATION "${export_dest_dir}")
-
-# Configure install
-install(TARGETS ${PROJECT_NAME}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(DIRECTORY
-        "${CMAKE_CURRENT_LIST_DIR}/include/"
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # Testing
 if (OCCUTILS_BUILD_TESTS)
