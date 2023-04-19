@@ -1,0 +1,39 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/master/docs/vcpkg.schema.json",
+  "name": "occutils",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "description": [
+    "OpenCASCADE utility library - algorithms and convenience functions"
+  ],
+  "dependencies": [
+    {
+      "name": "opencascade",
+      "version>=": "7.6.2#1"
+    },
+    {
+      "name": "boost-algorithm",
+      "version>=": "1.80.0#1"
+    },
+    {
+      "name": "boost-filesystem",
+      "version>=": "1.80.0#1"
+    },
+    {
+      "name": "boost-system",
+      "version>=": "1.80.0#1"
+    },
+    {
+      "name": "gtest",
+      "version>=": "1.12.1"
+    }
+  ],
+  "features": {
+    "tests": {
+      "description": "Build tests",
+      "dependencies": [
+        "gtest"
+      ]
+    }
+  }
+}

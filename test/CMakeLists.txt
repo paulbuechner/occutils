@@ -5,27 +5,21 @@ project(occutils-test VERSION ${OCCUtils_VERSION} LANGUAGES CXX)
 # Define helper functions and macros used by occutils
 include(cmake/internal_utils.cmake)
 
-find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+# Set libs to link against
+list(APPEND occutils_test_libs
+     occutils::occutils
+     GTest::gtest
+     GTest::gtest_main
+     ${OpenCASCADE_LIBRARIES}
+     )
 
-# Compile test suite
-add_executable(${PROJECT_NAME} TestLine.cpp)
+# Add executable
+cxx_executable("occutils-test-all" src "${occutils_test_libs}")
 
-target_include_directories(${PROJECT_NAME} PUBLIC "occutils/include")
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+# Add target_include_directories
+target_include_directories("occutils-test-all" PRIVATE
+                           ${OpenCASCADE_INCLUDE_DIR}
+                           ${ocx_test_SOURCE_DIR}
+                           )
 
-set(boost_test_libs
-    Boost::boost
-    Boost::unit_test_framework
-    Boost::system
-    Boost::filesystem)
-target_link_libraries(${PROJECT_NAME} debug occutils ${boost_test_libs})
-target_link_libraries(${PROJECT_NAME} optimized occutils ${boost_test_libs})
-
-if (VCPKG_IS_USED AND NOT USE_LOCAL_OCC)
-  target_link_occt_libraries_vcpkg(${PROJECT_NAME})
-else ()
-  target_link_occt_libraries(${PROJECT_NAME})
-endif ()
-
-# Configure test suite
-add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
+add_test(NAME ${PROJECT_NAME} COMMAND "occutils-test-all")

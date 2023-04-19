@@ -32,7 +32,8 @@
 *.app
 
 /.idea/
-/build/
+/build
+/builds
 /Testing/
 *.ninja
 *.stp

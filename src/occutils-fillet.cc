@@ -14,7 +14,7 @@ TopoDS_Shape FilletAll(const TopoDS_Shape& shape, double radius) {
   TopTools_IndexedMapOfShape edges;
   TopExp::MapShapes(shape, TopAbs_EDGE, edges);
 
-  for (size_t i = 1; i <= edges.Extent(); i++) {
+  for (Standard_Integer i = 1; i <= edges.Extent(); i++) {
     const TopoDS_Edge& edge = TopoDS::Edge(edges(i));
     filletMaker.Add(radius, edge);
   }
@@ -22,15 +22,15 @@ TopoDS_Shape FilletAll(const TopoDS_Shape& shape, double radius) {
   return filletMaker.Shape();
 }
 
-TopoDS_Shape FilletAdaptiveRadius(
-    const TopoDS_Shape& shape,
-    const std::function<double(const TopoDS_Edge&)>& radiusByEdge) {
+template <typename RadiusFunc>
+TopoDS_Shape FilletAdaptiveRadius(const TopoDS_Shape& shape,
+                                  const RadiusFunc& radiusByEdge) {
   BRepFilletAPI_MakeFillet filletMaker(shape);
   // Iterate edges
   TopTools_IndexedMapOfShape edges;
   TopExp::MapShapes(shape, TopAbs_EDGE, edges);
 
-  for (size_t i = 1; i <= edges.Extent(); i++) {
+  for (Standard_Integer i = 1; i <= edges.Extent(); i++) {
     const TopoDS_Edge& edge = TopoDS::Edge(edges(i));
     double radius = radiusByEdge(edge);
     if (!std::isnan(radius)) {  // NaN => dont fillet this edge!

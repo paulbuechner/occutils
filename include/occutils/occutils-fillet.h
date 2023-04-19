@@ -25,8 +25,8 @@ TopoDS_Shape FilletAll(const TopoDS_Shape& shape, double radius = 1.0);
  *
  * Usually the shape is a solid.
  */
-TopoDS_Shape FilletAdaptiveRadius(
-    const TopoDS_Shape& shape,
-    const std::function<double(const TopoDS_Edge&)>& radiusByEdge);
+template <typename RadiusFunc>
+TopoDS_Shape FilletAdaptiveRadius(const TopoDS_Shape& shape,
+                                  const RadiusFunc& radiusByEdge);
 
 }  // namespace OCCUtils::Fillet
