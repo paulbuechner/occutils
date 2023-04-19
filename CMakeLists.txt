@@ -34,18 +34,16 @@ if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN" OR CMAKE_SYSTEM_NAME MATCHES "MSYS")
   set(CMAKE_CXX_EXTENSIONS ON)
 endif ()
 
-if (MSVC)
-  add_compile_definitions(_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
-endif ()
-
 cxx_library(${PROJECT_NAME} src/occutils-all.cc)
 
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-# Add target_include_directories
-target_include_directories(${PROJECT_NAME} PRIVATE
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
                            ${OpenCASCADE_INCLUDE_DIR}
                            ${Boost_INCLUDE_DIRS}
+                           )
+
+target_include_directories(${PROJECT_NAME} PRIVATE
                            "${ocx_SOURCE_DIR}/include"
                            "${ocx_SOURCE_DIR}"
                            )
