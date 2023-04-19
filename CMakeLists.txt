@@ -67,8 +67,7 @@ add_library(occutils::occutils ALIAS occutils)
 # to the targets for when we are part of a parent build (ie being pulled
 # in via add_subdirectory() rather than being a standalone build).
 if (DEFINED CMAKE_VERSION AND NOT "${CMAKE_VERSION}" VERSION_LESS "2.8.11")
-  string(REPLACE ";" "$<SEMICOLON>" dirs "${occutils_include_dirs}")
-  target_include_directories(${PROJECT_NAME} SYSTEM INTERFACE "$<BUILD_INTERFACE:${dirs}>"
+  target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>"
                              "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
 endif ()
 
