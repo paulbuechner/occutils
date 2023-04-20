@@ -7,7 +7,6 @@ endif ()
 
 set(VCPKG_OVERLAY_TRIPLETS "${CMAKE_CURRENT_LIST_DIR}/vcpkg/triplets" CACHE STRING "")
 
-
 set(OCCUtils_VERSION 0.1.0)
 project(occutils VERSION ${OCCUtils_VERSION} LANGUAGES CXX)
 
