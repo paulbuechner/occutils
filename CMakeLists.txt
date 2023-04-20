@@ -43,8 +43,8 @@ target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
                            )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-                           "${ocx_SOURCE_DIR}/include"
-                           "${ocx_SOURCE_DIR}"
+                           "${occutils_SOURCE_DIR}/include"
+                           "${occutils_SOURCE_DIR}"
                            )
 
 # If the CMake version supports it, attach header directory information
