@@ -43,7 +43,8 @@ gp_Pnt Midpoint(const std::initializer_list<gp_Pnt> &points) {
     z += pnt.Z();
   }
   size_t size = points.size();
-  return {x / size, y / size, z / size};
+  auto size_d = static_cast<double>(size);
+  return {x / size_d, y / size_d, z / size_d};
 }
 
 gp_Pnt Midpoint(const std::vector<gp_Pnt> &points) {
@@ -54,7 +55,8 @@ gp_Pnt Midpoint(const std::vector<gp_Pnt> &points) {
     z += pnt.Z();
   }
   size_t size = points.size();
-  return {x / size, y / size, z / size};
+  auto size_d = static_cast<double>(size);
+  return {x / size_d, y / size_d, z / size_d};
 }
 
 double Distance(const gp_Pnt &pnt, const gp_Ax1 &axis) {

@@ -131,16 +131,19 @@ std::vector<gp_XY> UniformUVSampleLocations(const GeomAdaptor_Surface& surf,
   double u0 = surf.FirstUParameter();
   double v0 = surf.FirstVParameter();
 
-  double uInterval = (surf.LastUParameter() - u0) /
-                     (uSamples - 1);  // -1: include both end points
-  double vInterval = (surf.LastVParameter() - v0) /
-                     (vSamples - 1);  // -1: include both end points
+  double uInterval =
+      (surf.LastUParameter() - u0) /
+      static_cast<double>(uSamples - 1);  // -1: include both end points
+  double vInterval =
+      (surf.LastVParameter() - v0) /
+      static_cast<double>(vSamples - 1);  // -1: include both end points
 
   std::vector<gp_XY> ret;
   ret.reserve(uSamples * vSamples);
   for (size_t u = 0; u < uSamples; u++) {
     for (size_t v = 0; v < vSamples; v++) {
-      ret.emplace_back(u0 + uInterval * u, v0 + vInterval * v);
+      ret.emplace_back(u0 + uInterval * static_cast<double>(u),
+                       v0 + vInterval * static_cast<double>(v));
     }
   }
   return ret;
@@ -151,14 +154,17 @@ std::vector<gp_XY> UniformUVSampleLocationsWithin(
   double u0 = surf.FirstUParameter();
   double v0 = surf.FirstVParameter();
 
-  double uInterval = (surf.LastUParameter() - u0) / (uSamples + 1);
-  double vInterval = (surf.LastVParameter() - v0) / (vSamples + 1);
+  double uInterval =
+      (surf.LastUParameter() - u0) / static_cast<double>(uSamples + 1);
+  double vInterval =
+      (surf.LastVParameter() - v0) / static_cast<double>(vSamples + 1);
 
   std::vector<gp_XY> ret;
   ret.reserve(uSamples * vSamples);
   for (size_t u = 1; u < uSamples; u++) {
     for (size_t v = 1; v < vSamples; v++) {
-      ret.emplace_back(u0 + uInterval * u, v0 + vInterval * v);
+      ret.emplace_back(u0 + uInterval * static_cast<double>(u),
+                       v0 + vInterval * static_cast<double>(v));
     }
   }
   return ret;
@@ -183,8 +189,8 @@ std::optional<gp_Pnt> Intersection(const gp_Lin& line,
 
 std::optional<TopoDS_Edge> Intersection(const GeomAdaptor_Surface& S1,
                                         const GeomAdaptor_Surface& S2) {
-  auto intersector = GeomAPI_IntSS(S1.Surface(), S2.Surface(),
-                                   Precision::Confusion());
+  auto intersector =
+      GeomAPI_IntSS(S1.Surface(), S2.Surface(), Precision::Confusion());
   if (!intersector
            .IsDone()) {  // Algorithm failure, returned as no intersection
     return std::nullopt;
@@ -217,17 +223,17 @@ std::vector<SurfaceInfo> FromShape(const TopoDS_Shape& shape) {
 
 std::vector<SurfaceInfo> Only(const std::vector<SurfaceInfo>& surfaces,
                               GeomAbs_SurfaceType type) {
-  return Filter(surfaces, [&](const GeomAdaptor_Surface& surf) {
+  return Filter(surfaces, [&type](const GeomAdaptor_Surface& surf) {
     return surf.GetType() == type;
   });
-};
+}
 
 /**
  * Filter surfaces by a custom filter function
  */
-std::vector<SurfaceInfo> Filter(
-    const std::vector<SurfaceInfo>& surfaces,
-    const std::function<bool(const GeomAdaptor_Surface& surf)>& filter) {
+template <typename FilterFunc>
+std::vector<SurfaceInfo> Filter(const std::vector<SurfaceInfo>& surfaces,
+                                const FilterFunc& filter) {
   // Create output vector
   std::vector<SurfaceInfo> ret;
   ret.reserve(surfaces.size());

@@ -174,16 +174,16 @@ std::vector<SurfaceInfo> Only(const std::vector<SurfaceInfo>& surfaces,
 /**
  * Filter surfaces by a custom filter function
  */
-std::vector<SurfaceInfo> Filter(
-    const std::vector<SurfaceInfo>& surfaces,
-    const std::function<bool(const GeomAdaptor_Surface& surf)>& filter);
+template <typename FilterFunc>
+std::vector<SurfaceInfo> Filter(const std::vector<SurfaceInfo>& surfaces,
+                                const FilterFunc& filter);
 
 struct SurfaceTypeStats {
   void Add(GeomAbs_SurfaceType typ, size_t cnt = 1);
   size_t Count(GeomAbs_SurfaceType typ);
   // Get a human-readable summary of the stats
   std::string Summary();
-  // Counts how many time
+  // Counts how many times
   std::map<GeomAbs_SurfaceType, size_t> count;
 };
 
