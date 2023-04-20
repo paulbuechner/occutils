@@ -10,42 +10,61 @@ set(VCPKG_OVERLAY_TRIPLETS "${CMAKE_CURRENT_LIST_DIR}/vcpkg/triplets" CACHE STRI
 set(OCCUtils_VERSION 0.1.0)
 project(occutils VERSION ${OCCUtils_VERSION} LANGUAGES CXX)
 
-# Define helper functions and macros used by occutils
-include(cmake/internal_utils.cmake)
-
-include(GNUInstallDirs)
+# Needed to set the namespace for both the export targets and the
+# alias libraries
+set(cmake_package_name occutils CACHE INTERNAL "")
 
 # Set default build to release
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose Release or Debug" FORCE)
 endif ()
 
-find_package(OpenCASCADE CONFIG REQUIRED)
-find_package(freetype CONFIG REQUIRED) # locate freetype when using vcpkg
-find_package(Boost REQUIRED COMPONENTS filesystem system)
-find_package(GTest CONFIG REQUIRED)
-
+# Compiler config
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# make sure __cplusplus is defined when using msvc and enable parallel build
+if (MSVC)
+  string(APPEND CMAKE_CXX_FLAGS " /Zc:__cplusplus /MP")
+endif ()
+
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if (CMAKE_SYSTEM_NAME MATCHES "CYGWIN" OR CMAKE_SYSTEM_NAME MATCHES "MSYS")
   set(CMAKE_CXX_EXTENSIONS ON)
 endif ()
 
-cxx_library(${PROJECT_NAME} src/occutils-all.cc)
+# These commands only run if this is the main project
+if (CMAKE_PROJECT_NAME STREQUAL "occutils")
+  # BUILD_SHARED_LIBS is a standard CMake variable, but we declare it here to
+  # make it prominent in the GUI.
+  option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." OFF)
+endif ()
 
-add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+# warning options
+option(OCCUTILS_BUILD_WARNINGS "Enable compiler warnings" OFF)
+
+# Define helper functions and macros used by occutils
+include(cmake/internal_utils.cmake)
+
+include(GNUInstallDirs)
+
+find_package(OpenCASCADE CONFIG REQUIRED)
+find_package(freetype CONFIG REQUIRED) # locate freetype when using vcpkg
+find_package(Boost REQUIRED COMPONENTS filesystem system)
+find_package(GTest CONFIG REQUIRED)
+
+cxx_library(${PROJECT_NAME} src/occutils-all.cc)
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
                            ${OpenCASCADE_INCLUDE_DIR}
                            ${Boost_INCLUDE_DIRS}
                            )
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-                           "${occutils_SOURCE_DIR}/include"
-                           "${occutils_SOURCE_DIR}"
-                           )
+if (OCCUTILS_BUILD_WARNINGS)
+  target_enable_warnings(${PROJECT_NAME})
+endif ()
 
 # If the CMake version supports it, attach header directory information
 # to the targets for when we are part of a parent build (ie being pulled
@@ -56,15 +75,6 @@ if (DEFINED CMAKE_VERSION AND NOT "${CMAKE_VERSION}" VERSION_LESS "2.8.11")
                              "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>"
                              )
 endif ()
-
-if (MSVC)
-  # warning level 4 and all warnings as errors
-  target_compile_options(${PROJECT_NAME} PUBLIC /W4 /WX)
-else ()
-  # lots of warnings and all warnings as errors
-  target_compile_options(${PROJECT_NAME} PUBLIC -Wall -Wextra -pedantic -Werror)
-endif ()
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 # Configure install
 install(TARGETS ${PROJECT_NAME}

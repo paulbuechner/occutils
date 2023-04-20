@@ -17,7 +17,8 @@
           "type": "FILEPATH",
           "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
         },
-        "OCCUTILS_BUILD_TESTS": "ON"
+        "OCCUTILS_BUILD_TESTS": "ON",
+        "OCCUTILS_BUILD_WARNINGS": "ON"
       },
       "environment": {
         "VCPKG_ROOT": "./deps/vcpkg"
@@ -34,7 +35,8 @@
           "type": "FILEPATH",
           "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
         },
-        "OCCUTILS_BUILD_TESTS": "ON"
+        "OCCUTILS_BUILD_TESTS": "ON",
+        "OCCUTILS_BUILD_WARNINGS": "ON"
       },
       "environment": {
         "VCPKG_ROOT": "./deps/vcpkg"
@@ -52,6 +54,7 @@
           "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
         },
         "OCCUTILS_BUILD_TESTS": "ON",
+        "OCCUTILS_BUILD_WARNINGS": "ON",
         "VCPKG_INSTALL_OPTIONS": "--allow-unsupported"
       },
       "environment": {
