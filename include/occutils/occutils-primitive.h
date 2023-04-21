@@ -13,6 +13,7 @@ namespace OCCUtils::Primitive {
  * Configure how a primitive is centered in the coordinate system
  */
 enum class PositionCentering : uint8_t {
+  DoNotCenter = 0,
   CenterX = 1,
   CenterY = 2,
   CenterZ = 4,
