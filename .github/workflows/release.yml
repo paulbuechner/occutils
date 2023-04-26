@@ -1,0 +1,442 @@
+name: Release
+
+on:
+  push:
+    paths:
+      - '.changeset/**'
+      - 'src/**'
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      commit_message:
+        description: 'Custom commit message'
+        required: false
+        default: 'Version Packages'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  build-ubuntu-macos:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+        include:
+          - os: ubuntu-latest
+            triplet: x64-linux
+          - os: macos-latest
+            triplet: x64-osx
+    env:
+      # Indicates the location of the vcpkg as a Git submodule of the project repository.
+      VCPKG_ROOT: ${{ github.workspace }}/deps/vcpkg
+      # Tells vcpkg where binary packages are stored.
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/deps/vcpkg/bincache
+      # Let's use GitHub Action cache as storage for the vcpkg Binary Caching feature.
+      VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
+
+    steps:
+      # First free up some disk space to prevent running out of disk space.
+      - name: Free up disk space
+        shell: bash
+        run: |
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" || "${{ matrix.os }}" == "macos-latest" ]]; then
+            sudo rm -rf /usr/local/share/boost /usr/share/dotnet /usr/local/lib/android /opt/ghc 
+            df -h
+          fi
+
+      - name: Install dependencies (Ubuntu)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libxi-dev libxmu-dev libxmu-headers libx11-dev mesa-common-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6 libfreetype6-dev tcl tcl-dev tk tk-dev
+          version: 1.0
+
+      # Set env vars needed for vcpkg to leverage the GitHub Action cache as a storage
+      # for Binary Caching.
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Bump version
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+            RELEASE_VERSION=$(sed -nE 's/^##[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+)/\1/p' CHANGELOG.md | head -1)
+            sed -i "s/set(OCCUTILS_VERSION .*)/set(OCCUTILS_VERSION $RELEASE_VERSION)/" CMakeLists.txt
+          elif [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            RELEASE_VERSION=$(sed -nE 's/^##[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+)/\1/p' CHANGELOG.md | head -1)
+            sed -i "s/set(OCCUTILS_VERSION .*)/set(OCCUTILS_VERSION $RELEASE_VERSION)/" CMakeLists.txt
+          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+            RELEASE_VERSION=$(sed -nE 's/^##[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+)/\1/p' CHANGELOG.md | head -1)
+            sed -i '' -E "s/set\(OCCUTILS_VERSION .*\)/set(OCCUTILS_VERSION $RELEASE_VERSION)/" CMakeLists.txt
+          fi
+
+      # Create the directory to store the vcpkg's binary cache.
+      - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
+        run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
+        shell: bash
+
+      # Setup the build machine with the most recent versions of CMake and Ninja. Both are cached if not already: on subsequent runs both will be quickly restored from GitHub cache service.
+      - uses: lukka/get-cmake@latest
+
+      # Restore vcpkg from the GitHub Action cache service. Note that packages are restored by vcpkg's binary caching
+      # when it is being run afterward by CMake.
+      - name: Restore vcpkg
+        uses: actions/cache@v3
+        with:
+          # The first path is the location of vcpkg: it contains the vcpkg executable and data files, as long as the
+          # built package archives (aka binary cache) which are located by VCPKG_DEFAULT_BINARY_CACHE env var.
+          # The other paths starting with '!' are exclusions: they contain temporary files generated during the build of the installed packages.
+          path: |
+            ${{ env.VCPKG_ROOT }}
+            !${{ env.VCPKG_ROOT }}/buildtrees
+            !${{ env.VCPKG_ROOT }}/packages
+            !${{ env.VCPKG_ROOT }}/downloads
+            !${{ env.VCPKG_ROOT }}/installed
+          # The key is composed in a way that it gets properly invalidated whenever a different version of vcpkg is being used.
+          key: |
+            ${{ hashFiles( '.git/modules/vcpkg/HEAD' )}}
+
+      # Run CMake to generate Ninja project files, using the vcpkg's toolchain file to resolve and install
+      # the dependencies as specified in vcpkg.json. Note that the vcpkg's toolchain is specified
+      # in the CMakePresets.json file.
+      # This step also runs vcpkg with Binary Caching leveraging GitHub Action cache to
+      # store the built packages artifacts.
+      - name: Restore from cache the dependencies and generate project files
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            cmake --preset occutils-ninja-multiconfiguration-vcpkg-ubuntu
+          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+            cmake --preset occutils-ninja-multiconfiguration-vcpkg-macos
+          fi
+
+      # Build (Release configuration only) the whole project with Ninja (which is spawn by CMake).
+      - name: Build (Release configuration)
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-ubuntu
+          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+            cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-macos
+          fi
+
+      # Test the whole project with CTest, again Release configuration only.
+      - name: Test (Release configuration)
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            ctest --preset occutils-ninja-multiconfiguration-vcpkg-ubuntu
+          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+            ctest --preset occutils-ninja-multiconfiguration-vcpkg-macos
+          fi
+
+      # Upload vcpkg's logs as artifacts.
+      - name: Upload vcpkg build log files
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: vcpkg-log-files-${{ matrix.os }}
+          path: deps/vcpkg/buildtrees/**/*.log
+
+      # Upload builds logs as artifacts.
+      - name: Upload builds log files
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: builds-log-files-${{ matrix.os }}
+          path: builds/**/*.log
+
+      # Package (Release configuration only).
+      - name: Package (Release configuration)
+        if: "contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            cpack --preset occutils-ninja-multiconfiguration-vcpkg-linux
+          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+            cpack --preset occutils-ninja-multiconfiguration-vcpkg-osx
+          fi
+
+      # Upload packages as artifacts.
+      - name: Upload package artifacts
+        if: "success() && contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
+        uses: actions/upload-artifact@v3
+        with:
+          name: packages-${{ matrix.os }}
+          path: |
+            packages/*.*
+
+  build-windows:
+    name: Build ${{ matrix.os }}
+    runs-on: windows-latest
+    env:
+      # Indicates the location of the vcpkg as a Git submodule of the project repository.
+      VCPKG_ROOT: C:/occutils/deps/vcpkg
+      # Tells vcpkg where binary packages are stored.
+      VCPKG_DEFAULT_BINARY_CACHE: C:/occutils/deps/vcpkg/bincache
+      # Let's use GitHub Action cache as storage for the vcpkg Binary Caching feature.
+      VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
+
+    steps:
+      # Set env vars needed for vcpkg to leverage the GitHub Action cache as a storage
+      # for Binary Caching.
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      - name: Checkout Repository
+        shell: bash
+        run: |
+          git clone --no-single-branch "https://github.com/${{ github.repository }}" C:/occutils
+          cd C:/occutils
+          git checkout ${{ github.head_ref }}
+          git submodule update --init --recursive
+
+      - name: Bump version
+        shell: bash
+        working-directory: C:/occutils
+        run: |
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+            RELEASE_VERSION=$(sed -nE 's/^##[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+)/\1/p' CHANGELOG.md | head -1)
+            sed -i "s/set(OCCUTILS_VERSION .*)/set(OCCUTILS_VERSION $RELEASE_VERSION)/" CMakeLists.txt
+          elif [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            RELEASE_VERSION=$(sed -nE 's/^##[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+)/\1/p' CHANGELOG.md | head -1)
+            sed -i "s/set(OCCUTILS_VERSION .*)/set(OCCUTILS_VERSION $RELEASE_VERSION)/" CMakeLists.txt
+          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+            RELEASE_VERSION=$(sed -nE 's/^##[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+)/\1/p' CHANGELOG.md | head -1)
+            sed -i '' -E "s/set\(OCCUTILS_VERSION .*\)/set(OCCUTILS_VERSION $RELEASE_VERSION)/" CMakeLists.txt
+          fi
+
+      # Create the directory to store the vcpkg's binary cache.
+      - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
+        run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
+        shell: bash
+
+      # Setup the build machine with the most recent versions of CMake and Ninja. Both are cached if not already: on subsequent runs both will be quickly restored from GitHub cache service.
+      - uses: lukka/get-cmake@latest
+
+      # Restore vcpkg from the GitHub Action cache service. Note that packages are restored by vcpkg's binary caching
+      # when it is being run afterward by CMake.
+      - name: Restore vcpkg
+        uses: actions/cache@v3
+        with:
+          # The first path is the location of vcpkg: it contains the vcpkg executable and data files, as long as the
+          # built package archives (aka binary cache) which are located by VCPKG_DEFAULT_BINARY_CACHE env var.
+          # The other paths starting with '!' are exclusions: they contain temporary files generated during the build of the installed packages.
+          path: |
+            ${{ env.VCPKG_ROOT }}
+            !${{ env.VCPKG_ROOT }}/buildtrees
+            !${{ env.VCPKG_ROOT }}/packages
+            !${{ env.VCPKG_ROOT }}/downloads
+            !${{ env.VCPKG_ROOT }}/installed
+          # The key is composed in a way that it gets properly invalidated whenever a different version of vcpkg is being used.
+          key: |
+            ${{ hashFiles( '.git/modules/vcpkg/HEAD' )}}
+
+      # On Windows runners, let's ensure to have the Developer Command Prompt environment setup correctly.
+      # As used here the Developer Command Prompt created is targeting x64 and using the default the Windows SDK.
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      # Run CMake to generate Ninja project files, using the vcpkg's toolchain file to resolve and install
+      # the dependencies as specified in vcpkg.json. Note that the vcpkg's toolchain is specified
+      # in the CMakePresets.json file.
+      # This step also runs vcpkg with Binary Caching leveraging GitHub Action cache to
+      # store the built packages artifacts.
+      - name: Restore from cache the dependencies and generate project files
+        working-directory: C:/occutils
+        run: |
+          cmake --preset occutils-ninja-multiconfiguration-vcpkg-windows
+
+      # Build (Release configuration only) the whole project with Ninja (which is spawn by CMake).
+      - name: Build (Release configuration)
+        working-directory: C:/occutils
+        run: |
+          cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-windows
+
+      # Test the whole project with CTest, again Release configuration only.
+      - name: Test (Release configuration)
+        working-directory: C:/occutils
+        shell: bash
+        run: |
+          ctest --preset occutils-ninja-multiconfiguration-vcpkg-windows
+
+      # Upload vcpkg's logs as artifacts.
+      - name: Upload vcpkg build log files
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: vcpkg-log-files-windows-latest
+          path: C:/occutils/deps/vcpkg/buildtrees/**/*.log
+
+      # Upload builds logs as artifacts.
+      - name: Upload builds log files
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: builds-log-files-windows-latest
+          path: C:/occutils/builds/**/*.log
+
+      # Package (Release configuration only).
+      - name: Package (Release configuration)
+        if: "contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
+        shell: bash
+        run: |
+          cpack --preset occutils-ninja-multiconfiguration-vcpkg-windows
+
+      # Upload packages as artifacts.
+      - name: Upload package artifacts
+        if: "success() && contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
+        uses: actions/upload-artifact@v3
+        with:
+          name: packages-${{ matrix.os }}
+          path: |
+            packages/*.*
+
+  publish:
+    name: Publish
+    needs: [ build-ubuntu-macos, build-windows ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          registry-url: 'https://registry.npmjs.org'
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 8
+          run_install: false
+
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: pnpm-deps-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-deps-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Create Release Pull Request
+        id: changesets
+        uses: changesets/action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract release version and notes from changelog
+        run: |
+          RELEASE_VERSION=$(sed -nE 's/^##[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+)/\1/p' CHANGELOG.md | head -1)
+          echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+          echo "RELEASE_TAG=v$RELEASE_VERSION" >> $GITHUB_ENV
+          RELEASE_NOTES=$(awk -v ver="$RELEASE_VERSION" -v latest="## Latest Release" \
+          'BEGIN {RS=""; ORS="\n\n"; output=0} \
+          $0 ~ "## " ver {output=1; next} \
+          $0 ~ latest {output=0} \
+          output {print $0}' CHANGELOG.md)
+          if [ -z "$RELEASE_NOTES" ]; then
+            RELEASE_NOTES=$(awk -v ver="$RELEASE_VERSION" \
+            'BEGIN {RS=""; ORS="\n\n"; output=0} \
+            $0 ~ "## " ver {output=1; next} \
+            output {print $0}' CHANGELOG.md)
+          fi
+          RELEASE_NOTES=$(echo "$RELEASE_NOTES" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          echo "$RELEASE_NOTES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Create and push release tag
+        if: "contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
+        run: |
+          git tag ${{ env.RELEASE_TAG }}
+          git push origin ${{ env.RELEASE_TAG }}
+
+      - name: Create Release
+        if: "contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: ${{ env.RELEASE_TAG }}
+          body: ${{ env.RELEASE_NOTES }}
+          draft: false
+          prerelease: false
+
+      - name: Commit version bump
+        if: "contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
+        run: |
+          pnpm version-bump
+          pnpm version-bump:commit
+
+      - name: Update changelog
+        if: "contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
+        run: |
+          pnpm changelog:latest
+          pnpm changelog:format
+          pnpm changelog:commit
+
+  upload:
+    name: Upload packages artifacts
+    if: "contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
+    needs: [ build-ubuntu-macos, build-windows, publish ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download packages-windows-latest artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: packages-windows-latest
+          path: artifacts
+
+      - name: Download packages-ubuntu-latest artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: packages-ubuntu-latest
+          path: artifacts
+
+      - name: Download packages-macos-latest artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: packages-macos-latest
+          path: artifacts
+
+      - name: Get latest release
+        id: latest_release
+        run: |
+          RELEASE_ID=$(gh release list --repo $GITHUB_REPOSITORY | head -n 1 | awk '{print $1}')
+          echo "RELEASE_ID=$RELEASE_ID" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload release assets (packages)
+        run: |
+          for file in artifacts/*; do
+            [ -e "$file" ] || continue
+            echo "Uploading $file"
+            gh release upload $RELEASE_ID "$file" --clobber --repo $GITHUB_REPOSITORY
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
