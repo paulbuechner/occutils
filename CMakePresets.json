@@ -154,10 +154,7 @@
     {
       "name": "occutils-ninja-multiconfiguration-vcpkg-windows",
       "configurePreset": "occutils-ninja-multiconfiguration-vcpkg-windows",
-      "generators": [
-        "ZIP",
-        "NSIS"
-      ],
+      "generators": ["ZIP", "NSIS"],
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -167,10 +164,7 @@
     {
       "name": "occutils-ninja-multiconfiguration-vcpkg-ubuntu",
       "configurePreset": "occutils-ninja-multiconfiguration-vcpkg-ubuntu",
-      "generators": [
-        "DEB",
-        "RPM"
-      ],
+      "generators": ["DEB", "RPM"],
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -180,10 +174,7 @@
     {
       "name": "occutils-ninja-multiconfiguration-vcpkg-macos",
       "configurePreset": "occutils-ninja-multiconfiguration-vcpkg-macos",
-      "generators": [
-        "DragNDrop",
-        "PackageMaker"
-      ],
+      "generators": ["DragNDrop", "PackageMaker"],
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",

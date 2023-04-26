@@ -5,10 +5,6 @@
     "baseline": "71f51b100be2b5d32e3907572d99dc2f97088c8d"
   },
   "registries": [],
-  "overlay-ports": [
-    "./vcpkg/ports/opencascade"
-  ],
-  "overlay-triplets": [
-    "./vcpkg/triplets"
-  ]
+  "overlay-ports": ["./vcpkg/ports/opencascade"],
+  "overlay-triplets": ["./vcpkg/triplets"]
 }

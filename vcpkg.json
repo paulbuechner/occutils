@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "license": "Apache-2.0",
   "description": [
-    "OpenCASCADE utility library - algorithms and convenience functions"
+    "A utility library providing high-level functions and algorithms to ",
+    "empower OpenCASCADE-based engineering tasks."
   ],
   "dependencies": [
     {
@@ -30,9 +31,7 @@
   "features": {
     "tests": {
       "description": "Build tests",
-      "dependencies": [
-        "gtest"
-      ]
+      "dependencies": ["gtest"]
     }
   }
 }
