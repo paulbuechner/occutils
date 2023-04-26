@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.25)
 
 option(OCCUTILS_BUILD_TESTS "Build tests" OFF)
 if (OCCUTILS_BUILD_TESTS)
@@ -7,8 +7,8 @@ endif ()
 
 set(VCPKG_OVERLAY_TRIPLETS "${CMAKE_CURRENT_LIST_DIR}/vcpkg/triplets" CACHE STRING "")
 
-set(OCCUtils_VERSION 0.1.0)
-project(occutils VERSION ${OCCUtils_VERSION} LANGUAGES CXX)
+set(OCCUTILS_VERSION 0.0.0)
+project(occutils VERSION ${OCCUTILS_VERSION} LANGUAGES CXX)
 
 # Needed to set the namespace for both the export targets and the
 # alias libraries
@@ -44,16 +44,21 @@ endif ()
 # warning options
 option(OCCUTILS_BUILD_WARNINGS "Enable compiler warnings" OFF)
 
+include(GNUInstallDirs)
+
 # Define helper functions and macros used by occutils
 include(cmake/internal_utils.cmake)
 
-include(GNUInstallDirs)
+# Licensing
+build_3rd_party_copyright()
 
+# Dependencies
 find_package(OpenCASCADE CONFIG REQUIRED)
 find_package(freetype CONFIG REQUIRED) # locate freetype when using vcpkg
 find_package(Boost REQUIRED COMPONENTS filesystem system)
 find_package(GTest CONFIG REQUIRED)
 
+# Build
 cxx_library(${PROJECT_NAME} src/occutils-all.cc)
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
@@ -85,6 +90,11 @@ install(TARGETS ${PROJECT_NAME}
 install(DIRECTORY
         "${CMAKE_CURRENT_LIST_DIR}/include/"
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(FILES
+        ${CMAKE_CURRENT_LIST_DIR}/README.md
+        ${CMAKE_CURRENT_LIST_DIR}/LICENSE
+        ${CMAKE_BINARY_DIR}/LICENSE-3RD-PARTY.txt
+        DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
 # Prepare package config and version files
 include(CMakePackageConfigHelpers)
@@ -114,3 +124,6 @@ if (OCCUTILS_BUILD_TESTS)
   enable_testing()
   add_subdirectory(test)
 endif ()
+
+# Packaging
+include(cmake/occutils-cpack.cmake)

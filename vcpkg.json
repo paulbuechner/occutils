@@ -1,7 +1,6 @@
 {
-  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/master/docs/vcpkg.schema.json",
   "name": "occutils",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "license": "Apache-2.0",
   "description": [
     "OpenCASCADE utility library - algorithms and convenience functions"
