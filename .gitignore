@@ -31,17 +31,17 @@
 *.out
 *.app
 
-/.idea/
+# Build
 /build
 /builds
-/Testing/
-*.ninja
-*.stp
 
-/cmake_install.cmake
+# Node
+/node_modules/
+.env
+
+# IDE files
+/.idea
+/.vscode/
 
 # Package Files
 /packages
-
-# VSCode
-/.vscode/
