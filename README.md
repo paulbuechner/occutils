@@ -134,14 +134,15 @@ dependencies. The project is configured to use vcpkg as a submodule, allowing it
 to integrate with the CI/CD pipeline. Feel free to use this setup or use your
 own vcpkg installation.
 
-To fetch the vcpkg submodule run:
+To fetch vcpkg as a submodule run:
 
 ```shell
 git submodule update --init --recursive
 ```
 
-You can follow the steps to set up vcpkg on your
-system [here](https://vcpkg.io/en/getting-started.html).
+If you prefer a system-wide installation of vcpkg follow their official
+guidelines on how to set up
+vcpkg [here](https://vcpkg.io/en/getting-started.html).
 
 > Note: For WSL users, make sure to install vcpkg in a directory which grants
 > permission for all users. Otherwise, you will get an error when trying to
@@ -357,7 +358,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE occutils::occutils)
 
 Coming soon.
 
-# Contributing
+## Contributing
 
 Pull requests are welcome. Please open an issue first to discuss what you would
 like to change for major changes.
@@ -365,6 +366,20 @@ like to change for major changes.
 Please read [CONTRIBUTING](CONTRIBUTING.md) for details on the code of conduct,
 and the process for submitting pull requests.
 
-# License
+### Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center"><a href="https://github.com/ulikoehler"><img src="https://avatars.githubusercontent.com/u/34971?v=4" width="64px;" alt="Uli Köhler"/><br /><sub><b>Uli Köhler</b></sub></a><br /><a href="https://github.com/paulbuechner/occutils/commits?author=ulikoehler" title="Code">💻</a> <a href="#maintenance-ulikoehler" title="Maintenance">🚧</a> <a href="https://github.com/paulbuechner/occutils/commits?author=ulikoehler" title="Documentation">📖</a> <a href="#ideas-ulikoehler" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center"><a href="https://github.com/paulbuechner"><img src="https://avatars.githubusercontent.com/u/45827409?v=4" width="64px;" alt="Paul Büchner"/><br /><sub><b>Paul Büchner</b></sub></a><br /><a href="https://github.com/paulbuechner/occutils/commits?author=paulbuechner" title="Code">💻</a> <a href="#maintenance-paulbuechner" title="Maintenance">🚧</a> <a href="https://github.com/paulbuechner/occutils/commits?author=paulbuechner" title="Documentation">📖</a> <a href="#ideas-paulbuechner" title="Ideas, Planning, & Feedback">🤔</a></td>
+    </tr>
+  </tbody>
+</table>
+
+## License
 
 This project is licensed under the [Apache License 2.0](LICENSE).
