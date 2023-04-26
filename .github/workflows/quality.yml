@@ -117,9 +117,9 @@ jobs:
         shell: bash
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-ubuntu --config Release
+            cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-ubuntu
           elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-            cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-macos --config Release
+            cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-macos
           fi
 
       # Test the whole project with CTest, again Release configuration only.
@@ -127,9 +127,9 @@ jobs:
         shell: bash
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            ctest --preset occutils-ninja-multiconfiguration-vcpkg-ubuntu -C Release
+            ctest --preset occutils-ninja-multiconfiguration-vcpkg-ubuntu
           elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-            ctest --preset occutils-ninja-multiconfiguration-vcpkg-macos -C Release
+            ctest --preset occutils-ninja-multiconfiguration-vcpkg-macos
           fi
 
       # Upload vcpkg's logs as artifacts.
@@ -153,9 +153,9 @@ jobs:
     runs-on: windows-latest
     env:
       # Indicates the location of the vcpkg as a Git submodule of the project repository.
-      VCPKG_ROOT: C:/OCCUtils/deps/vcpkg
+      VCPKG_ROOT: C:/occutils/deps/vcpkg
       # Tells vcpkg where binary packages are stored.
-      VCPKG_DEFAULT_BINARY_CACHE: C:/OCCUtils/deps/vcpkg/bincache
+      VCPKG_DEFAULT_BINARY_CACHE: C:/occutils/deps/vcpkg/bincache
       # Let's use GitHub Action cache as storage for the vcpkg Binary Caching feature.
       VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
 
@@ -171,8 +171,8 @@ jobs:
       - name: Checkout Repository
         shell: bash
         run: |
-          git clone --no-single-branch "https://github.com/${{ github.repository }}" C:/OCCUtils
-          cd C:/OCCUtils
+          git clone --no-single-branch "https://github.com/${{ github.repository }}" C:/occutils
+          cd C:/occutils
           git checkout ${{ github.head_ref }}
           git submodule update --init --recursive
 
@@ -212,22 +212,22 @@ jobs:
       # This step also runs vcpkg with Binary Caching leveraging GitHub Action cache to
       # store the built packages artifacts.
       - name: Restore from cache the dependencies and generate project files
-        working-directory: C:/OCCUtils
+        working-directory: C:/occutils
         run: |
           cmake --preset occutils-ninja-multiconfiguration-vcpkg-windows
 
       # Build (Release configuration only) the whole project with Ninja (which is spawn by CMake).
       - name: Build (Release configuration)
-        working-directory: C:/OCCUtils
+        working-directory: C:/occutils
         run: |
-          cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-windows --config Release
+          cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-windows
 
       # Test the whole project with CTest, again Release configuration only.
       - name: Test (Release configuration)
-        working-directory: C:/OCCUtils
+        working-directory: C:/occutils
         shell: bash
         run: |
-          ctest --preset occutils-ninja-multiconfiguration-vcpkg-windows -C Release
+          ctest --preset occutils-ninja-multiconfiguration-vcpkg-windows
 
       # Upload vcpkg's logs as artifacts.
       - name: Upload vcpkg build log files
@@ -235,7 +235,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: vcpkg-log-files-windows-latest
-          path: C:/OCCUtils/deps/vcpkg/buildtrees/**/*.log
+          path: C:/occutils/deps/vcpkg/buildtrees/**/*.log
 
       # Upload builds logs as artifacts.
       - name: Upload builds log files
@@ -243,4 +243,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: builds-log-files-windows-latest
-          path: C:/OCCUtils/builds/**/*.log
+          path: C:/occutils/builds/**/*.log
