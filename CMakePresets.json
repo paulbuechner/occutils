@@ -1,8 +1,8 @@
 {
-  "version": 3,
+  "version": 6,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 24,
+    "minor": 25,
     "patch": 0
   },
   "configurePresets": [
@@ -22,6 +22,11 @@
       },
       "environment": {
         "VCPKG_ROOT": "./deps/vcpkg"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
       }
     },
     {
@@ -40,6 +45,11 @@
       },
       "environment": {
         "VCPKG_ROOT": "./deps/vcpkg"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
       }
     },
     {
@@ -59,6 +69,11 @@
       },
       "environment": {
         "VCPKG_ROOT": "./deps/vcpkg"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
       }
     }
   ],
@@ -67,36 +82,113 @@
       "name": "occutils-ninja-multiconfiguration-vcpkg-windows",
       "configurePreset": "occutils-ninja-multiconfiguration-vcpkg-windows",
       "displayName": "Build occutils-ninja-multiconfiguration-vcpkg-windows",
-      "description": "Build with Ninja the configuration specified with --config"
+      "description": "Build with Ninja the configuration specified with --config",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "configuration": "Release"
     },
     {
       "name": "occutils-ninja-multiconfiguration-vcpkg-ubuntu",
       "configurePreset": "occutils-ninja-multiconfiguration-vcpkg-ubuntu",
       "displayName": "Build occutils-ninja-multiconfiguration-vcpkg-ubuntu",
-      "description": "Build with Ninja the configuration specified with --config"
+      "description": "Build with Ninja the configuration specified with --config",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "configuration": "Release"
     },
     {
       "name": "occutils-ninja-multiconfiguration-vcpkg-macos",
       "configurePreset": "occutils-ninja-multiconfiguration-vcpkg-macos",
       "displayName": "Build occutils-ninja-multiconfiguration-vcpkg-macos",
-      "description": "Build with Ninja the configuration specified with --config"
+      "description": "Build with Ninja the configuration specified with --config",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "configuration": "Release"
     }
   ],
   "testPresets": [
     {
       "name": "occutils-ninja-multiconfiguration-vcpkg-windows",
       "configurePreset": "occutils-ninja-multiconfiguration-vcpkg-windows",
-      "description": "Test with Ninja the provided configuration with --config on Windows"
+      "description": "Test with Ninja the provided configuration with --config on Windows",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "configuration": "Release"
     },
     {
       "name": "occutils-ninja-multiconfiguration-vcpkg-ubuntu",
       "configurePreset": "occutils-ninja-multiconfiguration-vcpkg-ubuntu",
-      "description": "Test with Ninja the provided configuration with --config on Ubuntu"
+      "description": "Test with Ninja the provided configuration with --config on Ubuntu",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "configuration": "Release"
     },
     {
       "name": "occutils-ninja-multiconfiguration-vcpkg-macos",
       "configurePreset": "occutils-ninja-multiconfiguration-vcpkg-macos",
-      "description": "Test with Ninja the provided configuration with --config on MacOS"
+      "description": "Test with Ninja the provided configuration with --config on MacOS",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "configuration": "Release"
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "occutils-ninja-multiconfiguration-vcpkg-windows",
+      "configurePreset": "occutils-ninja-multiconfiguration-vcpkg-windows",
+      "generators": [
+        "ZIP",
+        "NSIS"
+      ],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "occutils-ninja-multiconfiguration-vcpkg-ubuntu",
+      "configurePreset": "occutils-ninja-multiconfiguration-vcpkg-ubuntu",
+      "generators": [
+        "DEB",
+        "RPM"
+      ],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "occutils-ninja-multiconfiguration-vcpkg-macos",
+      "configurePreset": "occutils-ninja-multiconfiguration-vcpkg-macos",
+      "generators": [
+        "DragNDrop",
+        "PackageMaker"
+      ],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
     }
   ]
 }
