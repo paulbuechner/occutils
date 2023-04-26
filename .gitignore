@@ -40,5 +40,8 @@
 
 /cmake_install.cmake
 
+# Package Files
+/packages
+
 # VSCode
 /.vscode/
