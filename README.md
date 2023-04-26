@@ -1,112 +1,350 @@
-# OCCUtils
-[OpenCASCADE](https://opencascade.com) utility library - algorithms and convenience functions.
+<h1 align="center">occutils</h1>
+
+<div align="center">
+  <p>A utility library providing high-level functions and algorithms to empower <a href="https://opencascade.com">OpenCASCADE</a>-based engineering tasks, such as mesh generation, shape modeling, Boolean operations, intersection and distance calculations, and CAD data import/export.</p> 
+</div>
+
+<div align="center">
+
+<a href="https://github.com/paulbuechner/occutils">
+<img alt="GitHub Workflow Status CI" src="https://img.shields.io/github/actions/workflow/status/paulbuechner/occutils/quality.yml?label=CI&style=for-the-badge">
+</a>
+<a href="https://github.com/paulbuechner/occutils">
+<img alt="GitHub Workflow Status Release" src="https://img.shields.io/github/actions/workflow/status/paulbuechner/occutils/release.yml?style=for-the-badge">
+</a>
+<a href="https://github.com/paulbuechner/occutils/releases/latest">
+<img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/paulbuechner/occutils?style=for-the-badge">
+</a>
+<a href="https://app.codacy.com/gh/paulbuechner/occutils/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade">
+<img alt="Codacy Code Quality" src="https://img.shields.io/codacy/grade/f043a370fbb64edf96a2d8abc1fab4a0?style=for-the-badge"/>
+</a>
+<a href="https://github.com/paulbuechner/occutils/blob/main/LICENSE">
+<img alt="Github occutils License" src="https://img.shields.io/github/license/paulbuechner/occutils?style=for-the-badge">
+</a>
+
+</div>
 
 ## Design goals
 
-OCCUtils aims to be
+occutils aims to be a modern, high-level, easy-to-use, and modular utility
+library for OpenCASCADE. It is designed to be:
 
 * **Simple to use**: Most tasks should be accomplishable in *one line of code*.
-* **Aid rapid development**: No need to write tons of utility functions ; no need to wait for long compile-times
-* **Modular**: Pull in only what you need, or just copy the underlying sourcecode.
-* **Clear**: What you write should be what you mean: `Edge::FromPoints()` instead of `BRepBuilderAPI_MakeEdge` three-liners.
-* **High-Level**: Common tasks in 3D engineering should be accomplishable without diving into low level OpenCASCADE code
-* **Modern**: Uses features from C++17, because those make your code more readable.
-* **Liberally licensed**: OCCUtils is licensed under Apache License v2.0, allowing you to copy & modify the sourcecode for use in your commercial projects for free. Keep in mind that OpenCASCADE is still LGPL licensed.
+* **Aid rapid development**: No need to write tons of utility functions; no
+  need to wait for long compile-times
+* **Modular**: Pull in only what you need, or just copy the underlying
+  sourcecode.
+* **Clear**: What you write should be what you mean: `Edge::FromPoints()`
+  instead of `BRepBuilderAPI_MakeEdge` three-liners.
+* **High-Level**: Common tasks in 3D engineering should be accomplishable
+  without diving into low level OpenCASCADE code
+* **Modern**: Uses features from C++17, because those make your code more
+  readable.
+* **Liberally licensed**: occutils is licensed under Apache License v2.0,
+  allowing you to copy & modify the sourcecode for use in your commercial
+  projects for free. Keep in mind that OpenCASCADE is still LGPL licensed.
 
-Note that OCCUtils is very young and although it is used in multiple production projects, it might not have all the functionality you want or need, and might have some bugs.
+Note that occutils is very young and, although it is used in multiple production
+projects, it might not have all the functionality you want or need, and might
+have some bugs.
 
 If you are missing functionality, feel free to submit an issue or pull request.
+For more information on how to contribute, see the
+[CONTRIBUTING](#contributing) section.
+
+## Usage samples
+
+#### Topology creation
+
+```cpp
+#include <occutils/occutils-edge.h>
+#include <occutils/occutils-face.h>
+#include <occutils/occutils-wire.h>
+
+#include <TopoDS_Edge.hxx>
+#include <TopoDS_Face.hxx>
+#include <TopoDS_Wire.hxx>
+
+int main() {
+  // Create edges from points
+  TopoDS_Edge aEdge = occutils::edge::FromPoints(gp_Pnt(0, 0, 0), gp_Pnt(1, 0, 0));
+  TopoDS_Edge anotherEdge = occutils::edge::FromPoints(gp_Pnt(1, 0, 0), gp_Pnt(0, 1, 0));
+  TopoDS_Edge yetAnotherEdge = occutils::edge::FromPoints(gp_Pnt(0, 1, 0), gp_Pnt(0, 0, 0));
+  // Create a wire from edges
+  TopoDS_Wire aWire = occutils::wire::FromEdges({aEdge, anotherEdge});
+  // Create a face from a wire
+  TopoDS_Face aFace = occutils::face::FromWire(aWire);
+}
+```
+
+---
+
+#### Boolean operations
+
+```cpp
+#include <occutils/occutils-boolean.h>
+#include <occutils/occutils-primitive.h>
+
+#include <TopoDS_Shape.hxx>
+
+int main() {
+  // Create two shapes
+  TopoDS_Shape aBox = occutils::primitive::MakeBox(2, 2, 2)
+  TopoDS_Shape anotherBox = occutils::primitive::MakeBox(1, 1, 1)
+  // Perform a boolean operation
+  TopoDS_Shape aShape = occutils::boolean::Cut(aBox, anotherBox);
+}
+```
+
+## Setup
 
 ### Prerequisites
 
-First install OpenCASCADE 7.x. My preferred method on Ubuntu is to use the [FreeCAD daily PPA](https://launchpad.net/~freecad-maintainers/+archive/ubuntu/freecad-daily):
+To build occutils you need to have the following prerequisites set up:
 
-```sh
-sudo add-apt-repository ppa:freecad-maintainers/freecad-daily
-sudo apt-get update
-sudo apt install libocct\*
+#### Compiler
+
+The project uses C++17 features and therefore requires a compiler that supports
+this standard.
+
+Compiler compatibility (tested):
+
+- Clang/LLVM >= 6
+- MSVC++ >= 14.11 / Visual Studio >= 2017
+- GCC >= 9
+
+#### CMake
+
+The project uses CMake as a build system. CMake version 3.25 or higher is
+required.
+
+#### vcpkg
+
+This project is build with CMake and uses the
+[vcpkg](https://vcpkg.io/en/index.html) package manager to install the required
+dependencies. The project is configured to use vcpkg as a submodule, allowing it
+to integrate with the CI/CD pipeline. Feel free to use this setup or use your
+own vcpkg installation.
+
+To fetch the vcpkg submodule run:
+
+```shell
+git submodule update --init --recursive
 ```
 
-Also you need to install a recent version of CMake & GCC. Since we use C++17 features, a recent version of both G++ and CMake is required:
-```sh
-sudo apt install cmake build-essential
+You can follow the steps to set up vcpkg on your
+system [here](https://vcpkg.io/en/getting-started.html).
+
+> Note: For WSL users, make sure to install vcpkg in a directory which grants
+> permission for all users. Otherwise, you will get an error when trying to
+> access and install vcpkg packages through a non-root user.
+
+#### Python
+
+The OpenCascade build requires python with a version of at least 3.7. However,
+this is only needed when building on Linux.
+
+To ensure your python3 points to the correct version run:
+
+```shell
+ls -l /usr/bin/python3
+lrwxrwxrwx 1 root root 9  7. Jan 15:51 /usr/bin/python3 -> python3.7 # required python version >= 3.7
 ```
 
-On Ubuntu 18.04+ you don't need to do anything special to compile.
+#### OpenCascade
 
-### How to build
+The project uses OpenCascade as a geometry kernel. It is automatically
+downloaded and build by `vcpkg` package manager.
 
-There are two preferred methods of building and installing OCCUtils
+To build OpenCascade on UNIX like systems, install the following packages:
 
-##### System-wide install
+<details><summary>Ubuntu</summary>
+<p>
 
-```sh
-git clone https://github.com/ulikoehler/OCCUtils.git
-cmake .
-make
-sudo make install
+```shell
+sudo apt-get install software-properties-common
+sudo apt-get install libtool autoconf automake gfortran gdebi
+sudo apt-get install gcc-multilib libxi-dev libxmu-dev libxmu-headers
+sudo apt-get install libx11-dev mesa-common-dev libglu1-mesa-dev
+sudo apt-get install libfontconfig1-dev
 ```
 
-Then you can use e.g.
-```cpp
-#include <occutils/SurfaceUtils.hxx>
+The minimum requirements for third party dependencies to run OpenCascade itself
+is Freetype 2.5 and Tcl/TK 8.6:
 
-using namespace OCCUtils;
-
-// ...
-auto surfOpt = SurfaceUtils::SurfaceFromFace(face);
-// ...
+```shell
+sudo apt-get install libfreetype6 libfreetype6-dev
+sudo apt-get install tcl tcl-dev tk tk-dev
 ```
 
-and link with `-loccutils`.
+</p>
+</details>
 
-##### git-submodule based installation
+<details><summary>openSUSE</summary>
+<p>
 
-This method involves adding the repository and building it as a subproject of your CMake-based main project. I recommend doing this especially for more complex projects. However you need some knowledge of CMake to get it working and debug related issues.
+> Note: The documentation is not complete yet. Feel free to contribute.
 
-In your project root directory:
-```sh
-git submodule init
-git submodule add https://github.com/ulikoehler/OCCUtils.git OCCUtils
+```shell
+sudo zypper install libX11-devel Mesa-libHL-devel libXmu-devel libXi-devel
+sudo zypper install bison fontconfig-devel 
 ```
 
-Then add this CMake code to your `CMakeLists.txt`:
+The minimum requirements for third party dependencies to run OpenCascade itself
+is Freetype 2.5 and Tcl/TK 8.6:
+
+```shell
+sudo apt-get install libfreetype6 libfreetype6-devel
+sudo apt-get install tcl tcl-devel tk tk-devel
+```
+
+</p>
+</details>
+
+<details><summary>OSX</summary>
+<p>
+
+> Note: The documentation is not complete yet. Feel free to contribute.
+
+</p>
+</details>
+
+### Build
+
+occutils uses CMake as a build system. There are two ways to build project
+
+#### Using CMakePresets
+
+The first option is to make use of the preconfigured `CMakePresets.json` presets
+to build the project. This is the recommended way to build the project, as it
+reflects the CI/CD pipeline.
+
+To configure the project run:
+
+```shell
+cmake --preset occutils-ninja-multiconfiguration-vcpkg-{{ $os }} # $os = linux, windows, or macos
+
+# Example:
+cmake --preset occutils-ninja-multiconfiguration-vcpkg-windows
+```
+
+**Note**: The default value for `-DCMAKE_TOOLCHAIN_FILE` refers to
+the `submodule` initialized vcpkg installation. If you want to use your own
+vcpkg installation, change the value of `-DCMAKE_TOOLCHAIN_FILE` to reflect the
+path of your vcpkg installation:
+
+```shell
+cmake --preset occutils-ninja-multiconfiguration-vcpkg-{{ $os }} -DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
+```
+
+To build the project run:
+
+```shell
+cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-{{ $os }} # $os = linux, windows, or macos
+
+# Example:
+cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-windows
+```
+
+**Note**: The default build type is `Release`. To build a different build type,
+use the `--config` flag. For example, to build the `Debug` build type, run:
+
+```shell
+cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-{{ $os }} --config Debug
+```
+
+#### Using plain CMake
+
+Another option is to use plain CMake to build the project. This is useful if you
+want to have full control over the build process and underlying configuration.
+
+To configure the project run:
+
+```shell
+cmake -S . -B {{ $build_dir }}/{{ $build_type }} -DCMAKE_BUILD_TYPE={{ $build_type }} -DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake -DOCCUTILS_BUILD_TESTS=ON -DOCCUTILS_BUILD_WARNINGS=ON
+
+# Example:
+cmake -S . -B build/Release -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake -DOCCUTILS_BUILD_TESTS=ON -DOCCUTILS_BUILD_WARNINGS=ON
+```
+
+> Note: Tweak the passed CMake options to your needs,
+> whereas `-DOCCUTILS_BUILD_TESTS` decides whether to build the tests and
+> `-DOCCUTILS_BUILD_WARNINGS` decides whether to build the project with compiler
+> warnings enabled.
+
+> Note: To configure the project on macOS, you need to pass
+> the `-DVCPKG_INSTALL_OPTIONS=--allow-unsupported` flag to the CMake command.
+
+To build the project run:
+
+```shell
+cmake --build {{ $build_dir }}/{{ $build_type }} --config {{ $build_type }}
+
+# Example:
+cmake --build build/Release --config Release
+```
+
+## Installation
+
+### System-wide install
+
+There are two ways to perform a system-wide installation of `occutils` library:
+
+#### Official GitHub release
+
+The first option is to download the latest release for your platform from the
+libraries [GitHub releases page](https://github.com/paulbuechner/occutils/releases/latest).
+
+#### Build and install from source
+
+The second option is to build and install the library from source. To do so,
+follow the instructions in the [Build](#build) section. After the build is
+complete, run:
+
+```shell
+cmake --install {{ $build_dir }}/{{ $build_type }}
+
+# Example:
+cmake --install build/Release
+```
+
+This will install the library to the system-wide installation directory. On
+Windows, this is `C:\Program Files\occutils`. On Linux and macOS, this is
+`/usr/local/lib/occutils`.
+
+### Git submodule based installation
+
+This method involves adding the repository and building it as a subproject of
+your CMake-based main project.
+
+To add the repository as a submodule, run:
+
+```shell
+git submodule add https://github.com/paulbuechner/occutils.git
+```
+
+Then include the library in your CMake project by adding the following lines to
+your `CMakeLists.txt`:
+
 ```cmake
-add_subdirectory(OCCUtils)
+add_subdirectory(occutils)
 ```
 
-and
+Lastly, link your project with the `occutils` library. This will set up the
+necessary include directories and link the library to your project:
 
 ```cmake
-add_dependencies( my_target occutils )
-target_link_libraries( my_target occutils )
+target_link_libraries(${PROJECT_NAME} PRIVATE occutils::occutils)
 ```
-replacing `my_target` with the name of your build target (i.e. the first argument you give to `add_executable()`). The `occutils` CMake script will take care of the rest.
 
-## How to use
+# Contributing
 
-On my [blog](https://techoverflow.net) I provide examples of specific usecases for OpenCASCADE, including how to use the relevant OCCUtils functions:
+Pull requests are welcome. Please open an issue first to discuss what you would
+like to change for major changes.
 
-* [How to compute surface area of TopoDS_Face in OpenCASCADE](https://techoverflow.net/2019/06/13/how-to-compute-surface-area-of-topods_face-in-opencascade/)
-* [How to create a Cylinder TopoDS_Solid in OpenCASCADE](https://techoverflow.net/2019/06/13/how-to-create-a-cylinder-topods_solid-in-opencascade/)
-* [How to create a Box TopoDS_Solid in OpenCASCADE](https://techoverflow.net/2019/06/13/how-to-create-a-box-topods_solid-in-opencascade/)
-* [How to create a Cube TopoDS_Solid in OpenCASCADE](https://techoverflow.net/2019/06/13/how-to-create-a-cube-topods_solid-in-opencascade/)
-* [How to create TopTools_ListOfShape of two or more shapes in OpenCASCADE](https://techoverflow.net/2019/06/13/how-to-create-toptools_listofshape-of-two-or-more-shapes-in-opencascade/)
-* [How to iterate all edges in TopoDS_Face using OpenCASCADE](https://techoverflow.net/2019/06/13/how-to-iterate-all-edges-in-topods_face-using-opencascade/)
-* [How to export STEP file in OpenCASCADE](https://techoverflow.net/2019/06/13/how-to-export-step-file-in-opencascade/)
-* [How to fuse TopoDS_Shapes in OpenCASCADE (boolean AND)](https://techoverflow.net/2019/06/14/how-to-fuse-topods_shapes-in-opencascade-boolean-and/)
-* [How to export colored STEP files in OpenCASCADE](https://techoverflow.net/2019/06/14/how-to-export-colored-step-files-in-opencascade/)
-* [Overview of all standard colors available in OpenCASCADE](https://techoverflow.net/2019/06/14/overview-of-all-standard-colors-available-in-opencascade/)
-* [How to check if two gp_Pnt coincide in OpenCASCADE](https://techoverflow.net/2019/06/15/how-to-check-if-two-gp_pnt-coincide-in-opencascade/)
-* [How to create TopoDS_Edge from to gp_Pnt in OpenCASCADE](https://techoverflow.net/2019/06/15/how-to-create-topods_edge-from-to-gp_pnt-in-opencascade/)
-* [How to create TopoDS_Wire from TopoDS_Edge(s) in OpenCASCADE](https://techoverflow.net/2019/06/14/how-to-create-topods_wire-from-topods_edges-in-opencascade/)
-* [How to convert Geom_TrimmedCurve to GeomAdaptor_Curve in OpenCASCADE](https://techoverflow.net/2019/06/16/how-to-convert-geom_trimmedcurve-to-geomadaptor_curve-in-opencascade/)
-* [How to compute surface normal in OpenCASCADE](https://techoverflow.net/2019/06/26/how-to-compute-surface-normal-in-opencascade/)
-* [How to compute volume of TopoDS_Shape / TopoDS_Solid in OpenCASCADE](https://techoverflow.net/2019/06/29/how-to-compute-volume-of-topods_shape-topods_solid-in-opencascade/)
-* [How to get midpoint/center between points in OpenCASCADE](https://techoverflow.net/2019/06/30/how-to-get-midpoint-center-between-points-in-opencascade/)
-* [How to get gp_Dir orthogonal to two gp_Dirs in OpenCASCADE](https://techoverflow.net/2019/06/30/how-to-get-gp_dir-orthogonal-to-two-gp_dirs-in-opencascade/)
-* [How to check if gp_Ax1 contains gp_Pnt in OpenCASCADE](https://techoverflow.net/2019/06/30/how-to-check-if-gp_ax1-contains-gp_pnt-in-opencascade/)
-* [Computing distance between gp_Pnt and gp_Ax1 in OpenCASCADE](https://techoverflow.net/2019/06/30/computing-distance-between-gp_pnt-and-gp_ax1-in-opencascade/)
-* [Converting vector of TopoDS_Face to vector of TopoDS_Shape in OpenCASCADE](https://techoverflow.net/2019/07/05/converting-vector-of-topods_face-to-vector-of-topods_shape-in-opencascade/)
-* [Converting vector of TopoDS_Solid to vector of TopoDS_Shape in OpenCASCADE](https://techoverflow.net/2019/07/05/converting-vector-of-topods_solid-to-vector-of-topods_shape-in-opencascade/)
-* [How to make TopoDS_Face from gp_Pnts](https://techoverflow.net/2019/07/05/how-to-make-topods_face-from-gp_pnts/)
+Please read [CONTRIBUTING](CONTRIBUTING.md) for details on the code of conduct,
+and the process for submitting pull requests.
+
+# License
+
+This project is licensed under the [Apache License 2.0](LICENSE).
