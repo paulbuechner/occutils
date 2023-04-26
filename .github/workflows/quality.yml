@@ -24,7 +24,7 @@ on:
 
 jobs:
   build-ubuntu-macos:
-    name: ${{ matrix.os }}-${{ github.workflow }}
+    name: Build ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -149,7 +149,7 @@ jobs:
           path: builds/**/*.log
 
   build-windows:
-    name: windows-latest-${{ github.workflow }}
+    name: Build ${{ matrix.os }}
     runs-on: windows-latest
     env:
       # Indicates the location of the vcpkg as a Git submodule of the project repository.
