@@ -26,8 +26,9 @@
 
 ## Design goals
 
-occutils aims to be a modern, high-level, easy-to-use, and modular utility
-library for OpenCASCADE. It is designed to be:
+`occutils` strives to be a contemporary, user-friendly, and modular utility
+library for OpenCASCADE, specifically designed for seamless integration and
+enhanced functionality:
 
 * **Simple to use**: Most tasks should be accomplishable in *one line of code*.
 * **Aid rapid development**: No need to write tons of utility functions; no
@@ -40,6 +41,8 @@ library for OpenCASCADE. It is designed to be:
   without diving into low level OpenCASCADE code
 * **Modern**: Uses features from C++17, because those make your code more
   readable.
+* **Minimal dependencies**: Only depends on OpenCASCADE and a few Boost
+  packages.
 * **Liberally licensed**: occutils is licensed under Apache License v2.0,
   allowing you to copy & modify the sourcecode for use in your commercial
   projects for free. Keep in mind that OpenCASCADE is still LGPL licensed.
@@ -61,17 +64,22 @@ For more information on how to contribute, see the
 #include <occutils/occutils-face.h>
 #include <occutils/occutils-wire.h>
 
+#include <gp_Pnt.hxx>
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Wire.hxx>
 
 int main() {
+  // Create points to build edges from
+  gp_Pnt aPoint(0, 0, 0);
+  gp_Pnt anotherPoint(1, 0, 0);
+  gp_Pnt yetAnotherPoint(0, 1, 0);
   // Create edges from points
-  TopoDS_Edge aEdge = occutils::edge::FromPoints(gp_Pnt(0, 0, 0), gp_Pnt(1, 0, 0));
-  TopoDS_Edge anotherEdge = occutils::edge::FromPoints(gp_Pnt(1, 0, 0), gp_Pnt(0, 1, 0));
-  TopoDS_Edge yetAnotherEdge = occutils::edge::FromPoints(gp_Pnt(0, 1, 0), gp_Pnt(0, 0, 0));
+  TopoDS_Edge aEdge = occutils::edge::FromPoints(aPoint, anotherPoint);
+  TopoDS_Edge anotherEdge = occutils::edge::FromPoints(anotherPoint, yetAnotherPoint);
+  TopoDS_Edge yetAnotherEdge = occutils::edge::FromPoints(yetAnotherPoint, aPoint);
   // Create a wire from edges
-  TopoDS_Wire aWire = occutils::wire::FromEdges({aEdge, anotherEdge});
+  TopoDS_Wire aWire = occutils::wire::FromEdges({aEdge, anotherEdge, yetAnotherEdge});
   // Create a face from a wire
   TopoDS_Face aFace = occutils::face::FromWire(aWire);
 }
@@ -211,7 +219,7 @@ sudo apt-get install tcl tcl-devel tk tk-devel
 
 ### Build
 
-occutils uses CMake as a build system. There are two ways to build project
+occutils uses CMake as a build system. There are two ways to build project:
 
 #### Using CMakePresets
 
@@ -288,7 +296,9 @@ cmake --build build/Release --config Release
 
 ### System-wide install
 
-There are two ways to perform a system-wide installation of `occutils` library:
+The following instructions guide you through the process of
+installing `occutils` library system-wide. This is useful if you want to use the
+library in other projects.
 
 #### Official GitHub release
 
@@ -312,7 +322,13 @@ This will install the library to the system-wide installation directory. On
 Windows, this is `C:\Program Files\occutils`. On Linux and macOS, this is
 `/usr/local/lib/occutils`.
 
-### Git submodule based installation
+#### vcpkg
+
+Coming soon.
+
+### Per project install
+
+#### Git submodule
 
 This method involves adding the repository and building it as a subproject of
 your CMake-based main project.
@@ -336,6 +352,10 @@ necessary include directories and link the library to your project:
 ```cmake
 target_link_libraries(${PROJECT_NAME} PRIVATE occutils::occutils)
 ```
+
+#### vcpkg
+
+Coming soon.
 
 # Contributing
 
