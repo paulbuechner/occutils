@@ -9,12 +9,12 @@
 #include <optional>
 #include <vector>
 
-namespace OCCUtils::Wire {
+namespace occutils::wire {
 
 /**
  * Create a wire from one or multiple edges.
  * Convenience function to be used like this:
- *  Wire::FromEdges
+ *  wire::FromEdges
  */
 TopoDS_Wire FromEdges(const std::initializer_list<TopoDS_Edge>& edges);
 TopoDS_Wire FromEdges(const std::vector<TopoDS_Edge>& edges);
@@ -46,7 +46,7 @@ class IncrementalBuilder {
    * Create a 90° arc from the current position.
    */
   void Arc90(double dx, double dy, double dz, double centerDx, double centerDy,
-             double centerDz, const gp_Dir& normal = Direction::Z());
+             double centerDz, const gp_Dir& normal = occutils::direction::Z());
 
   /**
    * Get the current direction vector,
@@ -82,4 +82,4 @@ class IncrementalBuilder {
   std::vector<TopoDS_Edge> edges;
 };
 
-}  // namespace OCCUtils::Wire
+}  // namespace occutils::wire

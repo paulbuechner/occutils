@@ -5,7 +5,7 @@
 #include <XCAFDoc_ColorType.hxx>
 #include <memory>
 
-namespace OCCUtils::STEP {
+namespace occutils::step {
 
 /**
  * Hidden internal state for the extended STEP exporter.
@@ -43,4 +43,4 @@ class ExtendedSTEPExporter {
   std::unique_ptr<_ExtendedSTEPExporterInternals> internals;
 };
 
-}  // namespace OCCUtils::STEP
+}  // namespace occutils::step

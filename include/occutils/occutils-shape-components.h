@@ -12,7 +12,7 @@
 #include <optional>
 #include <vector>
 
-namespace OCCUtils::ShapeComponents {
+namespace occutils::shape_components {
 
 /**
  * Iterate over all components of shape and count how many
@@ -182,4 +182,4 @@ TopoDS_Wire GetSingleWire(const TopoDS_Shape& shape,
 TopoDS_Vertex GetSingleVertex(const TopoDS_Shape& shape,
                               bool firstOfMultipleOK = true);
 
-}  // namespace OCCUtils::ShapeComponents
+}  // namespace occutils::shape_components

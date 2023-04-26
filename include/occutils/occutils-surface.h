@@ -15,9 +15,9 @@
 #include <map>
 #include <vector>
 
-namespace OCCUtils {
+namespace occutils {
 
-namespace Surface {
+namespace surface {
 
 /**
  * Get the total surface area of a face, solid etc.
@@ -149,9 +149,9 @@ std::optional<TopoDS_Edge> Intersection(const GeomAdaptor_Surface& S1,
 // gp_Pnt CurvatureAt(const GeomAdaptor_Surface& surf, double u = 0.0, double v
 // = 0.0);
 
-}  // namespace Surface
+}  // namespace surface
 
-namespace Surfaces {
+namespace surfaces {
 
 struct SurfaceInfo {
   TopoDS_Face face;
@@ -160,7 +160,7 @@ struct SurfaceInfo {
 
 /**
  * Get all faces & their surfaces that are within shape.
- * Uses ShapeComponents::AllFacesWithin(shape) internally.
+ * Uses shape_components::AllFacesWithin(shape) internally.
  * Does not return surfaces that have no surface
  */
 std::vector<SurfaceInfo> FromShape(const TopoDS_Shape& shape);
@@ -189,6 +189,6 @@ struct SurfaceTypeStats {
 
 SurfaceTypeStats Statistics(const std::vector<SurfaceInfo>& surfaces);
 
-}  // namespace Surfaces
+}  // namespace surfaces
 
-}  // namespace OCCUtils
+}  // namespace occutils

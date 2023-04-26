@@ -1,10 +1,8 @@
 #pragma once
 
-#include <TopoDS_Edge.hxx>
 #include <TopoDS_Shape.hxx>
-#include <functional>
 
-namespace OCCUtils::Fillet {
+namespace occutils::fillet {
 
 /**
  * Fillet all edges of the given shape using a single radius
@@ -29,4 +27,4 @@ template <typename RadiusFunc>
 TopoDS_Shape FilletAdaptiveRadius(const TopoDS_Shape& shape,
                                   const RadiusFunc& radiusByEdge);
 
-}  // namespace OCCUtils::Fillet
+}  // namespace occutils::fillet

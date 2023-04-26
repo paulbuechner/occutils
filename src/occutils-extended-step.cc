@@ -14,7 +14,7 @@
 #include <XCAFDoc_ShapeTool.hxx>
 #include <vector>
 
-namespace OCCUtils::STEP {
+namespace occutils::step {
 
 /**
  * Internal state
@@ -83,4 +83,4 @@ void ExtendedSTEPExporter::Write(const std::string& filename) {
   writer.Perform(internals->document, filename.c_str());
 }
 
-}  // namespace OCCUtils::STEP
+}  // namespace occutils::step

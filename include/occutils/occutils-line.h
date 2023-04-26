@@ -3,12 +3,11 @@
 /**
  * Utilities for analyzing lines
  */
-#include <gp_Ax1.hxx>
 #include <gp_Lin.hxx>
 #include <gp_Lin2d.hxx>
 #include <optional>
 
-namespace OCCUtils::Line {
+namespace occutils::line {
 
 /**
  * @return true only if lin1 is normal to lin2 within angularTolerance
@@ -36,4 +35,4 @@ bool IsParallel(const gp_Lin2d &lin1, const gp_Lin2d &lin2,
 std::optional<gp_Pnt2d> Intersection(const gp_Lin2d &lin1,
                                      const gp_Lin2d &lin2);
 
-}  // namespace OCCUtils::Line
+}  // namespace occutils::line

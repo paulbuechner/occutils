@@ -7,7 +7,7 @@
 #include <optional>
 #include <vector>
 
-namespace OCCUtils::Face {
+namespace occutils::face {
 
 /**
  * Construct a face from the given outer wire.
@@ -38,7 +38,7 @@ TopoDS_Face FromEdges(const std::vector<TopoDS_Edge>& edges);
 /**
  * Construct an outer wire from points, linearly connecting each point to the
  * next. The last point is automatically connected to the first point, unless
- * they are equal. Equivalent to calling Face::FromWire(Wire::FromPoints(points,
+ * they are equal. Equivalent to calling face::FromWire(wire::FromPoints(points,
  * true))
  */
 TopoDS_Face FromPoints(const std::vector<gp_Pnt>& points);
@@ -65,4 +65,4 @@ std::optional<gp_Ax1> Normal(const TopoDS_Face& face, double u = 0.0,
 std::optional<gp_Dir> NormalDirection(const TopoDS_Face& face, double u = 0.0,
                                       double v = 0.0, double precision = 1e-6);
 
-}  // namespace OCCUtils::Face
+}  // namespace occutils::face

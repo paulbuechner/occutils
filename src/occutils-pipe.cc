@@ -2,7 +2,7 @@
 
 #include <BRepOffsetAPI_MakePipe.hxx>
 
-namespace OCCUtils::Pipe {
+namespace occutils::pipe {
 
 TopoDS_Shape FromSplineAndProfile(const TopoDS_Wire& wire,
                                   const TopoDS_Shape& profile) {
@@ -11,4 +11,4 @@ TopoDS_Shape FromSplineAndProfile(const TopoDS_Wire& wire,
   return makePipe.Shape();
 }
 
-}  // namespace OCCUtils::Pipe
+}  // namespace occutils::pipe

@@ -4,9 +4,10 @@
 #include <TopExp.hxx>
 #include <TopTools_IndexedMapOfShape.hxx>
 #include <TopoDS.hxx>
+#include <TopoDS_Edge.hxx>
 #include <numeric>
 
-namespace OCCUtils::Fillet {
+namespace occutils::fillet {
 
 TopoDS_Shape FilletAll(const TopoDS_Shape& shape, double radius) {
   BRepFilletAPI_MakeFillet filletMaker(shape);
@@ -41,4 +42,4 @@ TopoDS_Shape FilletAdaptiveRadius(const TopoDS_Shape& shape,
   return filletMaker.Shape();
 }
 
-}  // namespace OCCUtils::Fillet
+}  // namespace occutils::fillet

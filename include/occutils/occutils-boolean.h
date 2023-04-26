@@ -12,7 +12,7 @@
 /**
  * Boolean operation utilities
  */
-namespace OCCUtils::Boolean {
+namespace occutils::boolean {
 
 /**
  * Fuse two or more shapes in a OCC-style container.
@@ -34,7 +34,7 @@ TopoDS_Shape Fuse(const TopTools_ListOfShape& arguments,
  */
 template <template <typename, typename> typename Container, typename Allocator>
 TopoDS_Shape Fuse(const Container<TopoDS_Shape, Allocator>& shapes) {
-  return Fuse(OCCUtils::ListUtils::ToOCCList(shapes));
+  return Fuse(occutils::list_utils::ToOCCList(shapes));
 }
 
 /**
@@ -43,7 +43,7 @@ TopoDS_Shape Fuse(const Container<TopoDS_Shape, Allocator>& shapes) {
  */
 template <template <typename> typename Container>
 TopoDS_Shape Fuse(const Container<TopoDS_Shape>& shapes) {
-  return Fuse(OCCUtils::ListUtils::ToOCCList(shapes));
+  return Fuse(occutils::list_utils::ToOCCList(shapes));
 }
 
 /**
@@ -98,8 +98,8 @@ TopoDS_Shape Cut(const TopoDS_Shape& positive,
 template <template <typename, typename> typename Container, typename Allocator>
 TopoDS_Shape Cut(const TopoDS_Shape& positive,
                  const Container<TopoDS_Shape, Allocator>& negative) {
-  return Cut(OCCUtils::ListUtils::ToOCCList({positive}),
-             OCCUtils::ListUtils::ToOCCList(negative));
+  return Cut(occutils::list_utils::ToOCCList({positive}),
+             occutils::list_utils::ToOCCList(negative));
 }
 
 /**
@@ -111,8 +111,8 @@ template <template <typename, typename> typename Container, typename Allocator1,
           typename Allocator2>
 TopoDS_Shape Cut(const Container<TopoDS_Shape, Allocator1>& positive,
                  const Container<TopoDS_Shape, Allocator2>& negative) {
-  return Cut(OCCUtils::ListUtils::ToOCCList(positive),
-             OCCUtils::ListUtils::ToOCCList(negative));
+  return Cut(occutils::list_utils::ToOCCList(positive),
+             occutils::list_utils::ToOCCList(negative));
 }
 
 /**
@@ -151,4 +151,4 @@ TopoDS_Shape Cut(const std::vector<TopoDS_Face>& positive,
 TopoDS_Shape Cut(const TopoDS_Face& positive,
                  const std::vector<TopoDS_Face>& negative);
 
-}  // namespace OCCUtils::Boolean
+}  // namespace occutils::boolean

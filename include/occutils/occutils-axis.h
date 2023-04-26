@@ -12,9 +12,9 @@ gp_Ax1 operator+(const gp_Ax1& axis, const gp_Vec& vec);
  */
 gp_Ax1 operator+(const gp_Ax1& axis, const gp_XYZ& vec);
 
-namespace OCCUtils {
+namespace occutils {
 
-namespace Axis {
+namespace axis {
 
 /**
  * Check if the given axis contains the given point,
@@ -30,9 +30,10 @@ bool Contains(const gp_Ax1& axis, const gp_Pnt& pnt,
  */
 double Distance(const gp_Ax1& axis, const gp_Pnt& pnt);
 
-}  // namespace Axis
+}  // namespace axis
 
-namespace Ax1 {
+namespace ax1 {
+
 /**
  * Get the Ax1 with:
  *  - Location = origin point
@@ -75,9 +76,10 @@ gp_Ax1 OMinusY();
  */
 gp_Ax1 OMinusZ();
 
-}  // namespace Ax1
+}  // namespace ax1
 
-namespace Ax2 {
+namespace ax2 {
+
 /**
  * Initialize a gp_Ax2 from a gp_Ax1.
  * Note that the main direction is strictly defined,
@@ -134,6 +136,6 @@ gp_Ax2 OMinusY();
  */
 gp_Ax2 OMinusZ();
 
-}  // namespace Ax2
+}  // namespace ax2
 
-}  // namespace OCCUtils
+}  // namespace occutils

@@ -3,12 +3,11 @@
 #include <BRepBuilderAPI_MakeEdge.hxx>
 #include <gp_Circ.hxx>
 
-#include "occutils/occutils-axis.h"
 #include "occutils/occutils-curve.h"
 #include "occutils/occutils-equality.h"
 #include "occutils/occutils-point.h"
 
-namespace OCCUtils::Edge {
+namespace occutils::edge {
 
 TopoDS_Edge FromPoints(const gp_Pnt& p1, const gp_Pnt& p2) {
   // Are the two points coincident?
@@ -20,14 +19,14 @@ TopoDS_Edge FromPoints(const gp_Pnt& p1, const gp_Pnt& p2) {
   return BRepBuilderAPI_MakeEdge(p1, p2).Edge();
 }
 
-TopoDS_Edge FullCircle(double radius) { return FullCircle(Ax2::OZ(), radius); }
+TopoDS_Edge FullCircle(double radius) { return FullCircle(ax2::OZ(), radius); }
 
 TopoDS_Edge FullCircle(const gp_Dir& direction, double radius) {
-  return FullCircle(gp_Ax2(Point::Origin(), direction), radius);
+  return FullCircle(gp_Ax2(point::Origin(), direction), radius);
 }
 
 TopoDS_Edge FullCircle(const gp_Ax1& axis, double radius) {
-  return FullCircle(Ax2::FromAx1(axis), radius);
+  return FullCircle(ax2::FromAx1(axis), radius);
 }
 
 TopoDS_Edge FullCircle(const gp_Pnt& center, const gp_Dir& direction,
@@ -40,7 +39,7 @@ TopoDS_Edge FullCircle(const gp_Ax2& axis, double radius) {
 }
 
 double Length(const TopoDS_Edge& edge) {
-  return Curve::Length(Curve::FromEdge(edge));
+  return curve::Length(curve::FromEdge(edge));
 }
 
 TopoDS_Edge CircleSegment(const gp_Ax2& axis, double radius, const gp_Pnt& p1,
@@ -49,4 +48,4 @@ TopoDS_Edge CircleSegment(const gp_Ax2& axis, double radius, const gp_Pnt& p1,
   return BRepBuilderAPI_MakeEdge(circ, p1, p2).Edge();
 }
 
-}  // namespace OCCUtils::Edge
+}  // namespace occutils::edge

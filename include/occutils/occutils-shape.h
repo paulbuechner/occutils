@@ -11,9 +11,9 @@
 #include <initializer_list>
 #include <vector>
 
-namespace OCCUtils {
+namespace occutils {
 
-namespace Shape {
+namespace shape {
 
 /**
  * @return true if the given shape is a TopoDS_Solid
@@ -69,9 +69,9 @@ gp_XYZ BoundingBoxSize(const TopoDS_Shape& shape);
  */
 double BoundingBoxVolume(const TopoDS_Shape& shape);
 
-}  // namespace Shape
+}  // namespace shape
 
-namespace Shapes {
+namespace shapes {
 
 /**
  * Convert a solid vector to a shape vector
@@ -83,6 +83,6 @@ std::vector<TopoDS_Shape> FromSolids(const std::vector<TopoDS_Solid>& solids);
  */
 std::vector<TopoDS_Shape> FromFaces(const std::vector<TopoDS_Face>& faces);
 
-}  // namespace Shapes
+}  // namespace shapes
 
-}  // namespace OCCUtils
+}  // namespace occutils

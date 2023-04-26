@@ -20,7 +20,7 @@ gp_Pnt operator-(const gp_Pnt &a, const gp_Pnt &b);
 gp_Pnt operator-(const gp_Pnt &a, const gp_Vec &b);
 gp_Pnt operator-(const gp_Pnt &a, const gp_XYZ &b);
 
-namespace OCCUtils::Point {
+namespace occutils::point {
 
 /**
  * Return the global coordinate system's origin:
@@ -58,4 +58,4 @@ gp_Pnt OrthogonalProjectOnto(const gp_Pnt &pnt, const gp_Ax1 &ax);
  */
 gp_Pnt2d OrthogonalProjectOnto(const gp_Pnt2d &pnt, const gp_Ax2d &ax);
 
-}  // namespace OCCUtils::Point
+}  // namespace occutils::point

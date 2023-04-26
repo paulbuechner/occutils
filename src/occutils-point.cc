@@ -31,7 +31,7 @@ gp_Pnt operator-(const gp_Pnt &a, const gp_XYZ &b) {
   return {a.X() - b.X(), a.Y() - b.Y(), a.Z() - b.Z()};
 }
 
-namespace OCCUtils::Point {
+namespace occutils::point {
 
 gp_Pnt Origin() { return {}; }
 
@@ -60,7 +60,7 @@ gp_Pnt Midpoint(const std::vector<gp_Pnt> &points) {
 }
 
 double Distance(const gp_Pnt &pnt, const gp_Ax1 &axis) {
-  return Axis::Distance(axis, pnt);
+  return axis::Distance(axis, pnt);
 }
 
 gp_Pnt OrthogonalProjectOnto(const gp_Pnt &pnt, const gp_Ax1 &ax) {
@@ -88,4 +88,4 @@ gp_Pnt From2d(const gp_Pnt2d &pnt) { return {pnt.X(), pnt.Y(), 0.0}; }
 
 gp_Pnt From2d(double x, double y) { return {x, y, 0.0}; }
 
-}  // namespace OCCUtils::Point
+}  // namespace occutils::point

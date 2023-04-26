@@ -6,7 +6,7 @@
 #include <gp_Dir.hxx>
 #include <gp_Pnt.hxx>
 
-namespace OCCUtils::Edge {
+namespace occutils::edge {
 
 /**
  * Create a linear edge between two points
@@ -57,4 +57,4 @@ TopoDS_Edge CircleSegment(const gp_Ax2& axis, double radius, const gp_Pnt& p1,
  */
 double Length(const TopoDS_Edge& edge);
 
-}  // namespace OCCUtils::Edge
+}  // namespace occutils::edge

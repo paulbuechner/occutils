@@ -12,9 +12,9 @@
 
 #include "occutils/occutils-shape-components.h"
 
-namespace OCCUtils {
+namespace occutils {
 
-namespace Surface {
+namespace surface {
 
 double Area(const TopoDS_Shape& face) {
   GProp_GProps gprops;
@@ -201,19 +201,19 @@ std::optional<TopoDS_Edge> Intersection(const GeomAdaptor_Surface& S1,
   return BRepBuilderAPI_MakeEdge(intersector.Line(1)).Edge();
 }
 
-}  // namespace Surface
+}  // namespace surface
 
-namespace Surfaces {
+namespace surfaces {
 
 std::vector<SurfaceInfo> FromShape(const TopoDS_Shape& shape) {
-  auto faces = ShapeComponents::AllFacesWithin(shape);
+  auto faces = shape_components::AllFacesWithin(shape);
   // Create return vector
   std::vector<SurfaceInfo> ret;
   ret.reserve(faces.size());
   for (const auto& face : faces) {
     SurfaceInfo info;
     info.face = face;
-    info.surface = Surface::FromFace(face);
+    info.surface = surface::FromFace(face);
     if (!info.surface.Surface().IsNull()) {  // If we have found the surface
       ret.push_back(info);
     }
@@ -310,6 +310,6 @@ SurfaceTypeStats Statistics(const std::vector<SurfaceInfo>& surfaces) {
   return stats;
 }
 
-}  // namespace Surfaces
+}  // namespace surfaces
 
-}  // namespace OCCUtils
+}  // namespace occutils

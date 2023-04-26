@@ -6,7 +6,7 @@
 
 #include "occutils/occutils-exceptions.h"
 
-namespace OCCUtils::ShapeComponents {
+namespace occutils::shape_components {
 
 std::vector<TopoDS_Solid> AllSolidsWithin(const TopoDS_Shape& shape) {
   std::vector<TopoDS_Solid> solids;
@@ -205,7 +205,7 @@ std::optional<TopoDS_Solid> TryGetSingleSolid(const TopoDS_Shape& shape,
     return TopoDS::Solid(shape);
   }
   // Else, expect there to be ONE sub-solid
-  auto solids = ShapeComponents::AllSolidsWithin(shape);
+  auto solids = shape_components::AllSolidsWithin(shape);
   if (solids.empty()) {
     return std::nullopt;
   }
@@ -222,7 +222,7 @@ std::optional<TopoDS_Face> TryGetSingleFace(const TopoDS_Shape& shape,
     return TopoDS::Face(shape);
   }
   // Else, expect there to be ONE sub-face
-  auto faces = ShapeComponents::AllFacesWithin(shape);
+  auto faces = shape_components::AllFacesWithin(shape);
   if (faces.empty()) {
     return std::nullopt;
   }
@@ -239,7 +239,7 @@ std::optional<TopoDS_Edge> TryGetSingleEdge(const TopoDS_Shape& shape,
     return TopoDS::Edge(shape);
   }
   // Else, expect there to be ONE sub-edge
-  auto edges = ShapeComponents::AllEdgesWithin(shape);
+  auto edges = shape_components::AllEdgesWithin(shape);
   if (edges.empty()) {
     return std::nullopt;
   }
@@ -256,7 +256,7 @@ std::optional<TopoDS_Wire> TryGetSingleWire(const TopoDS_Shape& shape,
     return TopoDS::Wire(shape);
   }
   // Else, expect there to be ONE sub-wire
-  auto wires = ShapeComponents::AllWiresWithin(shape);
+  auto wires = shape_components::AllWiresWithin(shape);
   if (wires.empty()) {
     return std::nullopt;
   }
@@ -273,7 +273,7 @@ std::optional<TopoDS_Vertex> TryGetSingleVertex(const TopoDS_Shape& shape,
     return TopoDS::Vertex(shape);
   }
   // Else, expect there to be ONE sub-vertex
-  auto vertices = ShapeComponents::AllVerticesWithin(shape);
+  auto vertices = shape_components::AllVerticesWithin(shape);
   if (vertices.empty()) {
     return std::nullopt;
   }
@@ -346,4 +346,4 @@ size_t CountX(const std::vector<TopoDS_Shape>& shapes, TopAbs_ShapeEnum type) {
   return cnt;
 }
 
-}  // namespace OCCUtils::ShapeComponents
+}  // namespace occutils::shape_components

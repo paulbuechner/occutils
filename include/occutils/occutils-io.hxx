@@ -5,7 +5,7 @@
 #include <memory>
 #include <string>
 
-namespace OCCUtils::IO {
+namespace occutils::io {
 
 /**
  * Read the given file and extract a shape from it.
@@ -71,4 +71,4 @@ TopoDS_Shape ReadOneShape(const std::shared_ptr<XSControl_Reader>& reader);
 
 }  // namespace Reader
 
-}  // namespace OCCUtils::IO
+}  // namespace occutils::io

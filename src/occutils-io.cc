@@ -6,7 +6,7 @@
 
 #include "occutils/occutils-exceptions.h"
 
-namespace OCCUtils::IO {
+namespace occutils::io {
 
 TopoDS_Shape Read(const std::string& filename) {
   auto reader = Reader::STEPorIGESReader(filename);
@@ -92,4 +92,4 @@ TopoDS_Shape ReadOneShape(const std::shared_ptr<XSControl_Reader>& reader) {
 
 }  // namespace Reader
 
-}  // namespace OCCUtils::IO
+}  // namespace occutils::io

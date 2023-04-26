@@ -2,7 +2,7 @@
 
 #include <IntAna2d_AnaIntersection.hxx>
 
-namespace OCCUtils::Line {
+namespace occutils::line {
 
 bool IsNormal(const gp_Lin &lin1, const gp_Lin &lin2, double angularTolerance) {
   // lin.Position() returns a gp_Ax1 that can be used to compute the normalness
@@ -32,4 +32,4 @@ std::optional<gp_Pnt2d> Intersection(const gp_Lin2d &lin1,
   return intersector.Point(1).Value();
 }
 
-}  // namespace OCCUtils::Line
+}  // namespace occutils::line

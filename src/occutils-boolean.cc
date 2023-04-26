@@ -6,7 +6,7 @@
 #include "occutils/occutils-list-utils.h"
 #include "occutils/occutils-shape.h"
 
-namespace OCCUtils::Boolean {
+namespace occutils::boolean {
 
 TopoDS_Shape Fuse(const TopTools_ListOfShape& arguments,
                   const TopTools_ListOfShape& tools) {
@@ -42,12 +42,12 @@ TopoDS_Shape Fuse(const TopTools_ListOfShape& shapes) {
   // We need "tools" and "arguments".
   // For fuse, the exact split does not matter,
   // but each must be size >= 1!
-  auto [first, second] = ListUtils::SplitIntoHeadAndTail(shapes, 1);
+  auto [first, second] = list_utils::SplitIntoHeadAndTail(shapes, 1);
   return Fuse(second, first);
 }
 
 TopoDS_Shape Fuse(const std::initializer_list<TopoDS_Shape>& shapes) {
-  return Fuse(ListUtils::ToOCCList(shapes));
+  return Fuse(list_utils::ToOCCList(shapes));
 }
 
 TopoDS_Shape Cut(const TopTools_ListOfShape& positive,
@@ -69,54 +69,55 @@ TopoDS_Shape Cut(const TopTools_ListOfShape& positive,
 }
 
 TopoDS_Shape Cut(const TopoDS_Shape& positive, const TopoDS_Shape& negative) {
-  return Cut(ListUtils::ToOCCList({positive}),
-             ListUtils::ToOCCList({negative}));
+  return Cut(list_utils::ToOCCList({positive}),
+             list_utils::ToOCCList({negative}));
 }
 
 TopoDS_Shape Cut(const TopoDS_Shape& positive,
                  const TopTools_ListOfShape& negative) {
-  return Cut(ListUtils::ToOCCList({positive}), negative);
+  return Cut(list_utils::ToOCCList({positive}), negative);
 }
 
 TopoDS_Shape Cut(const TopoDS_Shape& positive,
                  const std::initializer_list<TopoDS_Shape>& negative) {
-  return Cut(ListUtils::ToOCCList({positive}), ListUtils::ToOCCList(negative));
+  return Cut(list_utils::ToOCCList({positive}),
+             list_utils::ToOCCList(negative));
 }
 
 TopoDS_Shape Cut(const std::vector<TopoDS_Solid>& positive,
                  const std::vector<TopoDS_Solid>& negative) {
-  return Cut(Shapes::FromSolids(positive), Shapes::FromSolids(negative));
+  return Cut(shapes::FromSolids(positive), shapes::FromSolids(negative));
 }
 
 TopoDS_Shape Cut(const TopoDS_Solid& positive,
                  const std::vector<TopoDS_Solid>& negative) {
-  return Cut({positive}, Shapes::FromSolids(negative));
+  return Cut({positive}, shapes::FromSolids(negative));
 }
 
 TopoDS_Shape Cut(const std::vector<TopoDS_Face>& positive,
                  const std::vector<TopoDS_Face>& negative) {
-  return Cut(Shapes::FromFaces(positive), Shapes::FromFaces(negative));
+  return Cut(shapes::FromFaces(positive), shapes::FromFaces(negative));
 }
 
 TopoDS_Shape Cut(const TopoDS_Face& positive,
                  const std::vector<TopoDS_Face>& negative) {
-  return Cut({positive}, Shapes::FromFaces(negative));
+  return Cut({positive}, shapes::FromFaces(negative));
 }
 
 TopoDS_Shape Fuse(const std::vector<TopoDS_Solid>& shapes) {
-  return Fuse(Shapes::FromSolids(shapes));
+  return Fuse(shapes::FromSolids(shapes));
 }
 
 TopoDS_Shape Fuse(const std::initializer_list<TopoDS_Solid>& shapes) {
-  return Fuse(Shapes::FromSolids(shapes));
+  return Fuse(shapes::FromSolids(shapes));
 }
 
 TopoDS_Shape Fuse(const std::vector<TopoDS_Face>& shapes) {
-  return Fuse(Shapes::FromFaces(shapes));
+  return Fuse(shapes::FromFaces(shapes));
 }
 
 TopoDS_Shape Fuse(const std::initializer_list<TopoDS_Face>& shapes) {
-  return Fuse(Shapes::FromFaces(shapes));
+  return Fuse(shapes::FromFaces(shapes));
 }
 
-}  // namespace OCCUtils::Boolean
+}  // namespace occutils::boolean

@@ -4,12 +4,12 @@
 #include <STEPControl_Writer.hxx>
 #include <stdexcept>
 
-namespace OCCUtils::STEP {
+namespace occutils::step_export {
 
 void ExportSTEP(const TopoDS_Shape& shape, const std::string& filename,
                 const std::string& unit) {
   if (shape.IsNull()) {
-    throw new std::invalid_argument("Can't export null shape to STEP");
+    throw std::invalid_argument("Can't export null shape to STEP");
   }
 
   STEPControl_Writer writer;
@@ -33,4 +33,4 @@ void ExportSTEP(const TopoDS_Shape& shape, const std::string& filename,
   }
 }
 
-}  // namespace OCCUtils::STEP
+}  // namespace occutils::step_export

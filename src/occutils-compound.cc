@@ -5,7 +5,7 @@
 #include "occutils/occutils-list-utils.h"
 #include "occutils/occutils-shape.h"
 
-namespace OCCUtils::Compound {
+namespace occutils::compound {
 
 template <typename T>
 TopoDS_Compound ToCompound(const T& shapes) {
@@ -36,4 +36,4 @@ TopoDS_Compound From(const std::vector<TopoDS_Solid>& shapes) {
   return ToCompound(shapes);
 }
 
-}  // namespace OCCUtils::Compound
+}  // namespace occutils::compound

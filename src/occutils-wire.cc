@@ -9,7 +9,7 @@
 #include "occutils/occutils-pipe.h"
 #include "occutils/occutils-point.h"
 
-namespace OCCUtils::Wire {
+namespace occutils::wire {
 
 TopoDS_Wire FromEdges(const std::initializer_list<TopoDS_Edge>& edges) {
   BRepLib_MakeWire wireMaker;
@@ -33,8 +33,7 @@ TopoDS_Wire FromEdges(const std::vector<TopoDS_Edge>& edges) {
   return wireMaker.IsDone() ? wireMaker.Wire() : TopoDS_Wire();
 }
 
-IncrementalBuilder::IncrementalBuilder(const gp_Pnt& pnt)
-    : current(pnt), edges() {
+IncrementalBuilder::IncrementalBuilder(const gp_Pnt& pnt) : current(pnt) {
   currentDirection = std::nullopt;
   edges.reserve(
       25);  // Prevent frequent reallocation's at the expense of some memory
@@ -49,7 +48,7 @@ void IncrementalBuilder::Line(double dx, double dy, double dz) {
   current = current + gp_Pnt(dx, dy, dz);
   // Create edges
   currentDirection = gp_Vec(p1, current);
-  edges.emplace_back(Edge::FromPoints(p1, current));
+  edges.emplace_back(edge::FromPoints(p1, current));
 }
 
 void IncrementalBuilder::Arc90(double dx, double dy, double dz, double centerDx,
@@ -66,17 +65,17 @@ void IncrementalBuilder::Arc90(double dx, double dy, double dz, double centerDx,
   // Current algorithm: Compute both options,
   // one is 90° and one is 270°, select the shorter one.
   auto option1 =
-      Edge::CircleSegment(gp_Ax2(center, normal), radius, current, p2);
+      edge::CircleSegment(gp_Ax2(center, normal), radius, current, p2);
   auto option2 =
-      Edge::CircleSegment(gp_Ax2(center, normal), radius, p2, current);
-  double length1 = Edge::Length(option1);
-  double length2 = Edge::Length(option2);
+      edge::CircleSegment(gp_Ax2(center, normal), radius, p2, current);
+  double length1 = edge::Length(option1);
+  double length2 = edge::Length(option2);
   edges.emplace_back(length1 < length2 ? option1 : option2);
   current = p2;
   currentDirection = resultingDirection;
 }
 
-TopoDS_Wire IncrementalBuilder::Wire() const { return Wire::FromEdges(edges); }
+TopoDS_Wire IncrementalBuilder::Wire() const { return wire::FromEdges(edges); }
 
 gp_Pnt IncrementalBuilder::Location() {
   return {current};  // make copy to avoid modification
@@ -86,12 +85,12 @@ gp_Pnt IncrementalBuilder::Location() {
  * Create a pipe from the wire using the given profile.
  */
 TopoDS_Shape IncrementalBuilder::Pipe(const TopoDS_Face& profile) const {
-  return Pipe::FromSplineAndProfile(this->Wire(), profile);
+  return pipe::FromSplineAndProfile(this->Wire(), profile);
 }
 
 TopoDS_Shape IncrementalBuilder::PipeWithCircularProfile(double radius) {
-  auto profile = Face::FromEdge(Edge::FullCircle(
-      gp_Ax2(current, currentDirection.value_or(Direction::Z())), radius));
+  auto profile = face::FromEdge(edge::FullCircle(
+      gp_Ax2(current, currentDirection.value_or(direction::Z())), radius));
   return Pipe(profile);
 }
 
@@ -118,17 +117,17 @@ TopoDS_Wire FromPoints(const std::vector<gp_Pnt>& points, bool close) {
     if (p1 == p2) {
       continue;
     }
-    makeWire.Add(Edge::FromPoints(p1, p2));
+    makeWire.Add(edge::FromPoints(p1, p2));
   }
   // Close curve if enabled
   if (close) {
     const auto& p0 = points[0];
-    const auto& plast = points[points.size() - 1];
-    if (p0 != plast) {
-      makeWire.Add(Edge::FromPoints(p0, plast));
+    const auto& pLast = points[points.size() - 1];
+    if (p0 != pLast) {
+      makeWire.Add(edge::FromPoints(p0, pLast));
     }
   }
   return makeWire.Wire();
 }
 
-}  // namespace OCCUtils::Wire
+}  // namespace occutils::wire

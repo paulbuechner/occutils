@@ -3,7 +3,7 @@
 #include "occutils/occutils-equality.h"
 #include "occutils/occutils-exceptions.h"
 
-namespace OCCUtils::Plane {
+namespace occutils::plane {
 
 gp_Pln FromPoints(const gp_Pnt& pO, const gp_Pnt& pX, const gp_Pnt& pY) {
   if (pO == pX) {
@@ -27,4 +27,4 @@ gp_Pln FromPoints(const gp_Pnt& pO, const gp_Pnt& pX, const gp_Pnt& pY) {
   return {gp_Ax3(pO, normal, xAx)};
 }
 
-}  // namespace OCCUtils::Plane
+}  // namespace occutils::plane

@@ -5,20 +5,19 @@
 #include <BRepPrimAPI_MakeCylinder.hxx>
 
 #include "occutils/occutils-direction.h"
-#include "occutils/occutils-point.h"
 
-namespace OCCUtils::Primitive {
+namespace occutils::primitive {
 
-TopoDS_Solid MakeBox(double xSize, double ySize, double zSize, int center,
-                     gp_Pnt origin) {
+TopoDS_Solid MakeBox(double xSize, double ySize, double zSize,
+                     PositionCentering center, gp_Pnt origin) {
   // Compute offsets based on centering
-  if (center & (int)PositionCentering::CenterX) {
+  if (center == PositionCentering::CenterX) {
     origin.SetX(origin.X() - xSize / 2.0);
   }
-  if (center & (int)PositionCentering::CenterY) {
+  if (center == PositionCentering::CenterY) {
     origin.SetY(origin.Y() - ySize / 2.0);
   }
-  if (center & (int)PositionCentering::CenterZ) {
+  if (center == PositionCentering::CenterZ) {
     origin.SetZ(origin.Z() - zSize / 2.0);
   }
   // Build primitive
@@ -45,7 +44,7 @@ TopoDS_Solid MakeBox(const std::pair<gp_Vec, gp_Vec>& ab) {
   return MakeBox(ab.first, ab.second);
 }
 
-TopoDS_Solid MakeCube(double size, int center, gp_Pnt origin) {
+TopoDS_Solid MakeCube(double size, PositionCentering center, gp_Pnt origin) {
   return MakeBox(size, size, size, center, origin);
 }
 
@@ -60,9 +59,10 @@ TopoDS_Solid MakeCone(const gp_Ax1& axis, double diameter1, double diameter2,
 }
 
 TopoDS_Solid MakeCylinder(double diameter, double length,
-                          Orientation orientation, int center, gp_Pnt origin) {
+                          Orientation orientation, PositionCentering center,
+                          gp_Pnt origin) {
   // Compute offsets based on centering
-  if (center & (int)PositionCentering::CenterL) {
+  if (center == PositionCentering::CenterL) {
     if (orientation == Orientation::X) {
       origin.SetX(origin.X() - diameter / 2.0);
     } else if (orientation == Orientation::Y) {
@@ -70,15 +70,29 @@ TopoDS_Solid MakeCylinder(double diameter, double length,
     } else if (orientation == Orientation::Z) {
       origin.SetZ(origin.Z() - diameter / 2.0);
     }
+  } else if (center == PositionCentering::CenterD) {
+    if (orientation == Orientation::X) {
+      origin.SetX(origin.X() - length / 2.0);
+      origin.SetY(origin.Y() - diameter / 2.0);
+      origin.SetZ(origin.Z() - diameter / 2.0);
+    } else if (orientation == Orientation::Y) {
+      origin.SetX(origin.X() - diameter / 2.0);
+      origin.SetY(origin.Y() - length / 2.0);
+      origin.SetZ(origin.Z() - diameter / 2.0);
+    } else if (orientation == Orientation::Z) {
+      origin.SetX(origin.X() - diameter / 2.0);
+      origin.SetY(origin.Y() - diameter / 2.0);
+      origin.SetZ(origin.Z() - length / 2.0);
+    }
   }
   // Which axis
   gp_Dir axis{};
   if (orientation == Orientation::X) {
-    axis = Direction::X();
+    axis = direction::X();
   } else if (orientation == Orientation::Y) {
-    axis = Direction::Y();
+    axis = direction::Y();
   } else if (orientation == Orientation::Z) {
-    axis = Direction::Z();
+    axis = direction::Z();
   }
   // Build primitive
   gp_Ax2 ax(origin, axis);
@@ -87,4 +101,4 @@ TopoDS_Solid MakeCylinder(double diameter, double length,
   return cyl.Solid();
 }
 
-}  // namespace OCCUtils::Primitive
+}  // namespace occutils::primitive

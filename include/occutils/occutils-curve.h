@@ -4,11 +4,10 @@
 #include <Geom_Curve.hxx>
 #include <Geom_TrimmedCurve.hxx>
 #include <TopoDS_Edge.hxx>
-#include <functional>
 
-namespace OCCUtils {
+namespace occutils {
 
-namespace Curve {
+namespace curve {
 
 /**
  * Get a curve from the given edge.
@@ -50,9 +49,9 @@ bool IsBSpline(const GeomAdaptor_Curve& curve);
 bool IsOffsetCurve(const GeomAdaptor_Curve& curve);
 bool IsOther(const GeomAdaptor_Curve& curve);
 
-}  // namespace Curve
+}  // namespace curve
 
-namespace Curves {
+namespace curves {
 
 /**
  * Filter a list of curves: Get only curves that match the given type
@@ -64,10 +63,10 @@ std::vector<GeomAdaptor_Curve> Only(
  * Filter a list of curves: Get only curves for which the given predicate
  * returns true
  */
+template <typename Predicate>
 std::vector<GeomAdaptor_Curve> Filter(
-    const std::vector<GeomAdaptor_Curve>& curves,
-    const std::function<bool(const GeomAdaptor_Curve& curve)>& predicate);
+    const std::vector<GeomAdaptor_Curve>& curves, Predicate predicate);
 
-}  // namespace Curves
+}  // namespace curves
 
-}  // namespace OCCUtils
+}  // namespace occutils

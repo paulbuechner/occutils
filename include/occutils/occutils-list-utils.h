@@ -6,7 +6,7 @@
 #include <utility>  // std::pair<>
 #include <vector>
 
-namespace OCCUtils::ListUtils {
+namespace occutils::list_utils {
 
 /**
  * Split a NCollection_List<T> into
@@ -88,4 +88,4 @@ std::list<T> ToSTLList(const NCollection_List<T>& args) {
   return ret;
 }
 
-}  // namespace OCCUtils::ListUtils
+}  // namespace occutils::list_utils

@@ -7,9 +7,9 @@
 #include <algorithm>
 #include <utility>
 
-namespace OCCUtils {
+namespace occutils {
 
-namespace Shape {
+namespace shape {
 
 bool IsSolid(const TopoDS_Shape& shape) {
   return shape.ShapeType() == TopAbs_SOLID;
@@ -64,9 +64,9 @@ double BoundingBoxVolume(const TopoDS_Shape& shape) {
   return bbox.X() * bbox.Y() * bbox.Z();
 }
 
-}  // namespace Shape
+}  // namespace shape
 
-namespace Shapes {
+namespace shapes {
 
 /**
  * Internal converter function
@@ -89,6 +89,6 @@ std::vector<TopoDS_Shape> FromFaces(const std::vector<TopoDS_Face>& faces) {
   return _ToShapes(faces);
 }
 
-}  // namespace Shapes
+}  // namespace shapes
 
-}  // namespace OCCUtils
+}  // namespace occutils

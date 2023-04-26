@@ -6,7 +6,7 @@ gp_Vec operator*(const gp_Dir& a, double factor) {
   return {a.X() * factor, a.Y() * factor, a.Z() * factor};
 }
 
-namespace OCCUtils::Direction {
+namespace occutils::direction {
 
 gp_Dir X() { return {gp_XYZ(1.0, 0.0, 0.0)}; }
 
@@ -39,4 +39,4 @@ gp_Dir2d MinusY2d() { return {gp_XY(0.0, -1.0)}; }
 
 gp_Dir Orthogonal(const gp_Dir& a, const gp_Dir& b) { return a.Crossed(b); }
 
-}  // namespace OCCUtils::Direction
+}  // namespace occutils::direction
