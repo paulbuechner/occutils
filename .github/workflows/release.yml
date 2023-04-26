@@ -178,7 +178,7 @@ jobs:
             packages/*.*
 
   build-windows:
-    name: Build ${{ matrix.os }}
+    name: Build windows-latest
     runs-on: windows-latest
     env:
       # Indicates the location of the vcpkg as a Git submodule of the project repository.
