@@ -11,6 +11,14 @@ vcpkg_from_github(
   fix-depend-freetype.patch
 )
 
+# message("VCPKG_CMAKE_SYSTEM_NAME: ${VCPKG_CMAKE_SYSTEM_NAME}")
+
+# MinGW compiler does generate import libraries (.dll.a files) for DLLs on Windows.
+# Suppresses Warning: Import libraries were not present (only looking for ".lib" files)
+if (WIN32 AND VCPKG_CMAKE_SYSTEM_NAME STREQUAL "MinGW")
+  set(VCPKG_POLICY_DLLS_WITHOUT_LIBS enabled)
+endif ()
+
 if (VCPKG_LIBRARY_LINKAGE STREQUAL dynamic)
   set(BUILD_TYPE "Shared")
 else ()
@@ -26,7 +34,7 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
 
 # VTK option in opencascade not currently supported because only 6.1.0 is supported but vcpkg has >= 9.0
 
-# We turn off BUILD_MODULE_Draw as it requires TCL 8.6 and TK 8.6 specifically which conflicts with vcpkg only having TCL 9.0 
+# We turn off BUILD_MODULE_Draw as it requires TCL 8.6 and TK 8.6 specifically which conflicts with vcpkg only having TCL 9.0
 # And pre-built ActiveTCL binaries are behind a marketing wall :(
 # We use the Unix install layout for Windows as it matches vcpkg
 vcpkg_cmake_configure(
@@ -69,7 +77,7 @@ foreach (file_name IN LISTS files)
 endforeach ()
 
 # Remove libd to lib, libd just has cmake files we dont want too
-if (WIN32)
+if (WIN32 AND NOT VCPKG_CMAKE_SYSTEM_NAME STREQUAL "MinGW")
   file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/lib")
   file(RENAME "${CURRENT_PACKAGES_DIR}/debug/libd" "${CURRENT_PACKAGES_DIR}/debug/lib")
 endif ()
@@ -79,7 +87,7 @@ file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/share")
 
 if (VCPKG_LIBRARY_LINKAGE STREQUAL dynamic)
   # debug creates libd and bind directories that need moving
-  if (WIN32)
+  if (WIN32 AND NOT VCPKG_CMAKE_SYSTEM_NAME STREQUAL "MinGW")
     file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/bin")
     file(RENAME "${CURRENT_PACKAGES_DIR}/debug/bind" "${CURRENT_PACKAGES_DIR}/debug/bin")
   endif ()
