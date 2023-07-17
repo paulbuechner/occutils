@@ -27,7 +27,7 @@
     "@changesets/types": "^5.2.1",
     "@commitlint/cli": "^17.6.0",
     "@commitlint/config-conventional": "^17.6.0",
-    "@octokit/rest": "^19.0.7",
+    "@octokit/rest": "^20.0.0",
     "@types/edit-json-file": "^1.7.0",
     "@types/node": "^18.15.11",
     "edit-json-file": "^1.7.0",
