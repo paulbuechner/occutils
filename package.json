@@ -32,7 +32,7 @@
     "@types/node": "^18.15.11",
     "edit-json-file": "^1.7.0",
     "husky": "^8.0.3",
-    "prettier": "^2.8.7",
+    "prettier": "^3.0.0",
     "prettier-plugin-packagejson": "^2.4.3",
     "tsx": "^3.12.6",
     "typescript": "^5.0.3"
