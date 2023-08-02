@@ -8,30 +8,20 @@
   ],
   "dependencies": [
     {
-      "name": "opencascade",
-      "version>=": "7.6.2#1"
-    },
-    {
-      "name": "boost-algorithm",
-      "version>=": "1.80.0#1"
-    },
-    {
-      "name": "boost-filesystem",
-      "version>=": "1.80.0#1"
-    },
-    {
-      "name": "boost-system",
-      "version>=": "1.80.0#1"
-    },
-    {
       "name": "gtest",
       "version>=": "1.12.1"
+    },
+    {
+      "name": "opencascade",
+      "version>=": "7.7.1"
     }
   ],
   "features": {
     "tests": {
       "description": "Build tests",
-      "dependencies": ["gtest"]
+      "dependencies": [
+        "gtest"
+      ]
     }
   }
 }

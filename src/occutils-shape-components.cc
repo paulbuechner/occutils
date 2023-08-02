@@ -286,7 +286,7 @@ std::optional<TopoDS_Vertex> TryGetSingleVertex(const TopoDS_Shape& shape,
 TopoDS_Solid GetSingleSolid(const TopoDS_Shape& shape, bool firstOfMultipleOK) {
   auto opt = TryGetSingleSolid(shape, firstOfMultipleOK);
   if (!opt.has_value()) {
-    throw new OCCTopologyCountMismatchException(
+    throw OCCTopologyCountMismatchException(
         "Shape is not a solid and does not contain a single solid");
   }
   return opt.value();
@@ -295,7 +295,7 @@ TopoDS_Solid GetSingleSolid(const TopoDS_Shape& shape, bool firstOfMultipleOK) {
 TopoDS_Face GetSingleFace(const TopoDS_Shape& shape, bool firstOfMultipleOK) {
   auto opt = TryGetSingleFace(shape, firstOfMultipleOK);
   if (!opt.has_value()) {
-    throw new OCCTopologyCountMismatchException(
+    throw OCCTopologyCountMismatchException(
         "Shape is not a face and does not contain a single face");
   }
   return opt.value();
@@ -304,7 +304,7 @@ TopoDS_Face GetSingleFace(const TopoDS_Shape& shape, bool firstOfMultipleOK) {
 TopoDS_Edge GetSingleEdge(const TopoDS_Shape& shape, bool firstOfMultipleOK) {
   auto opt = TryGetSingleEdge(shape, firstOfMultipleOK);
   if (!opt.has_value()) {
-    throw new OCCTopologyCountMismatchException(
+    throw OCCTopologyCountMismatchException(
         "Shape is not a edge and does not contain a single edge");
   }
   return opt.value();
@@ -313,7 +313,7 @@ TopoDS_Edge GetSingleEdge(const TopoDS_Shape& shape, bool firstOfMultipleOK) {
 TopoDS_Wire GetSingleWire(const TopoDS_Shape& shape, bool firstOfMultipleOK) {
   auto opt = TryGetSingleWire(shape, firstOfMultipleOK);
   if (!opt.has_value()) {
-    throw new OCCTopologyCountMismatchException(
+    throw OCCTopologyCountMismatchException(
         "Shape is not a wire and does not contain a single wire");
   }
   return opt.value();
@@ -323,7 +323,7 @@ TopoDS_Vertex GetSingleVertex(const TopoDS_Shape& shape,
                               bool firstOfMultipleOK) {
   auto opt = TryGetSingleVertex(shape, firstOfMultipleOK);
   if (!opt.has_value()) {
-    throw new OCCTopologyCountMismatchException(
+    throw OCCTopologyCountMismatchException(
         "Shape is not a vertex and does not contain a single vertex");
   }
   return opt.value();

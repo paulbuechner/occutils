@@ -11,15 +11,14 @@ list(APPEND occutils_test_libs
      GTest::gtest
      GTest::gtest_main
      ${OpenCASCADE_LIBRARIES}
-     )
+)
 
 # Add executable
 cxx_executable("occutils-test-all" src "${occutils_test_libs}")
 
 # Add target_include_directories
-target_include_directories("occutils-test-all" PRIVATE
+target_include_directories("occutils-test-all" SYSTEM PRIVATE
                            ${OpenCASCADE_INCLUDE_DIR}
-                           ${ocx_test_SOURCE_DIR}
-                           )
+)
 
 add_test(NAME ${PROJECT_NAME} COMMAND "occutils-test-all")

@@ -151,7 +151,7 @@ vcpkg [here](https://vcpkg.io/en/getting-started.html).
 #### Python
 
 The OpenCascade build requires python with a version of at least 3.7. However,
-this is only needed when building on Linux.
+this is **only needed when building on Linux**.
 
 To ensure your python3 points to the correct version run:
 

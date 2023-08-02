@@ -1,8 +1,9 @@
-#include "occutils/occutils-io.hxx"
+#include "occutils/occutils-io.h"
 
 #include <IGESControl_Reader.hxx>
 #include <STEPControl_Reader.hxx>
-#include <boost/algorithm/string.hpp>
+#include <algorithm>
+#include <filesystem>
 
 #include "occutils/occutils-exceptions.h"
 
@@ -19,14 +20,16 @@ namespace Reader {
 std::shared_ptr<XSControl_Reader> STEPorIGESReader(
     const std::string& filename) {
   std::shared_ptr<XSControl_Reader> reader;
-  // Automatically determine filename
-  std::string lowercaseFilename = boost::algorithm::to_lower_copy(filename);
-  if (boost::algorithm::ends_with(lowercaseFilename, ".step") ||
-      boost::algorithm::ends_with(lowercaseFilename, ".stp")) {
+
+  std::filesystem::path filepath(filename);
+  std::string extension = filepath.extension().string();
+  std::transform(extension.begin(), extension.end(), extension.begin(),
+                 [](unsigned char c) { return std::tolower(c); });
+
+  if (extension == ".step" || extension == ".stp") {
     reader = std::shared_ptr<XSControl_Reader>(
         dynamic_cast<XSControl_Reader*>(new STEPControl_Reader()));
-  } else if (boost::algorithm::ends_with(lowercaseFilename, ".iges") ||
-             boost::algorithm::ends_with(lowercaseFilename, ".igs")) {
+  } else if (extension == ".iges" || extension == ".igs") {
     reader = std::shared_ptr<XSControl_Reader>(
         dynamic_cast<XSControl_Reader*>(new IGESControl_Reader()));
   } else {
