@@ -1,15 +1,17 @@
 vcpkg_from_github(
   OUT_SOURCE_PATH SOURCE_PATH
   REPO Open-Cascade-SAS/OCCT
-  REF ffce0d66bbaafe3a95984d0e61804c201b9995d2 #V7.7.1
-  SHA512 bf65ec9334e67e0d33cfd05c25e4ff1f454646a61b43fbbdce5cb38f9c433db421c90c4dc79bc401feeccb78b88be25615eb09b385636a243e75be3d3a9e1be4
+  REF cec1ecd0c9f3b3d2572c47035d11949e8dfa85e2 #V7_7_2
+  SHA512 2fe98eadd7f9b922729bf80b56f260729d1c257c41392e4be4f070667ee77e94e2b286a873430b41ea61076acf1388aee7ba8b91789aa6199db56066796bb2d3
   HEAD_REF master
   PATCHES
   fix-pdb-find.patch
   fix-install-prefix-path.patch
   install-include-dir.patch
-  fix-feature-depend.patch
-)
+  fix-depend-freetype.patch
+  fix-dependence.patch
+  fix-find-tbb.patch
+  )
 
 # MinGW compiler does generate import libraries (.dll.a files) for DLLs on Windows.
 # Suppresses Warning: Import libraries were not present (only looking for ".lib" files)
@@ -47,12 +49,10 @@ vcpkg_cmake_configure(
   -DBUILD_SAMPLES_QT=OFF
   -DBUILD_DOC_Overview=OFF
   -DINSTALL_TEST_CASES=OFF
-)
+  )
 
 vcpkg_cmake_install()
-
 vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/opencascade)
-vcpkg_copy_tools(TOOL_NAMES ExpToCasExe AUTO_CLEAN)
 
 #make occt includes relative to source_file
 list(APPEND ADDITIONAL_HEADERS
@@ -117,6 +117,8 @@ if (VCPKG_TARGET_IS_WINDOWS AND VCPKG_LIBRARY_LINKAGE STREQUAL "dynamic")
   if (BATS)
     file(REMOVE_RECURSE ${BATS})
   endif ()
+
+  vcpkg_copy_tools(TOOL_NAMES ExpToCasExe AUTO_CLEAN)
 else ()
   # remove scripts in bin dir
   file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/bin" "${CURRENT_PACKAGES_DIR}/debug/bin")
