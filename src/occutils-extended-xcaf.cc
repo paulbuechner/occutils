@@ -1,6 +1,6 @@
-#include "occutils/occutils-extended-step.h"
+#include "occutils/occutils-extended-xcaf.h"
 
-#include <NCollection_Vector.hxx>
+#include <Interface_Static.hxx>
 #include <Quantity_Color.hxx>
 #include <STEPCAFControl_Writer.hxx>
 #include <TDocStd_Application.hxx>
@@ -14,13 +14,13 @@
 #include <XCAFDoc_ShapeTool.hxx>
 #include <vector>
 
-namespace occutils::step {
+namespace occutils::xcaf {
 
 /**
  * Internal state
  */
-struct _ExtendedSTEPExporterInternals {
-  _ExtendedSTEPExporterInternals() {
+struct ExtendedXCAFApplicationInternals {
+  ExtendedXCAFApplicationInternals() {
     // Create document
     application = XCAFApp_Application::GetApplication();
     application->NewDocument("MDTV-XCAF", document);
@@ -46,13 +46,16 @@ struct _ExtendedSTEPExporterInternals {
   std::vector<TDF_Label> shapeLabels;
 };
 
-ExtendedSTEPExporter::ExtendedSTEPExporter() {
-  internals = std::make_unique<_ExtendedSTEPExporterInternals>();
+ExtendedXCAFApplication::ExtendedXCAFApplication() {
+  internals = std::make_unique<ExtendedXCAFApplicationInternals>();
 }
 
-ExtendedSTEPExporter::~ExtendedSTEPExporter() = default;
+ExtendedXCAFApplication::~ExtendedXCAFApplication() {
+  // Make sure to close the document
+  internals->application->Close(internals->document);
+}
 
-size_t ExtendedSTEPExporter::AddShape(const TopoDS_Shape& shape) {
+size_t ExtendedXCAFApplication::AddShape(const TopoDS_Shape& shape) {
   TDF_Label shapeLabel = internals->shapeTool->NewShape();
   internals->shapeTool->SetShape(shapeLabel, shape);
   // Add to internal labels
@@ -61,9 +64,9 @@ size_t ExtendedSTEPExporter::AddShape(const TopoDS_Shape& shape) {
   return idx;
 }
 
-size_t ExtendedSTEPExporter::AddShapeWithColor(const TopoDS_Shape& shape,
-                                               const Quantity_Color& color,
-                                               XCAFDoc_ColorType colorType) {
+size_t ExtendedXCAFApplication::AddShapeWithColor(const TopoDS_Shape& shape,
+                                                  const Quantity_Color& color,
+                                                  XCAFDoc_ColorType colorType) {
   TDF_Label shapeLabel = internals->shapeTool->NewShape();
   internals->shapeTool->SetShape(shapeLabel, shape);
   internals->colorTool->SetColor(shape, color, colorType);
@@ -73,7 +76,9 @@ size_t ExtendedSTEPExporter::AddShapeWithColor(const TopoDS_Shape& shape,
   return idx;
 }
 
-void ExtendedSTEPExporter::Write(const std::string& filename) {
+void ExtendedXCAFApplication::WriteSTEP(const std::string& filename,
+                                        const std::string& exportUnit) {
+  Interface_Static::SetCVal("write.step.unit", exportUnit.c_str());
   STEPCAFControl_Writer writer;
   writer.SetMaterialMode(true);
   writer.SetDimTolMode(true);
@@ -83,4 +88,4 @@ void ExtendedSTEPExporter::Write(const std::string& filename) {
   writer.Perform(internals->document, filename.c_str());
 }
 
-}  // namespace occutils::step
+}  // namespace occutils::xcaf
