@@ -55,24 +55,30 @@ class ExtendedXCAFApplication {
   ~ExtendedXCAFApplication();
 
   /**
-   * @brief Adds a shape without special attributes to the exporter.
+   * @brief Adds a shape without special attributes to the application.
    *
-   * @param shape The shape to be added to the exporter.
+   * @param shape The shape to be added to the application.
+   * @param shapeName The name to be associated with the shape.
+   *
    * @return size_t Index of the shape in the internal storage.
    *         Can be used for subsequent referencing.
    */
-  size_t AddShape(const TopoDS_Shape& shape);
+  size_t AddShape(const TopoDS_Shape& shape,
+                  const std::string& shapeName = std::string());
 
   /**
-   * @brief Adds a shape with associated color to the exporter.
+   * @brief Adds a shape with associated color to the application.
    *
-   * @param shape The shape to be added to the exporter.
+   * @param shape The shape to be added to the application.
    * @param color The color to be associated with the shape.
+   * @param shapeName The name to be associated with the shape.
    * @param colorType The type of the color. Defaults to XCAFDoc_ColorGen.
+   *
    * @return size_t Index of the shape in the internal storage.
    */
   size_t AddShapeWithColor(const TopoDS_Shape& shape,
                            const Quantity_Color& color,
+                           const std::string& shapeName = std::string(),
                            XCAFDoc_ColorType colorType = XCAFDoc_ColorGen);
 
   /**

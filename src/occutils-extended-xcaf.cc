@@ -3,6 +3,7 @@
 #include <Interface_Static.hxx>
 #include <Quantity_Color.hxx>
 #include <STEPCAFControl_Writer.hxx>
+#include <TDataStd_Name.hxx>
 #include <TDocStd_Application.hxx>
 #include <TDocStd_Document.hxx>
 #include <XCAFApp_Application.hxx>
@@ -55,9 +56,14 @@ ExtendedXCAFApplication::~ExtendedXCAFApplication() {
   internals->application->Close(internals->document);
 }
 
-size_t ExtendedXCAFApplication::AddShape(const TopoDS_Shape& shape) {
+size_t ExtendedXCAFApplication::AddShape(const TopoDS_Shape& shape,
+                                         const std::string& shapeName) {
   TDF_Label shapeLabel = internals->shapeTool->NewShape();
   internals->shapeTool->SetShape(shapeLabel, shape);
+  // Add name if specified
+  if (!shapeName.empty()) {
+    TDataStd_Name::Set(shapeLabel, shapeName.c_str());
+  }
   // Add to internal labels
   size_t idx = internals->shapeLabels.size();
   internals->shapeLabels.push_back(shapeLabel);
@@ -66,10 +72,15 @@ size_t ExtendedXCAFApplication::AddShape(const TopoDS_Shape& shape) {
 
 size_t ExtendedXCAFApplication::AddShapeWithColor(const TopoDS_Shape& shape,
                                                   const Quantity_Color& color,
+                                                  const std::string& shapeName,
                                                   XCAFDoc_ColorType colorType) {
   TDF_Label shapeLabel = internals->shapeTool->NewShape();
   internals->shapeTool->SetShape(shapeLabel, shape);
   internals->colorTool->SetColor(shape, color, colorType);
+  // Add name if specified
+  if (!shapeName.empty()) {
+    TDataStd_Name::Set(shapeLabel, shapeName.c_str());
+  }
   // Add to internal labels
   size_t idx = internals->shapeLabels.size();
   internals->shapeLabels.push_back(shapeLabel);
