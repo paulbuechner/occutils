@@ -2,9 +2,13 @@
   "default-registry": {
     "kind": "git",
     "repository": "https://github.com/microsoft/vcpkg",
-    "baseline": "4467a9a690f3377f50f412155685919f13ed9332"
+    "baseline": "61f610845fb206298a69f708104a51d651872877"
   },
   "registries": [],
-  "overlay-ports": ["./vcpkg/ports/opencascade"],
-  "overlay-triplets": ["./vcpkg/triplets"]
+  "overlay-ports": [
+    "./vcpkg/ports/opencascade"
+  ],
+  "overlay-triplets": [
+    "./vcpkg/triplets"
+  ]
 }
