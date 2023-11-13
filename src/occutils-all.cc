@@ -10,7 +10,6 @@
 #include "occutils-direction.cc"
 #include "occutils-edge.cc"
 #include "occutils-equality.cc"
-#include "occutils-extended-xcaf.cc"
 #include "occutils-face.cc"
 #include "occutils-fillet.cc"
 #include "occutils-io.cc"
@@ -25,3 +24,4 @@
 #include "occutils-step-export.cc"
 #include "occutils-surface.cc"
 #include "occutils-wire.cc"
+#include "xcaf/occutils-xcaf-application.cc"

@@ -10,7 +10,7 @@
  *   published by the Free Software Foundation.                            *
  *                                                                         *
  ***************************************************************************/
- 
+
 // This file #includes all occutils-test implementation .cc files. The
 // purpose is to allow a user to build occutils-test by compiling this
 // file alone.
@@ -18,3 +18,4 @@
 // The following lines pull in the real occutils-test-*.cc files.
 
 #include "occutils-test-line.cc"
+#include "occutils-test-xcaf-application.cc"
