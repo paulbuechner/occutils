@@ -45,3 +45,6 @@
 
 # Package Files
 /packages
+
+# Testing
+**/generated
