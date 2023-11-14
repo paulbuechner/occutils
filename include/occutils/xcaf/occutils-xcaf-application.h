@@ -15,8 +15,11 @@
 
 #include <Quantity_Color.hxx>
 #include <TDF_Label.hxx>
+#include <TDocStd_Document.hxx>
 #include <TopoDS_Shape.hxx>
+#include <XCAFDoc_ColorTool.hxx>
 #include <XCAFDoc_ColorType.hxx>
+#include <XCAFDoc_ShapeTool.hxx>
 
 #include "occutils/xcaf/occutils-xcaf-shape.h"
 
@@ -79,7 +82,7 @@ class ExtendedXCAFApplication {
    *         Can be used for subsequent referencing.
    */
   TDF_Label AddShape(const TopoDS_Shape& shape,
-                     const std::string& shapeName = std::string());
+                     const std::string& shapeName = std::string()) const;
 
   /**
    * @brief Adds a shape with specified properties to the application.
@@ -133,6 +136,104 @@ class ExtendedXCAFApplication {
    * @return The labels of all materials in the
    */
   [[nodiscard]] std::vector<TDF_Label> GetMaterials() const;
+
+  /**
+   * @brief Retrieves the TopoDS_Shape associated with a given label in the
+   * document.
+   *
+   * This method fetches the geometric shape associated with the provided label.
+   * It is useful for retrieving specific shapes based on their labels within
+   * the document.
+   *
+   * @param label The label of the shape to retrieve. This label should be
+   * valid and associated with a shape in the document.
+   *
+   * @return The geometric shape associated with the given label. Returns an
+   * empty shape if the label is null or does not correspond to a valid shape.
+   */
+  [[nodiscard]] static TopoDS_Shape GetShape(const TDF_Label& label);
+
+  /**
+   * @brief Retrieves a single shape or a compound of all free shapes in the
+   * document.
+   *
+   * This method is designed to handle documents with varying numbers of shapes.
+   * If the document contains exactly one free shape, that shape is returned.
+   * If the document contains multiple shapes, they are combined into a single
+   * compound shape and returned.
+   *
+   * @return TopoDS_Shape A single shape or a compound of all free shapes in the
+   * document. Returns an empty shape if the document contains no free shapes.
+   */
+  [[nodiscard]] TopoDS_Shape GetOneShape() const;
+
+  /**
+   * @brief Removes all color attributes from the shapes in the current
+   * document.
+   *
+   * This method iterates through all the shapes in the document and removes any
+   * color attributes assigned to them. It effectively resets the color state of
+   * the entire document, leaving shapes without any color properties.
+   *
+   * Usage:
+   *     ExtendedXCAFApplication app;
+   *     // ... document setup and operations ...
+   *     app.ResetColors(); // Resets colors for all shapes in the document
+   *
+   * @note This operation might be irreversible for the current session if the
+   *       document's state is not saved beforehand. It's recommended to save
+   *       the document or maintain a backup before performing this operation
+   *       if the original color data is important.
+   */
+  void ResetColors() const;
+
+  /**
+   * @brief Retrieves a modifiable reference to the current document.
+   *
+   * This method provides access to the current document with the ability to
+   * modify it. It is useful for operations that need to change the document's
+   * state or its contents.
+   *
+   * @return A reference to the handle of the current document. The handle
+   * allows both reading and modification of the document.
+   */
+  Handle(TDocStd_Document) & ChangeDocument();
+
+  /**
+   * @brief Retrieves a constant reference to the current document.
+   *
+   * This method provides read-only access to the current document. It is used
+   * for operations that require inspecting the document without modifying it.
+   *
+   * @return A constant reference to the handle of the current document. This
+   * handle is read-only.
+   *
+   * @note Marked as [[nodiscard]] to encourage checking the returned handle, as
+   * it provides essential document access.
+   */
+  [[nodiscard]] const Handle(TDocStd_Document) & GetDocument() const;
+
+  /**
+   * @brief Retrieves the shape tool associated with the current document.
+   *
+   * This method provides access to the XCAFDoc_ShapeTool, which is used for
+   * managing and manipulating shapes within the document. The shape tool is
+   * central to operations involving geometric shapes.
+   *
+   * @return A handle to the shape tool of the current document.
+   */
+  Handle(XCAFDoc_ShapeTool) GetShapeTool() const;
+
+  /**
+   * @brief Retrieves the color tool associated with the current document.
+   *
+   * This method provides access to the XCAFDoc_ColorTool, which is responsible
+   * for managing color attributes of the shapes in the document. It allows for
+   * the application, modification, and querying of color properties.
+   *
+   * @return A handle to the color tool of the current document.
+   */
+  Handle(XCAFDoc_ColorTool) GetColorTool() const;
 
   /**
    * @brief Reads shapes from a STEP file.

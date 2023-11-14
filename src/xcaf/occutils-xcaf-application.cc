@@ -56,10 +56,12 @@ ExtendedXCAFApplication::~ExtendedXCAFApplication() {
   internals->application->Close(internals->document);
 }
 
-TDF_Label ExtendedXCAFApplication::AddShape(const TopoDS_Shape& shape,
-                                            const std::string& shapeName) {
-  TDF_Label shapeLabel = internals->shapeTool->NewShape();
-  internals->shapeTool->SetShape(shapeLabel, shape);
+// -----------------------------------------------------------------------------
+
+TDF_Label ExtendedXCAFApplication::AddShape(
+    const TopoDS_Shape& shape, const std::string& shapeName) const {
+  TDF_Label shapeLabel = this->GetShapeTool()->NewShape();
+  this->GetShapeTool()->SetShape(shapeLabel, shape);
 
   if (!shapeName.empty()) {
     TDataStd_Name::Set(shapeLabel, shapeName.c_str());
@@ -72,12 +74,12 @@ TDF_Label ExtendedXCAFApplication::AddShape(const TopoDS_Shape& shape,
 
 TDF_Label ExtendedXCAFApplication::AddShapeWithProps(
     const TopoDS_Shape& shape, const XCAFShapeProperties& props) {
-  TDF_Label shapeLabel = internals->shapeTool->NewShape();
-  internals->shapeTool->SetShape(shapeLabel, shape);
+  TDF_Label shapeLabel = this->GetShapeTool()->NewShape();
+  this->GetShapeTool()->SetShape(shapeLabel, shape);
 
   // Set color if specified
   if (props.HasColor()) {
-    internals->colorTool->SetColor(shapeLabel, props.GetColor(),
+    this->GetColorTool()->SetColor(shapeLabel, props.GetColor(),
                                    props.GetColorType());
   }
 
@@ -89,7 +91,7 @@ TDF_Label ExtendedXCAFApplication::AddShapeWithProps(
   // Add material if specified
   if (!props.GetMaterial().IsNull()) {
     TDF_Label materialLabel = FindOrCreateMaterial(props.GetMaterial());
-    internals->materialTool->SetMaterial(shapeLabel, materialLabel);
+    this->internals->materialTool->SetMaterial(shapeLabel, materialLabel);
   }
 
   return shapeLabel;
@@ -101,7 +103,7 @@ TDF_Label ExtendedXCAFApplication::FindOrCreateMaterial(
     const XCAFMaterial& material) {
   // Check if the material already exists
   TDF_LabelSequence materials;
-  internals->materialTool->GetMaterialLabels(materials);
+  this->internals->materialTool->GetMaterialLabels(materials);
   for (Standard_Integer i = 1; i <= materials.Length(); i++) {
     TDF_Label materialLabel = materials.Value(i);
     Handle(TCollection_HAsciiString) name;
@@ -131,7 +133,7 @@ TDF_Label ExtendedXCAFApplication::FindOrCreateMaterial(
   Handle(TCollection_HAsciiString) densValType =
       new TCollection_HAsciiString(material.GetDensityValueType().c_str());
 
-  TDF_Label newMaterialLabel = internals->materialTool->AddMaterial(
+  TDF_Label newMaterialLabel = this->internals->materialTool->AddMaterial(
       name, description, material.GetDensity(), densName, densValType);
 
   return newMaterialLabel;
@@ -141,13 +143,82 @@ TDF_Label ExtendedXCAFApplication::FindOrCreateMaterial(
 
 std::vector<TDF_Label> ExtendedXCAFApplication::GetMaterials() const {
   TDF_LabelSequence materials;
-  internals->materialTool->GetMaterialLabels(materials);
+  this->internals->materialTool->GetMaterialLabels(materials);
 
   std::vector<TDF_Label> materialLabels;
   for (Standard_Integer i = 1; i <= materials.Length(); i++) {
     materialLabels.push_back(materials.Value(i));
   }
   return materialLabels;
+}
+
+//-----------------------------------------------------------------------------
+
+TopoDS_Shape ExtendedXCAFApplication::GetShape(const TDF_Label& label) {
+  if (label.IsNull()) return {};
+
+  return XCAFDoc_ShapeTool::GetShape(label);
+}
+
+//-----------------------------------------------------------------------------
+
+TopoDS_Shape ExtendedXCAFApplication::GetOneShape() const {
+  // Get all parts.
+  TDF_LabelSequence labels;
+  this->GetShapeTool()->GetFreeShapes(labels);
+
+  if (!labels.Length()) return {};
+
+  if (labels.Length() == 1) return XCAFDoc_ShapeTool::GetShape(labels.First());
+
+  // Put everything into compound and return.
+  TopoDS_Compound C;
+  BRep_Builder B;
+  B.MakeCompound(C);
+  for (int i = 1; i <= labels.Length(); ++i) {
+    TopoDS_Shape S = XCAFDoc_ShapeTool::GetShape(labels(i));
+    B.Add(C, S);
+  }
+  return C;
+}
+
+// -----------------------------------------------------------------------------
+
+void ExtendedXCAFApplication::ResetColors() const {
+  // Get color tool.
+  Handle(XCAFDoc_ColorTool) CT = this->GetColorTool();
+
+  TDF_LabelSequence colorLabs;
+  CT->GetColors(colorLabs);
+
+  for (TDF_LabelSequence::Iterator lit(colorLabs); lit.More(); lit.Next()) {
+    TDF_Label colorLab = lit.Value();
+    CT->RemoveColor(colorLab);
+  }
+}
+
+// -----------------------------------------------------------------------------
+
+Handle(TDocStd_Document) & ExtendedXCAFApplication::ChangeDocument() {
+  return this->internals->document;
+}
+
+// -----------------------------------------------------------------------------
+
+const Handle(TDocStd_Document) & ExtendedXCAFApplication::GetDocument() const {
+  return this->internals->document;
+}
+
+// -----------------------------------------------------------------------------
+
+Handle(XCAFDoc_ShapeTool) ExtendedXCAFApplication::GetShapeTool() const {
+  return this->internals->shapeTool;
+}
+
+// -----------------------------------------------------------------------------
+
+Handle(XCAFDoc_ColorTool) ExtendedXCAFApplication::GetColorTool() const {
+  return this->internals->colorTool;
 }
 
 // -----------------------------------------------------------------------------
@@ -165,8 +236,14 @@ bool ExtendedXCAFApplication::ReadSTEP(const std::string& filename) {
     return false;
   }
 
-  return reader.Transfer(internals->document);
+  if (!reader.Transfer(internals->document)) {
+    return false;
+  }
+
+  return true;
 }
+
+// -----------------------------------------------------------------------------
 
 bool ExtendedXCAFApplication::WriteSTEP(const std::string& filename,
                                         const std::string& exportUnit) {
