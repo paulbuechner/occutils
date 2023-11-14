@@ -10,6 +10,13 @@ struct OCCUtilsBaseException : std::invalid_argument {
 };
 
 /**
+ * Baseclass for exceptions that incorporate an invalid argument
+ */
+struct OCCInvalidArgumentException : OCCUtilsBaseException {
+  using OCCUtilsBaseException::OCCUtilsBaseException;
+};
+
+/**
  * Baseclass for exceptions that directly relate to the
  * BRep topology.
  */
