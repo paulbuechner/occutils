@@ -6,9 +6,9 @@
 #include <TopoDS_Shape.hxx>
 #include <XCAFDoc_ColorType.hxx>
 
-#include "occutils-xcaf-material.h"
+#include "occutils/xde/occutils-xde-material.h"
 
-namespace occutils::xcaf {
+namespace occutils::xde {
 
 /**
  * @brief Represents properties for a shape to be added to an application.
@@ -16,10 +16,10 @@ namespace occutils::xcaf {
  * This class encapsulates various attributes like color, name and material for
  * a shape. It provides setters and getters for these attributes.
  */
-class XCAFShapeProperties {
+class ShapeProperties {
  public:
   // Default constructor
-  XCAFShapeProperties() = default;
+  ShapeProperties() = default;
 
   /**
    * @brief Set the Name of the shape.
@@ -59,7 +59,7 @@ class XCAFShapeProperties {
    *
    * @param material The material to be associated with the shape.
    */
-  void SetMaterial(const XCAFMaterial& material) { m_material = material; }
+  void SetMaterial(const Material& material) { m_material = material; }
 
   /**
    * @brief Retrieves the name of the shape.
@@ -87,7 +87,7 @@ class XCAFShapeProperties {
    *
    * @return const std::string& The material of the shape.
    */
-  [[nodiscard]] const XCAFMaterial& GetMaterial() const { return m_material; }
+  [[nodiscard]] const Material& GetMaterial() const { return m_material; }
 
   /**
    * @brief Checks if a color has been set for the shape.
@@ -115,7 +115,7 @@ class XCAFShapeProperties {
   /**
    * @brief The material of the shape.
    */
-  XCAFMaterial m_material;
+  Material m_material;
 
   /**
    * @brief Flag to indicate if a color has been set.
@@ -123,4 +123,4 @@ class XCAFShapeProperties {
   bool m_hasColor = false;
 };
 
-}  // namespace occutils::xcaf
+}  // namespace occutils::xde

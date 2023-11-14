@@ -18,4 +18,4 @@
 // The following lines pull in the real occutils-test-*.cc files.
 
 #include "occutils-test-line.cc"
-#include "occutils-test-xcaf-application.cc"
+#include "xde/occutils-test-xde-doc.cc"

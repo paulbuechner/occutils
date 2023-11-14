@@ -8,7 +8,7 @@
 #include <string>
 #include <utility>
 
-namespace occutils::xcaf {
+namespace occutils::xde {
 
 /**
  * @brief Represents material properties in the application.
@@ -18,10 +18,10 @@ namespace occutils::xcaf {
  * methods to set and retrieve these properties, allowing for a structured and
  * convenient handling of material data in the application.
  */
-class XCAFMaterial {
+class Material {
  public:
   /**
-   * @brief Constructor for XCAFMaterial with optional parameters for
+   * @brief Constructor for Material with optional parameters for
    * initialization.
    *
    * @param name The name of the material.
@@ -30,9 +30,9 @@ class XCAFMaterial {
    * @param densName The name associated with the density measurement.
    * @param densValType The type of the density value (e.g., kg/m^3).
    */
-  explicit XCAFMaterial(std::string name = "", std::string description = "",
-                        double density = 0.0, std::string densName = "",
-                        std::string densValType = "")
+  explicit Material(std::string name = "", std::string description = "",
+                    double density = 0.0, std::string densName = "",
+                    std::string densValType = "")
       : m_name(std::move(name)),
         m_description(std::move(description)),
         m_density(density),
@@ -40,13 +40,13 @@ class XCAFMaterial {
         m_densValType(std::move(densValType)) {}
 
   /**
-   * @brief Checks if two XCAFMaterial instances are equal.
+   * @brief Checks if two Material instances are equal.
    *
-   * @param other The XCAFMaterial instance to compare with.
+   * @param other The Material instance to compare with.
    * @return true if all properties of both instances are equal.
    * @return false otherwise.
    */
-  bool operator==(const XCAFMaterial& other) const {
+  bool operator==(const Material& other) const {
     return m_name == other.m_name && m_description == other.m_description &&
            m_density == other.m_density && m_densName == other.m_densName &&
            m_densValType == other.m_densValType;
@@ -172,4 +172,4 @@ class XCAFMaterial {
   std::string m_densValType;
 };
 
-}  // namespace occutils::xcaf
+}  // namespace occutils::xde

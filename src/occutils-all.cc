@@ -24,4 +24,5 @@
 #include "occutils-step-export.cc"
 #include "occutils-surface.cc"
 #include "occutils-wire.cc"
-#include "xcaf/occutils-xcaf-application.cc"
+#include "xde/occutils-xde-app.cc"
+#include "xde/occutils-xde-doc.cc"

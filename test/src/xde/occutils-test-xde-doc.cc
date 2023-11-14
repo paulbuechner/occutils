@@ -15,22 +15,22 @@
 
 #include <BRepPrimAPI_MakeBox.hxx>
 
-#include "occutils/xcaf/occutils-xcaf-application.h"
-#include "occutils/xcaf/occutils-xcaf-material.h"
+#include "occutils/xde/occutils-xde-doc.h"
+#include "occutils/xde/occutils-xde-material.h"
 
-using namespace occutils::xcaf;
+using namespace occutils::xde;
 
-class ExtendedXCAFApplicationTest : public ::testing::Test {
+class DocTest : public ::testing::Test {
  protected:
-  ExtendedXCAFApplication m_app;  // Instance of class to be tested
+  Doc m_doc;  // Instance of class to be tested
 
   TDF_Label m_defaultMaterialLabel;  // Label of default material
 
   void SetUp() override {
     // Add a default material to the application context
-    XCAFMaterial defaultMaterial("Steel", "High-grade steel", 7.85, "kg/m^3",
-                                 "Density");
-    m_defaultMaterialLabel = m_app.FindOrCreateMaterial(defaultMaterial);
+    Material defaultMaterial("Steel", "High-grade steel", 7.85, "kg/m^3",
+                             "Density");
+    m_defaultMaterialLabel = m_doc.FindOrCreateMaterial(defaultMaterial);
   }
 
   void TearDown() override {
@@ -38,32 +38,32 @@ class ExtendedXCAFApplicationTest : public ::testing::Test {
   }
 };
 
-TEST_F(ExtendedXCAFApplicationTest, AddShapeWithProps) {
+TEST_F(DocTest, AddShapeWithProps) {
   // Create a simple box shape
   TopoDS_Shape boxShape = BRepPrimAPI_MakeBox(10.0, 10.0, 10.0).Shape();
 
   // Define shape properties
-  XCAFShapeProperties props;
+  ShapeProperties props;
   props.SetColor(Quantity_ColorRGBA(Quantity_NOC_RED, 0.1f));  // Example color
   props.SetName("TestBox");
 
   // Call the method under test
-  TDF_Label shapeLabel = m_app.AddShapeWithProps(boxShape, props);
+  TDF_Label shapeLabel = m_doc.AddShapeWithProps(boxShape, props);
 
   // Assert - Verify that the label is valid
   ASSERT_FALSE(shapeLabel.IsNull());
 
   // Assert - Check if the shape can be written to STEP
-  ASSERT_TRUE(m_app.WriteSTEP("generated/STEP/box_with_props.stp"));
+  ASSERT_TRUE(m_doc.SaveSTEP("test/generated/STEP/box_with_props.stp"));
 }
 
-TEST_F(ExtendedXCAFApplicationTest, FindExistingMaterial) {
+TEST_F(DocTest, FindExistingMaterial) {
   // Setup - Create a material that exists in the application context
-  XCAFMaterial existingMaterial("Steel", "High-grade steel", 7.85, "kg/m^3",
-                                "Density");
+  Material existingMaterial("Steel", "High-grade steel", 7.85, "kg/m^3",
+                            "Density");
 
   // Act - Try to find or create this material
-  TDF_Label label = m_app.FindOrCreateMaterial(existingMaterial);
+  TDF_Label label = m_doc.FindOrCreateMaterial(existingMaterial);
 
   // Assert - Check if the returned label is valid and points to the existing
   // material
@@ -74,29 +74,28 @@ TEST_F(ExtendedXCAFApplicationTest, FindExistingMaterial) {
   ASSERT_EQ(label, m_defaultMaterialLabel);
 
   // Assert - Check if the created label size is 1
-  ASSERT_EQ(m_app.GetMaterials().size(), 1);
+  ASSERT_EQ(m_doc.GetMaterials().size(), 1);
 }
 
-TEST_F(ExtendedXCAFApplicationTest, CreateNewMaterial) {
+TEST_F(DocTest, CreateNewMaterial) {
   // Setup - Define a new material that does not exist
-  XCAFMaterial newMaterial("NewMaterial", "Description", 1.23, "unit",
-                           "valueType");
+  Material newMaterial("NewMaterial", "Description", 1.23, "unit", "valueType");
 
   // Act - Try to find or create this material
-  TDF_Label label = m_app.FindOrCreateMaterial(newMaterial);
+  TDF_Label label = m_doc.FindOrCreateMaterial(newMaterial);
 
   // Assert - Check if the returned label is valid and points to the new
   // material
   ASSERT_FALSE(label.IsNull());
 
   // Assert - Check if the created label size is 2
-  ASSERT_EQ(m_app.GetMaterials().size(), 2);
+  ASSERT_EQ(m_doc.GetMaterials().size(), 2);
 }
 
-TEST_F(ExtendedXCAFApplicationTest, ReadWriteSTEP) {
+TEST_F(DocTest, LoadWriteSTEP) {
   // Read the STEP file
-  ASSERT_TRUE(m_app.ReadSTEP("data/STEP/as1-oc-214.stp"));
+  ASSERT_TRUE(m_doc.LoadSTEP("test/data/STEP/as1-oc-214.stp"));
 
   // Write the STEP file
-  ASSERT_TRUE(m_app.WriteSTEP("generated/STEP/as1-oc-214.stp"));
+  ASSERT_TRUE(m_doc.SaveSTEP("test/generated/STEP/as1-oc-214.stp"));
 }
