@@ -21,4 +21,6 @@ target_include_directories("occutils-test-all" SYSTEM PRIVATE
                            ${OpenCASCADE_INCLUDE_DIR}
 )
 
-add_test(NAME ${PROJECT_NAME} COMMAND "occutils-test-all")
+add_test(NAME ${PROJECT_NAME}
+         COMMAND "occutils-test-all"
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

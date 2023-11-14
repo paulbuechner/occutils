@@ -14,6 +14,7 @@
 #include <gtest/gtest.h>
 
 #include <BRepPrimAPI_MakeBox.hxx>
+#include <filesystem>
 
 #include "occutils/xde/occutils-xde-doc.h"
 #include "occutils/xde/occutils-xde-material.h"
@@ -54,7 +55,7 @@ TEST_F(DocTest, AddShapeWithProps) {
   ASSERT_FALSE(shapeLabel.IsNull());
 
   // Assert - Check if the shape can be written to STEP
-  ASSERT_TRUE(m_doc.SaveSTEP("test/generated/STEP/box_with_props.stp"));
+  ASSERT_TRUE(m_doc.SaveSTEP("generated/STEP/box_with_props.stp"));
 }
 
 TEST_F(DocTest, FindExistingMaterial) {
@@ -92,10 +93,10 @@ TEST_F(DocTest, CreateNewMaterial) {
   ASSERT_EQ(m_doc.GetMaterials().size(), 2);
 }
 
-TEST_F(DocTest, LoadWriteSTEP) {
+TEST_F(DocTest, LoadSaveSTEP) {
   // Read the STEP file
-  ASSERT_TRUE(m_doc.LoadSTEP("test/data/STEP/as1-oc-214.stp"));
+  ASSERT_TRUE(m_doc.LoadSTEP("data/STEP/as1-oc-214.stp"));
 
   // Write the STEP file
-  ASSERT_TRUE(m_doc.SaveSTEP("test/generated/STEP/as1-oc-214.stp"));
+  ASSERT_TRUE(m_doc.SaveSTEP("generated/STEP/as1-oc-214.stp"));
 }
