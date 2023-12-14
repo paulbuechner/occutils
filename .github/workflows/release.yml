@@ -406,19 +406,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download packages-windows-latest artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: packages-windows-latest
           path: artifacts
 
       - name: Download packages-ubuntu-latest artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: packages-ubuntu-latest
           path: artifacts
 
       - name: Download packages-macos-latest artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: packages-macos-latest
           path: artifacts
