@@ -144,7 +144,7 @@ jobs:
       # Upload vcpkg's logs as artifacts.
       - name: Upload vcpkg build log files
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: vcpkg-log-files-${{ matrix.os }}
           path: deps/vcpkg/buildtrees/**/*.log
@@ -152,7 +152,7 @@ jobs:
       # Upload builds logs as artifacts.
       - name: Upload builds log files
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: builds-log-files-${{ matrix.os }}
           path: builds/**/*.log
@@ -171,7 +171,7 @@ jobs:
       # Upload packages as artifacts.
       - name: Upload package artifacts
         if: "success() && contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: packages-${{ matrix.os }}
           path: |
@@ -276,7 +276,7 @@ jobs:
       # Upload vcpkg's logs as artifacts.
       - name: Upload vcpkg build log files
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: vcpkg-log-files-windows-latest
           path: C:/occutils/deps/vcpkg/buildtrees/**/*.log
@@ -284,7 +284,7 @@ jobs:
       # Upload builds logs as artifacts.
       - name: Upload builds log files
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: builds-log-files-windows-latest
           path: C:/occutils/builds/**/*.log
@@ -299,7 +299,7 @@ jobs:
       # Upload packages as artifacts.
       - name: Upload package artifacts
         if: "success() && contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: packages-${{ matrix.os }}
           path: |
