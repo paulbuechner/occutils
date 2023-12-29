@@ -3,7 +3,7 @@
  ***************************************************************************
  *   Copyright (c) 2023-present, Paul Buechner                             *
  *                                                                         *
- *   This file is part of the OCCUtils library.                            *
+ *   This file is part of the occutils library.                            *
  *                                                                         *
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the Apache License version 2.0 as        *
@@ -53,7 +53,7 @@ namespace occutils::xde {
 
 Handle(App) App::Instance() {
   static Handle(App) A;  // Singleton.
-  
+
   if (A.IsNull()) {
     A = new App();
   }
