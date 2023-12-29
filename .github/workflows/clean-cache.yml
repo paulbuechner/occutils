@@ -1,4 +1,4 @@
-name: Cleanup caches by a branch
+name: Cleanup caches
 
 on:
   pull_request:
@@ -7,9 +7,13 @@ on:
   workflow_dispatch:
     inputs:
       branchName:
-        description: 'Branch Name'
-        required: true
-        default: 'main'
+        description: 'Branch Name (leave empty to delete all caches)'
+        required: false
+        default: ''
+      deleteAll:
+        description: 'Set to true to delete all caches (ignores Branch Name)'
+        required: false
+        default: 'false'
 
 jobs:
   cleanup:
@@ -18,32 +22,40 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
-      - name: Cleanup
+      - name: Cleanup Caches
         run: |
           gh extension install actions/gh-actions-cache
           
           REPO=${{ github.repository }}
-          BRANCH=${{ github.ref }}  # This will get the default branch's ref
-          MANUAL_BRANCH=${{ github.event.inputs.branchName }}  # This gets the manually specified branch
+          DELETE_ALL="${{ github.event.inputs.deleteAll }}"
+          MANUAL_BRANCH="${{ github.event.inputs.branchName }}"
 
-          # Check if the workflow is triggered manually
-          if [ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]; then
-              BRANCH="refs/heads/$MANUAL_BRANCH"
+          if [ "$DELETE_ALL" == "true" ]; then
+              echo "Deleting all caches..."
+              allCacheKeys=$(gh actions-cache list -R $REPO | cut -f 1)
+              for cacheKey in $allCacheKeys
+              do
+                  gh actions-cache delete $cacheKey -R $REPO --confirm
+              done
           else
               BRANCH="refs/pull/${{ github.event.pull_request.number }}/merge"
+              if [ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]; then
+                  if [ -n "$MANUAL_BRANCH" ]; then
+                      BRANCH="refs/heads/$MANUAL_BRANCH"
+                  fi
+              fi
+
+              echo "Fetching list of cache keys for branch: $BRANCH"
+              cacheKeysForBranch=$(gh actions-cache list -R $REPO -B $BRANCH | cut -f 1 )
+
+              ## Setting this to not fail the workflow while deleting cache keys.
+              set +e
+              echo "Deleting caches for branch: $BRANCH"
+              for cacheKey in $cacheKeysForBranch
+              do
+                  gh actions-cache delete $cacheKey -R $REPO -B $BRANCH --confirm
+              done
           fi
-
-          echo "Branch: $BRANCH"
-          echo "Fetching list of cache keys"
-          cacheKeysForPR=$(gh actions-cache list -R $REPO -B $BRANCH | cut -f 1 )
-
-          ## Setting this to not fail the workflow while deleting cache keys. 
-          set +e
-          echo "Deleting caches..."
-          for cacheKey in $cacheKeysForPR
-          do
-              gh actions-cache delete $cacheKey -R $REPO -B $BRANCH --confirm
-          done
           echo "Done"
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
