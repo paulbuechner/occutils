@@ -13,6 +13,7 @@
 #include "occutils-face.cc"
 #include "occutils-fillet.cc"
 #include "occutils-io.cc"
+#include "occutils-ldom.cc"
 #include "occutils-line.cc"
 #include "occutils-pipe.cc"
 #include "occutils-plane.cc"

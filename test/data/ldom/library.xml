@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="library.xsd">
+    <book id="B001" rating="4.5" edition="3">
+        <title>The Great Gatsby</title>
+        <author>F. Scott Fitzgerald</author>
+        <year>1925</year>
+    </book>
+    <book id="B002" rating="4.8">
+        <title>To Kill a Mockingbird</title>
+        <author>Harper Lee</author>
+        <year>1960</year>
+    </book>
+</library>

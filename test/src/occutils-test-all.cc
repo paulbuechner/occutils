@@ -3,7 +3,7 @@
  ***************************************************************************
  *   Copyright (c) 2022, Paul Buechner                                     *
  *                                                                         *
- *   This file is part of the OCCUtils library.                            *
+ *   This file is part of the occutils library.                            *
  *                                                                         *
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the Apache License version 2.0 as        *
@@ -17,5 +17,6 @@
 
 // The following lines pull in the real occutils-test-*.cc files.
 
+#include "occutils-test-ldom.cc"
 #include "occutils-test-line.cc"
 #include "xde/occutils-test-xde-doc.cc"
