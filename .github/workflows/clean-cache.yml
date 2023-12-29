@@ -1,8 +1,15 @@
 name: Cleanup caches by a branch
+
 on:
   pull_request:
     types:
       - closed
+  workflow_dispatch:
+    inputs:
+      branchName:
+        description: 'Branch Name'
+        required: true
+        default: 'main'
 
 jobs:
   cleanup:
@@ -16,9 +23,18 @@ jobs:
           gh extension install actions/gh-actions-cache
           
           REPO=${{ github.repository }}
-          BRANCH="refs/pull/${{ github.event.pull_request.number }}/merge"
+          BRANCH=${{ github.ref }}  # This will get the default branch's ref
+          MANUAL_BRANCH=${{ github.event.inputs.branchName }}  # This gets the manually specified branch
 
-          echo "Fetching list of cache key"
+          # Check if the workflow is triggered manually
+          if [ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]; then
+              BRANCH="refs/heads/$MANUAL_BRANCH"
+          else
+              BRANCH="refs/pull/${{ github.event.pull_request.number }}/merge"
+          fi
+
+          echo "Branch: $BRANCH"
+          echo "Fetching list of cache keys"
           cacheKeysForPR=$(gh actions-cache list -R $REPO -B $BRANCH | cut -f 1 )
 
           ## Setting this to not fail the workflow while deleting cache keys. 
