@@ -72,6 +72,27 @@ jobs:
         with:
           submodules: true
 
+      ##########################################################################
+      # Workaround for:
+      #   - https://github.com/microsoft/vcpkg/issues/35332
+      #   - https://github.com/microsoft/vcpkg/pull/35348
+      #
+      - name: Set up Python
+        if: ${{ matrix.os == 'macos-latest' }}
+        # This is the version of the action for setting up Python, not the Python version.
+        uses: actions/setup-python@v4
+        with:
+          # Semantic version range syntax or exact version of a Python version
+          python-version: '3.11'
+          # Optional - x64 or x86 architecture, defaults to x64
+          architecture: 'x64'
+      # You can test your matrix by printing the current Python version
+      - name: Display Python version
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: python -c "import sys; print(sys.version)"
+      #
+      ##########################################################################
+
       # Create the directory to store the vcpkg's binary cache.
       - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
         run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
