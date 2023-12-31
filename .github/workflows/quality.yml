@@ -188,12 +188,10 @@ jobs:
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
       - name: Checkout Repository
-        shell: bash
-        run: |
-          git clone --no-single-branch "https://github.com/${{ github.repository }}" C:/occutils
-          cd C:/occutils
-          git checkout ${{ github.head_ref }}
-          git submodule update --init --recursive
+        uses: actions/checkout@v4
+        with:
+          path: C:/occutils
+          submodules: true
 
       # Create the directory to store the vcpkg's binary cache.
       - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
