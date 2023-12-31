@@ -232,9 +232,9 @@ jobs:
           cmakeListsTxtPath: 'C:/occutils/CMakeLists.txt'
           configurePreset: 'occutils-ninja-multiconfiguration-vcpkg'
           buildPreset: 'occutils-ninja-multiconfiguration-vcpkg'
-          buildPresetAdditionalArgs: "['-C Release']"
-          testPreset: 'occutils-ninja-multiconfiguration-vcpkg'
-          testPresetAdditionalArgs: "['-C Release']"
+          buildPresetAdditionalArgs: "['--config Release']"
+          # testPreset: 'occutils-ninja-multiconfiguration-vcpkg' # currently broken
+          # testPresetAdditionalArgs: "['--config Release']" # currently broken
 
       # Test the whole project with CTest, again Release configuration only.
       - name: Test (Release configuration)
