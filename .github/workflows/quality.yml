@@ -206,8 +206,8 @@ jobs:
         id: runvcpkg
         with:
           vcpkgDirectory: '${{ env.VCPKG_ROOT }}'
-          vcpkgJsonGlob: '${{ github.workspace }}/vcpkg.json'
-          vcpkgConfigurationJsonGlob: '${{ github.workspace }}/vcpkg-configuration.json'
+          vcpkgJsonGlob: '**/C:/occutils/vcpkg.json'
+          vcpkgConfigurationJsonGlob: '**/C:/occutils/vcpkg-configuration.json'
 
       - name: List $RUNNER_WORKSPACE before build
         run: find $RUNNER_WORKSPACE
@@ -222,7 +222,7 @@ jobs:
         uses: lukka/run-cmake@v10
         id: runcmake
         with:
-          cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+          cmakeListsTxtPath: 'C:/occutils/CMakeLists.txt'
           configurePreset: 'occutils-ninja-multiconfiguration-vcpkg'
           buildPreset: 'occutils-ninja-multiconfiguration-vcpkg'
           buildPresetAdditionalArgs: "['--config Release']"
