@@ -29,15 +29,13 @@
     {
       "name": "occutils-ninja-multiconfiguration-vcpkg",
       "displayName": "Build occutils-ninja-multiconfiguration-vcpkg",
-      "configurePreset": "occutils-ninja-multiconfiguration-vcpkg",
-      "description": "Build with Ninja the configuration specified with --config"
+      "configurePreset": "occutils-ninja-multiconfiguration-vcpkg"
     }
   ],
   "testPresets": [
     {
       "name": "occutils-ninja-multiconfiguration-vcpkg",
-      "configurePreset": "occutils-ninja-multiconfiguration-vcpkg",
-      "description": "Test with Ninja the provided configuration with --config"
+      "configurePreset": "occutils-ninja-multiconfiguration-vcpkg"
     }
   ],
   "packagePresets": [

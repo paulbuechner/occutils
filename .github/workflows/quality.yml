@@ -136,8 +136,14 @@ jobs:
           configurePreset: 'occutils-ninja-multiconfiguration-vcpkg'
           buildPreset: 'occutils-ninja-multiconfiguration-vcpkg'
           buildPresetAdditionalArgs: "['--config Release']"
-          testPreset: 'occutils-ninja-multiconfiguration-vcpkg'
-          testPresetAdditionalArgs: "['--config Release']"
+          # testPreset: 'occutils-ninja-multiconfiguration-vcpkg' # currently broken
+          # testPresetAdditionalArgs: "['--config Release']" # currently broken
+
+      # Test the whole project with CTest, again Release configuration only.
+      - name: Test (Release configuration)
+        shell: bash
+        run: |
+          ctest --preset occutils-ninja-multiconfiguration-vcpkg --config Release
 
       - name: List $RUNNER_WORKSPACE after build
         run: find $RUNNER_WORKSPACE
@@ -206,8 +212,8 @@ jobs:
         id: runvcpkg
         with:
           vcpkgDirectory: '${{ env.VCPKG_ROOT }}'
-          vcpkgJsonGlob: '**/C:/occutils/vcpkg.json'
-          vcpkgConfigurationJsonGlob: '**/C:/occutils/vcpkg-configuration.json'
+          vcpkgJsonGlob: 'C:/occutils/vcpkg.json'
+          vcpkgConfigurationJsonGlob: 'C:/occutils/vcpkg-configuration.json'
 
       - name: List $RUNNER_WORKSPACE before build
         run: find $RUNNER_WORKSPACE
@@ -228,6 +234,12 @@ jobs:
           buildPresetAdditionalArgs: "['--config Release']"
           testPreset: 'occutils-ninja-multiconfiguration-vcpkg'
           testPresetAdditionalArgs: "['--config Release']"
+
+      # Test the whole project with CTest, again Release configuration only.
+      - name: Test (Release configuration)
+        shell: bash
+        run: |
+          ctest --preset occutils-ninja-multiconfiguration-vcpkg --config Release
 
       - name: List $RUNNER_WORKSPACE after build
         run: find $RUNNER_WORKSPACE
