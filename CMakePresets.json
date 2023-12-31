@@ -45,7 +45,7 @@
   "packagePresets": [
     {
       "name": "occutils-ninja-multiconfiguration-vcpkg-windows",
-      "configurePreset": "occutils-ninja-multiconfiguration-vcpkg-windows",
+      "configurePreset": "occutils-ninja-multiconfiguration-vcpkg",
       "generators": [
         "ZIP",
         "NSIS"
@@ -58,7 +58,7 @@
     },
     {
       "name": "occutils-ninja-multiconfiguration-vcpkg-ubuntu",
-      "configurePreset": "occutils-ninja-multiconfiguration-vcpkg-ubuntu",
+      "configurePreset": "occutils-ninja-multiconfiguration-vcpkg",
       "generators": [
         "DEB",
         "RPM"
@@ -71,7 +71,7 @@
     },
     {
       "name": "occutils-ninja-multiconfiguration-vcpkg-macos",
-      "configurePreset": "occutils-ninja-multiconfiguration-vcpkg-macos",
+      "configurePreset": "occutils-ninja-multiconfiguration-vcpkg",
       "generators": [
         "DragNDrop",
         "PackageMaker"
