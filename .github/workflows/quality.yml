@@ -40,6 +40,7 @@ jobs:
             triplet: x64-linux
           - os: macos-latest
             triplet: x64-osx
+
     env:
       # Indicates the location of the vcpkg as a Git submodule of the project repository.
       VCPKG_ROOT: ${{ github.workspace }}/deps/vcpkg
@@ -143,7 +144,7 @@ jobs:
       - name: Test (Release configuration)
         shell: bash
         run: |
-          ctest --preset occutils-ninja-multiconfiguration-vcpkg --config Release
+          ctest --config Release --preset occutils-ninja-multiconfiguration-vcpkg
 
       - name: List $RUNNER_WORKSPACE after build
         run: find $RUNNER_WORKSPACE
@@ -239,7 +240,7 @@ jobs:
       - name: Test (Release configuration)
         shell: bash
         run: |
-          ctest --preset occutils-ninja-multiconfiguration-vcpkg --config Release
+          ctest --config Release --preset occutils-ninja-multiconfiguration-vcpkg
 
       - name: List $RUNNER_WORKSPACE after build
         run: find $RUNNER_WORKSPACE
