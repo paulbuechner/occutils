@@ -194,7 +194,7 @@ jobs:
           cd C:/occutils
           BRANCH_NAME=${GITHUB_REF#refs/heads/}
           echo "Branch name: $BRANCH_NAME"
-          git checkout ${{ github.head_ref }}
+          git checkout $BRANCH_NAME
           git submodule update --init --recursive
 
       # Create the directory to store the vcpkg's binary cache.
