@@ -21,6 +21,11 @@ on:
       - main
       - development
   workflow_dispatch:
+    inputs:
+      debug:
+        description: 'Set to true to enable debug mode'
+        required: false
+        default: 'false'
 
 jobs:
   build-ubuntu-macos:
@@ -35,6 +40,7 @@ jobs:
             triplet: x64-linux
           - os: macos-latest
             triplet: x64-osx
+
     env:
       # Indicates the location of the vcpkg as a Git submodule of the project repository.
       VCPKG_ROOT: ${{ github.workspace }}/deps/vcpkg
@@ -98,60 +104,52 @@ jobs:
         run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
         shell: bash
 
-      # Setup the build machine with the most recent versions of CMake and Ninja. Both are cached if not already: on subsequent runs both will be quickly restored from GitHub cache service.
+      # Set up the build machine with the most recent versions of CMake and Ninja. Both are cached if not already: on subsequent runs both will be quickly restored from GitHub cache service.
       - uses: lukka/get-cmake@latest
 
-      # Restore vcpkg from the GitHub Action cache service. Note that packages are restored by vcpkg's binary caching
-      # when it is being run afterward by CMake.
-      - name: Restore vcpkg
-        uses: actions/cache@v3
+      - name: List $RUNNER_WORKSPACE before vcpkg is setup
+        run: find $RUNNER_WORKSPACE
+        if: ${{ inputs.debug == 'true' }}
+        shell: bash
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        id: runvcpkg
         with:
-          # The first path is the location of vcpkg: it contains the vcpkg executable and data files, as long as the
-          # built package archives (aka binary cache) which are located by VCPKG_DEFAULT_BINARY_CACHE env var.
-          # The other paths starting with '!' are exclusions: they contain temporary files generated during the build of the installed packages.
-          path: |
-            ${{ env.VCPKG_ROOT }}
-            !${{ env.VCPKG_ROOT }}/buildtrees
-            !${{ env.VCPKG_ROOT }}/packages
-            !${{ env.VCPKG_ROOT }}/downloads
-            !${{ env.VCPKG_ROOT }}/installed
-          # The key is composed in a way that it gets properly invalidated whenever a different version of vcpkg is being used.
-          key: |
-            ${{ hashFiles( '.git/modules/vcpkg/HEAD' )}}
+          vcpkgDirectory: '${{ env.VCPKG_ROOT }}'
+          vcpkgJsonGlob: '${{ github.workspace }}/vcpkg.json'
+          vcpkgConfigurationJsonGlob: '${{ github.workspace }}/vcpkg-configuration.json'
 
-      # Run CMake to generate Ninja project files, using the vcpkg's toolchain file to resolve and install
-      # the dependencies as specified in vcpkg.json. Note that the vcpkg's toolchain is specified
-      # in the CMakePresets.json file.
-      # This step also runs vcpkg with Binary Caching leveraging GitHub Action cache to
-      # store the built packages artifacts.
-      - name: Restore from cache the dependencies and generate project files
+      - name: List $RUNNER_WORKSPACE before build
+        run: find $RUNNER_WORKSPACE
+        if: ${{ inputs.debug == 'true' }}
         shell: bash
-        run: |
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            cmake --preset occutils-ninja-multiconfiguration-vcpkg-ubuntu
-          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-            cmake --preset occutils-ninja-multiconfiguration-vcpkg-macos
-          fi
 
-      # Build (Release configuration only) the whole project with Ninja (which is spawn by CMake).
-      - name: Build (Release configuration)
-        shell: bash
-        run: |
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-ubuntu
-          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-            cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-macos
-          fi
+      - name: Prints output of run-vcpkg's action.
+        if: ${{ inputs.debug == 'true' }}
+        run: echo "root='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}', triplet='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_DEFAULT_TRIPLET_OUT }}' "
+
+      - name: Run CMake+vcpkg+Ninja
+        uses: lukka/run-cmake@v10
+        id: runcmake
+        with:
+          cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+          configurePreset: 'occutils-ninja-multiconfiguration-vcpkg'
+          buildPreset: 'occutils-ninja-multiconfiguration-vcpkg'
+          buildPresetAdditionalArgs: "['--config Release']"
+          # testPreset: 'occutils-ninja-multiconfiguration-vcpkg' # currently broken
+          # testPresetAdditionalArgs: "['--config Release']" # currently broken
 
       # Test the whole project with CTest, again Release configuration only.
       - name: Test (Release configuration)
         shell: bash
         run: |
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            ctest --preset occutils-ninja-multiconfiguration-vcpkg-ubuntu
-          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-            ctest --preset occutils-ninja-multiconfiguration-vcpkg-macos
-          fi
+          ctest -C Release --preset occutils-ninja-multiconfiguration-vcpkg
+
+      - name: List $RUNNER_WORKSPACE after build
+        run: find $RUNNER_WORKSPACE
+        if: ${{ inputs.debug == 'true' }}
+        shell: bash
 
       # Upload vcpkg's logs as artifacts.
       - name: Upload vcpkg build log files
@@ -169,99 +167,104 @@ jobs:
           name: builds-log-files-${{ matrix.os }}
           path: builds/**/*.log
 
-  build-windows:
-    name: Build windows-latest
-    runs-on: windows-latest
-    env:
-      # Indicates the location of the vcpkg as a Git submodule of the project repository.
-      VCPKG_ROOT: C:/occutils/deps/vcpkg
-      # Tells vcpkg where binary packages are stored.
-      VCPKG_DEFAULT_BINARY_CACHE: C:/occutils/deps/vcpkg/bincache
-      # Let's use GitHub Action cache as storage for the vcpkg Binary Caching feature.
-      VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
-
-    steps:
-      # Set env vars needed for vcpkg to leverage the GitHub Action cache as a storage
-      # for Binary Caching.
-      - uses: actions/github-script@v7
-        with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-
-      - name: Checkout Repository
-        shell: bash
-        run: |
-          git clone --no-single-branch "https://github.com/${{ github.repository }}" C:/occutils
-          cd C:/occutils
-          git checkout ${{ github.head_ref }}
-          git submodule update --init --recursive
-
-      # Create the directory to store the vcpkg's binary cache.
-      - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
-        run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
-        shell: bash
-
-      # Setup the build machine with the most recent versions of CMake and Ninja. Both are cached if not already: on subsequent runs both will be quickly restored from GitHub cache service.
-      - uses: lukka/get-cmake@latest
-
-      # Restore vcpkg from the GitHub Action cache service. Note that packages are restored by vcpkg's binary caching
-      # when it is being run afterward by CMake.
-      - name: Restore vcpkg
-        uses: actions/cache@v3
-        with:
-          # The first path is the location of vcpkg: it contains the vcpkg executable and data files, as long as the
-          # built package archives (aka binary cache) which are located by VCPKG_DEFAULT_BINARY_CACHE env var.
-          # The other paths starting with '!' are exclusions: they contain temporary files generated during the build of the installed packages.
-          path: |
-            ${{ env.VCPKG_ROOT }}
-            !${{ env.VCPKG_ROOT }}/buildtrees
-            !${{ env.VCPKG_ROOT }}/packages
-            !${{ env.VCPKG_ROOT }}/downloads
-            !${{ env.VCPKG_ROOT }}/installed
-          # The key is composed in a way that it gets properly invalidated whenever a different version of vcpkg is being used.
-          key: |
-            ${{ hashFiles( '.git/modules/vcpkg/HEAD' )}}
-
-      # On Windows runners, let's ensure to have the Developer Command Prompt environment setup correctly.
-      # As used here the Developer Command Prompt created is targeting x64 and using the default the Windows SDK.
-      - uses: ilammy/msvc-dev-cmd@v1
-
-      # Run CMake to generate Ninja project files, using the vcpkg's toolchain file to resolve and install
-      # the dependencies as specified in vcpkg.json. Note that the vcpkg's toolchain is specified
-      # in the CMakePresets.json file.
-      # This step also runs vcpkg with Binary Caching leveraging GitHub Action cache to
-      # store the built packages artifacts.
-      - name: Restore from cache the dependencies and generate project files
-        working-directory: C:/occutils
-        run: |
-          cmake --preset occutils-ninja-multiconfiguration-vcpkg-windows
-
-      # Build (Release configuration only) the whole project with Ninja (which is spawn by CMake).
-      - name: Build (Release configuration)
-        working-directory: C:/occutils
-        run: |
-          cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-windows
-
-      # Test the whole project with CTest, again Release configuration only.
-      - name: Test (Release configuration)
-        working-directory: C:/occutils
-        shell: bash
-        run: |
-          ctest --preset occutils-ninja-multiconfiguration-vcpkg-windows
-
-      # Upload vcpkg's logs as artifacts.
-      - name: Upload vcpkg build log files
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: vcpkg-log-files-windows-latest
-          path: C:/occutils/deps/vcpkg/buildtrees/**/*.log
-
-      # Upload builds logs as artifacts.
-      - name: Upload builds log files
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: builds-log-files-windows-latest
-          path: C:/occutils/builds/**/*.log
+  # Disable windows workflow for now, because 7zip permissions is restricted when
+  # cloning to C:\ drive because of limited disk space.
+  # See: https://github.com/paulbuechner/occutils/actions/runs/7378995739/job/20074749902
+  #  build-windows:
+  #    name: Build windows-latest
+  #    runs-on: windows-latest
+  #    env:
+  #      # Indicates the location of the vcpkg as a Git submodule of the project repository.
+  #      VCPKG_ROOT: C:/occutils/deps/vcpkg
+  #      # Tells vcpkg where binary packages are stored.
+  #      VCPKG_DEFAULT_BINARY_CACHE: C:/occutils/deps/vcpkg/bincache
+  #      # Let's use GitHub Action cache as storage for the vcpkg Binary Caching feature.
+  #      VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
+  #
+  #    steps:
+  #      # Set env vars needed for vcpkg to leverage the GitHub Action cache as a storage
+  #      # for Binary Caching.
+  #      - uses: actions/github-script@v7
+  #        with:
+  #          script: |
+  #            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+  #            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+  #
+  #      - name: Checkout Repository
+  #        shell: bash
+  #        run: |
+  #          git clone --no-single-branch "https://github.com/${{ github.repository }}" C:/occutils
+  #          cd C:/occutils
+  #          BRANCH_NAME=${GITHUB_REF#refs/heads/}
+  #          echo "Branch name: $BRANCH_NAME"
+  #          git checkout $BRANCH_NAME
+  #          git submodule update --init --recursive
+  #
+  #      # Create the directory to store the vcpkg's binary cache.
+  #      - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
+  #        run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
+  #        shell: bash
+  #
+  #      # Set up the build machine with the most recent versions of CMake and Ninja. Both are cached if not already: on subsequent runs both will be quickly restored from GitHub cache service.
+  #      - uses: lukka/get-cmake@latest
+  #
+  #      - name: List $RUNNER_WORKSPACE before vcpkg is setup
+  #        run: find $RUNNER_WORKSPACE
+  #        if: ${{ inputs.debug == 'true' }}
+  #        shell: bash
+  #
+  #      - name: Setup vcpkg
+  #        uses: lukka/run-vcpkg@v11
+  #        id: runvcpkg
+  #        with:
+  #          vcpkgDirectory: '${{ env.VCPKG_ROOT }}'
+  #          vcpkgJsonGlob: 'C:/occutils/vcpkg.json'
+  #          vcpkgConfigurationJsonGlob: 'C:/occutils/vcpkg-configuration.json'
+  #
+  #      - name: List $RUNNER_WORKSPACE before build
+  #        run: find $RUNNER_WORKSPACE
+  #        if: ${{ inputs.debug == 'true' }}
+  #        shell: bash
+  #
+  #      - name: Prints output of run-vcpkg's action.
+  #        if: ${{ inputs.debug == 'true' }}
+  #        run: echo "root='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}', triplet='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_DEFAULT_TRIPLET_OUT }}' "
+  #
+  #      - name: Run CMake+vcpkg+Ninja
+  #        uses: lukka/run-cmake@v10
+  #        id: runcmake
+  #        with:
+  #          cmakeListsTxtPath: 'C:/occutils/CMakeLists.txt'
+  #          configurePreset: 'occutils-ninja-multiconfiguration-vcpkg'
+  #          buildPreset: 'occutils-ninja-multiconfiguration-vcpkg'
+  #          buildPresetAdditionalArgs: "['--config Release']"
+  #          # testPreset: 'occutils-ninja-multiconfiguration-vcpkg' # currently broken
+  #          # testPresetAdditionalArgs: "['--config Release']" # currently broken
+  #        timeout-minutes: 240 # Set timeout to 4 hours
+  #
+  #      # Test the whole project with CTest, again Release configuration only.
+  #      - name: Test (Release configuration)
+  #        shell: bash
+  #        run: |
+  #          ctest -C Release --preset occutils-ninja-multiconfiguration-vcpkg
+  #
+  #      - name: List $RUNNER_WORKSPACE after build
+  #        run: find $RUNNER_WORKSPACE
+  #        if: ${{ inputs.debug == 'true' }}
+  #        shell: bash
+  #
+  #      # Upload vcpkg's logs as artifacts.
+  #      - name: Upload vcpkg build log files
+  #        if: failure()
+  #        uses: actions/upload-artifact@v4
+  #        with:
+  #          name: vcpkg-log-files-windows-latest
+  #          path: C:/occutils/deps/vcpkg/buildtrees/**/*.log
+  #
+  #      # Upload builds logs as artifacts.
+  #      - name: Upload builds log files
+  #        if: failure()
+  #        uses: actions/upload-artifact@v4
+  #        with:
+  #          name: builds-log-files-windows-latest
+  #          path: C:/occutils/builds/**/*.log
