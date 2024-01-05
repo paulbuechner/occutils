@@ -192,9 +192,16 @@ jobs:
         run: |
           git clone --no-single-branch "https://github.com/${{ github.repository }}" C:/occutils
           cd C:/occutils
-          BRANCH_NAME=${GITHUB_REF#refs/heads/}
-          echo "Branch name: $BRANCH_NAME"
-          git checkout $BRANCH_NAME
+          if [[ $GITHUB_REF == refs/pull/* ]]; then
+            # If it's a pull request, checkout the PR's merge reference
+            git fetch origin $GITHUB_REF
+            git checkout -qf FETCH_HEAD
+          else
+            # Otherwise, checkout the branch normally
+            BRANCH_NAME=${GITHUB_REF#refs/heads/}
+            echo "Branch name: $BRANCH_NAME"
+            git checkout $BRANCH_NAME
+          fi
           git submodule update --init --recursive
 
       # Create the directory to store the vcpkg's binary cache.
