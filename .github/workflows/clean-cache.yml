@@ -45,6 +45,12 @@ jobs:
                   fi
               fi
 
+              # Skip deletion for main and development branches
+              if [[ "$BRANCH" == "refs/heads/main" || "$BRANCH" == "refs/heads/development" ]]; then
+                  echo "Skipping cache deletion for branch: $BRANCH"
+                  exit 0
+              fi
+
               echo "Fetching list of cache keys for branch: $BRANCH"
               cacheKeysForBranch=$(gh actions-cache list -R $REPO -B $BRANCH | cut -f 1 )
 
