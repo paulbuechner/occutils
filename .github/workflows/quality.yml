@@ -169,7 +169,6 @@ jobs:
 
   # Disable windows workflow for now, because 7zip permissions is restricted when
   # cloning to C:\ drive because of limited disk space.
-  # See: https://github.com/paulbuechner/occutils/actions/runs/7378995739/job/20074749902
   #  build-windows:
   #    name: Build windows-latest
   #    runs-on: windows-latest
@@ -195,9 +194,16 @@ jobs:
   #        run: |
   #          git clone --no-single-branch "https://github.com/${{ github.repository }}" C:/occutils
   #          cd C:/occutils
-  #          BRANCH_NAME=${GITHUB_REF#refs/heads/}
-  #          echo "Branch name: $BRANCH_NAME"
-  #          git checkout $BRANCH_NAME
+  #          if [[ $GITHUB_REF == refs/pull/* ]]; then
+  #            # If it's a pull request, checkout the PR's merge reference
+  #            git fetch origin $GITHUB_REF
+  #            git checkout -qf FETCH_HEAD
+  #          else
+  #            # Otherwise, checkout the branch normally
+  #            BRANCH_NAME=${GITHUB_REF#refs/heads/}
+  #            echo "Branch name: $BRANCH_NAME"
+  #            git checkout $BRANCH_NAME
+  #          fi
   #          git submodule update --init --recursive
   #
   #      # Create the directory to store the vcpkg's binary cache.
