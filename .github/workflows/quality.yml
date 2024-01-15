@@ -167,108 +167,110 @@ jobs:
           name: builds-log-files-${{ matrix.os }}
           path: builds/**/*.log
 
-  build-windows:
-    name: Build windows-latest
-    runs-on: windows-latest
-    env:
-      # Indicates the location of the vcpkg as a Git submodule of the project repository.
-      VCPKG_ROOT: C:/occutils/deps/vcpkg
-      # Tells vcpkg where binary packages are stored.
-      VCPKG_DEFAULT_BINARY_CACHE: C:/occutils/deps/vcpkg/bincache
-      # Let's use GitHub Action cache as storage for the vcpkg Binary Caching feature.
-      VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
-
-    steps:
-      # Set env vars needed for vcpkg to leverage the GitHub Action cache as a storage
-      # for Binary Caching.
-      - uses: actions/github-script@v7
-        with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-
-      - name: Checkout Repository
-        shell: bash
-        run: |
-          git clone --no-single-branch "https://github.com/${{ github.repository }}" C:/occutils
-          cd C:/occutils
-          if [[ $GITHUB_REF == refs/pull/* ]]; then
-            # If it's a pull request, checkout the PR's merge reference
-            git fetch origin $GITHUB_REF
-            git checkout -qf FETCH_HEAD
-          else
-            # Otherwise, checkout the branch normally
-            BRANCH_NAME=${GITHUB_REF#refs/heads/}
-            echo "Branch name: $BRANCH_NAME"
-            git checkout $BRANCH_NAME
-          fi
-          git submodule update --init --recursive
-
-      # Create the directory to store the vcpkg's binary cache.
-      - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
-        run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
-        shell: bash
-
-      # Set up the build machine with the most recent versions of CMake and Ninja. Both are cached if not already: on subsequent runs both will be quickly restored from GitHub cache service.
-      - uses: lukka/get-cmake@latest
-
-      - name: List $RUNNER_WORKSPACE before vcpkg is setup
-        run: find $RUNNER_WORKSPACE
-        if: ${{ inputs.debug == 'true' }}
-        shell: bash
-
-      - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11
-        id: runvcpkg
-        with:
-          vcpkgDirectory: '${{ env.VCPKG_ROOT }}'
-          vcpkgJsonGlob: 'C:/occutils/vcpkg.json'
-          vcpkgConfigurationJsonGlob: 'C:/occutils/vcpkg-configuration.json'
-
-      - name: List $RUNNER_WORKSPACE before build
-        run: find $RUNNER_WORKSPACE
-        if: ${{ inputs.debug == 'true' }}
-        shell: bash
-
-      - name: Prints output of run-vcpkg's action.
-        if: ${{ inputs.debug == 'true' }}
-        run: echo "root='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}', triplet='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_DEFAULT_TRIPLET_OUT }}' "
-
-      - name: Run CMake+vcpkg+Ninja
-        uses: lukka/run-cmake@v10
-        id: runcmake
-        with:
-          cmakeListsTxtPath: 'C:/occutils/CMakeLists.txt'
-          configurePreset: 'occutils-ninja-multiconfiguration-vcpkg'
-          buildPreset: 'occutils-ninja-multiconfiguration-vcpkg'
-          buildPresetAdditionalArgs: "['--config Release']"
-          # testPreset: 'occutils-ninja-multiconfiguration-vcpkg' # currently broken
-          # testPresetAdditionalArgs: "['--config Release']" # currently broken
-        timeout-minutes: 240 # Set timeout to 4 hours
-
-      # Test the whole project with CTest, again Release configuration only.
-      - name: Test (Release configuration)
-        shell: bash
-        run: |
-          ctest -C Release --preset occutils-ninja-multiconfiguration-vcpkg
-
-      - name: List $RUNNER_WORKSPACE after build
-        run: find $RUNNER_WORKSPACE
-        if: ${{ inputs.debug == 'true' }}
-        shell: bash
-
-      # Upload vcpkg's logs as artifacts.
-      - name: Upload vcpkg build log files
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: vcpkg-log-files-windows-latest
-          path: C:/occutils/deps/vcpkg/buildtrees/**/*.log
-
-      # Upload builds logs as artifacts.
-      - name: Upload builds log files
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: builds-log-files-windows-latest
-          path: C:/occutils/builds/**/*.log
+  # Disable windows workflow for now, because 7zip permissions is restricted when
+  # cloning to C:\ drive because of limited disk space.
+  #  build-windows:
+  #    name: Build windows-latest
+  #    runs-on: windows-latest
+  #    env:
+  #      # Indicates the location of the vcpkg as a Git submodule of the project repository.
+  #      VCPKG_ROOT: C:/occutils/deps/vcpkg
+  #      # Tells vcpkg where binary packages are stored.
+  #      VCPKG_DEFAULT_BINARY_CACHE: C:/occutils/deps/vcpkg/bincache
+  #      # Let's use GitHub Action cache as storage for the vcpkg Binary Caching feature.
+  #      VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
+  #
+  #    steps:
+  #      # Set env vars needed for vcpkg to leverage the GitHub Action cache as a storage
+  #      # for Binary Caching.
+  #      - uses: actions/github-script@v7
+  #        with:
+  #          script: |
+  #            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+  #            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+  #
+  #      - name: Checkout Repository
+  #        shell: bash
+  #        run: |
+  #          git clone --no-single-branch "https://github.com/${{ github.repository }}" C:/occutils
+  #          cd C:/occutils
+  #          if [[ $GITHUB_REF == refs/pull/* ]]; then
+  #            # If it's a pull request, checkout the PR's merge reference
+  #            git fetch origin $GITHUB_REF
+  #            git checkout -qf FETCH_HEAD
+  #          else
+  #            # Otherwise, checkout the branch normally
+  #            BRANCH_NAME=${GITHUB_REF#refs/heads/}
+  #            echo "Branch name: $BRANCH_NAME"
+  #            git checkout $BRANCH_NAME
+  #          fi
+  #          git submodule update --init --recursive
+  #
+  #      # Create the directory to store the vcpkg's binary cache.
+  #      - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
+  #        run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
+  #        shell: bash
+  #
+  #      # Set up the build machine with the most recent versions of CMake and Ninja. Both are cached if not already: on subsequent runs both will be quickly restored from GitHub cache service.
+  #      - uses: lukka/get-cmake@latest
+  #
+  #      - name: List $RUNNER_WORKSPACE before vcpkg is setup
+  #        run: find $RUNNER_WORKSPACE
+  #        if: ${{ inputs.debug == 'true' }}
+  #        shell: bash
+  #
+  #      - name: Setup vcpkg
+  #        uses: lukka/run-vcpkg@v11
+  #        id: runvcpkg
+  #        with:
+  #          vcpkgDirectory: '${{ env.VCPKG_ROOT }}'
+  #          vcpkgJsonGlob: 'C:/occutils/vcpkg.json'
+  #          vcpkgConfigurationJsonGlob: 'C:/occutils/vcpkg-configuration.json'
+  #
+  #      - name: List $RUNNER_WORKSPACE before build
+  #        run: find $RUNNER_WORKSPACE
+  #        if: ${{ inputs.debug == 'true' }}
+  #        shell: bash
+  #
+  #      - name: Prints output of run-vcpkg's action.
+  #        if: ${{ inputs.debug == 'true' }}
+  #        run: echo "root='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}', triplet='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_DEFAULT_TRIPLET_OUT }}' "
+  #
+  #      - name: Run CMake+vcpkg+Ninja
+  #        uses: lukka/run-cmake@v10
+  #        id: runcmake
+  #        with:
+  #          cmakeListsTxtPath: 'C:/occutils/CMakeLists.txt'
+  #          configurePreset: 'occutils-ninja-multiconfiguration-vcpkg'
+  #          buildPreset: 'occutils-ninja-multiconfiguration-vcpkg'
+  #          buildPresetAdditionalArgs: "['--config Release']"
+  #          # testPreset: 'occutils-ninja-multiconfiguration-vcpkg' # currently broken
+  #          # testPresetAdditionalArgs: "['--config Release']" # currently broken
+  #        timeout-minutes: 240 # Set timeout to 4 hours
+  #
+  #      # Test the whole project with CTest, again Release configuration only.
+  #      - name: Test (Release configuration)
+  #        shell: bash
+  #        run: |
+  #          ctest -C Release --preset occutils-ninja-multiconfiguration-vcpkg
+  #
+  #      - name: List $RUNNER_WORKSPACE after build
+  #        run: find $RUNNER_WORKSPACE
+  #        if: ${{ inputs.debug == 'true' }}
+  #        shell: bash
+  #
+  #      # Upload vcpkg's logs as artifacts.
+  #      - name: Upload vcpkg build log files
+  #        if: failure()
+  #        uses: actions/upload-artifact@v4
+  #        with:
+  #          name: vcpkg-log-files-windows-latest
+  #          path: C:/occutils/deps/vcpkg/buildtrees/**/*.log
+  #
+  #      # Upload builds logs as artifacts.
+  #      - name: Upload builds log files
+  #        if: failure()
+  #        uses: actions/upload-artifact@v4
+  #        with:
+  #          name: builds-log-files-windows-latest
+  #          path: C:/occutils/builds/**/*.log
