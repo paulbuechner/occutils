@@ -1,8 +1,12 @@
 #include "occutils/occutils-wire.h"
 
-#include <BRepLib_MakeWire.hxx>
+// std includes
 #include <stdexcept>
 
+// OCC includes
+#include <BRepLib_MakeWire.hxx>
+
+// occutils includes
 #include "occutils/occutils-edge.h"
 #include "occutils/occutils-equality.h"
 #include "occutils/occutils-face.h"
@@ -10,6 +14,12 @@
 #include "occutils/occutils-point.h"
 
 namespace occutils::wire {
+
+TopoDS_Wire FromEdge(const TopoDS_Edge& edge) {
+  BRepLib_MakeWire wireMaker;
+  wireMaker.Add(edge);
+  return wireMaker.IsDone() ? wireMaker.Wire() : TopoDS_Wire();
+}
 
 TopoDS_Wire FromEdges(const std::initializer_list<TopoDS_Edge>& edges) {
   BRepLib_MakeWire wireMaker;
@@ -58,8 +68,9 @@ void IncrementalBuilder::Arc90(double dx, double dy, double dz, double centerDx,
   gp_Pnt center = current + gp_Pnt(centerDx, centerDy, centerDz);
   gp_Dir resultingDirection(gp_Vec(current, center));
   double radius = current.Distance(center);
-  double radiusAlt = p2.Distance(center);
-  if (abs(radius - radiusAlt) >= Precision::Confusion()) {
+  //
+  if (double radiusAlt = p2.Distance(center);
+      abs(radius - radiusAlt) >= Precision::Confusion()) {
     throw std::invalid_argument("dx/dy/dz does not match centerD...!");
   }
   // Current algorithm: Compute both options,

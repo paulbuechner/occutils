@@ -1,15 +1,28 @@
 #pragma once
 
-#include <occutils/occutils-direction.h>
+// std includes
+#include <optional>
+#include <vector>
 
+// OCC includes
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Wire.hxx>
 #include <gp_Pnt.hxx>
-#include <optional>
-#include <vector>
+
+// occutils includes
+#include "occutils/occutils-direction.h"
 
 namespace occutils::wire {
+
+/**
+ * Create a wire from a single edge. Ensure that the edge is a valid candidate
+ * to create a wire from, i.e. its curve should be closed.
+ *
+ * @param edge The edge to create the wire from
+ * @return The wire created from the edge
+ */
+TopoDS_Wire FromEdge(const TopoDS_Edge& edge);
 
 /**
  * Create a wire from one or multiple edges.
@@ -77,6 +90,7 @@ class IncrementalBuilder {
 
   // Current location
   gp_Pnt current;
+
   // Current direction
   std::optional<gp_Dir> currentDirection;
   std::vector<TopoDS_Edge> edges;
