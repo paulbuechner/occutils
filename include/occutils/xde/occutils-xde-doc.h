@@ -47,6 +47,10 @@
 
 #pragma once
 
+// std includes
+#include <vector>
+
+// OCC includes
 #include <Quantity_Color.hxx>
 #include <Standard_Type.hxx>
 #include <TDF_Label.hxx>
@@ -56,9 +60,9 @@
 #include <XCAFDoc_ColorType.hxx>
 #include <XCAFDoc_MaterialTool.hxx>
 #include <XCAFDoc_ShapeTool.hxx>
-#include <vector>
 
-#include "occutils-xde-app.h"
+// occutils xde includes
+#include "occutils/xde/occutils-xde-app.h"
 #include "occutils/xde/occutils-xde-material.h"
 #include "occutils/xde/occutils-xde-shape.h"
 

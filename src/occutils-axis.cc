@@ -1,7 +1,9 @@
 #include "occutils/occutils-axis.h"
 
+// OCC includes
 #include <gp_Lin.hxx>
 
+// occutils includes
 #include "occutils/occutils-direction.h"
 #include "occutils/occutils-point.h"
 

@@ -1,5 +1,12 @@
 #include "occutils/occutils-surface.h"
 
+// std includes
+#include <algorithm>
+#include <optional>
+#include <sstream>
+#include <vector>
+
+// OCC includes
 #include <BRepGProp.hxx>
 #include <BRepLib_FindSurface.hxx>
 #include <GC_MakeLine.hxx>
@@ -7,9 +14,14 @@
 #include <GeomAPI_IntCS.hxx>
 #include <GeomAPI_IntSS.hxx>
 #include <GeomLProp_SLProps.hxx>
-#include <algorithm>
-#include <sstream>
+#include <TopoDS_Edge.hxx>
+#include <gp_Ax1.hxx>
+#include <gp_Lin.hxx>
+#include <gp_Pnt.hxx>
+#include <gp_Pnt2d.hxx>
+#include <gp_XY.hxx>
 
+// occutils includes
 #include "occutils/occutils-shape-components.h"
 
 namespace occutils {

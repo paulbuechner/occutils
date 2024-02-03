@@ -1,10 +1,20 @@
 #include "occutils/occutils-point.h"
 
+// std includes
+#include <initializer_list>
+#include <stdexcept>
+#include <vector>
+
+// OCC includes
 #include <Geom2dAPI_ProjectPointOnCurve.hxx>
 #include <Geom2d_Line.hxx>
 #include <GeomAPI_ProjectPointOnCurve.hxx>
 #include <Geom_Line.hxx>
+#include <gp_Pnt.hxx>
+#include <gp_Vec.hxx>
+#include <gp_XYZ.hxx>
 
+// occutils includes
 #include "occutils/occutils-axis.h"
 
 gp_Pnt operator+(const gp_Pnt &a, const gp_Pnt &b) {
@@ -36,7 +46,10 @@ namespace occutils::point {
 gp_Pnt Origin() { return {}; }
 
 gp_Pnt Midpoint(const std::initializer_list<gp_Pnt> &points) {
-  double x = 0.0, y = 0.0, z = 0.0;
+  double x = .0;
+  double y = .0;
+  double z = .0;
+  //
   for (const gp_Pnt &pnt : points) {
     x += pnt.X();
     y += pnt.Y();
@@ -48,7 +61,10 @@ gp_Pnt Midpoint(const std::initializer_list<gp_Pnt> &points) {
 }
 
 gp_Pnt Midpoint(const std::vector<gp_Pnt> &points) {
-  double x = 0.0, y = 0.0, z = 0.0;
+  double x = .0;
+  double y = .0;
+  double z = .0;
+  //
   for (const gp_Pnt &pnt : points) {
     x += pnt.X();
     y += pnt.Y();

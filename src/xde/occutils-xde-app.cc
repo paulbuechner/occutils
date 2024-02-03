@@ -47,7 +47,8 @@
 
 #pragma once
 
-#include <occutils/xde/occutils-xde-app.h>
+// occutils xde includes
+#include "occutils/xde/occutils-xde-app.h"
 
 namespace occutils::xde {
 

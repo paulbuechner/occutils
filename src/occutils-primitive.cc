@@ -1,9 +1,16 @@
 #include "occutils/occutils-primitive.h"
 
+// OCC includes
 #include <BRepPrimAPI_MakeBox.hxx>
 #include <BRepPrimAPI_MakeCone.hxx>
 #include <BRepPrimAPI_MakeCylinder.hxx>
+#include <TopoDS_Solid.hxx>
+#include <gp_Ax2.hxx>
+#include <gp_Dir.hxx>
+#include <gp_Pnt.hxx>
+#include <gp_Vec.hxx>
 
+// occutils includes
 #include "occutils/occutils-direction.h"
 
 namespace occutils::primitive {

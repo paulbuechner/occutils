@@ -1,5 +1,17 @@
 #include "occutils/occutils-print-occ.h"
 
+// std includes
+#include <ostream>
+
+// OCC includes
+#include <gp_Ax2.hxx>
+#include <gp_Dir.hxx>
+#include <gp_Dir2d.hxx>
+#include <gp_Pnt.hxx>
+#include <gp_Vec.hxx>
+#include <gp_XY.hxx>
+#include <gp_XYZ.hxx>
+
 std::ostream &operator<<(std::ostream &os, const gp_Pnt2d &xy) {
   return os << "gp_Pnt2d " << xy.XY();
 }

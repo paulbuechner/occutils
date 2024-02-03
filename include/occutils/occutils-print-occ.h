@@ -5,6 +5,11 @@
  * for common OpenCASCADE types so that you can print them
  * using cout, cerr etc.
  */
+
+// std includes
+#include <ostream>
+
+// OCC includes
 #include <gp_Dir.hxx>
 #include <gp_Dir2d.hxx>
 #include <gp_Pnt.hxx>
@@ -12,7 +17,6 @@
 #include <gp_Vec.hxx>
 #include <gp_XY.hxx>
 #include <gp_XYZ.hxx>
-#include <iostream>
 
 std::ostream &operator<<(std::ostream &os, const gp_Pnt2d &xy);
 std::ostream &operator<<(std::ostream &os, const gp_Pnt &xy);

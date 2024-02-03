@@ -1,8 +1,10 @@
 #include "occutils/occutils-boolean.h"
 
+// OCC includes
 #include <BRepAlgoAPI_Cut.hxx>
 #include <BRepAlgoAPI_Fuse.hxx>
 
+// occutils includes
 #include "occutils/occutils-list-utils.h"
 #include "occutils/occutils-shape.h"
 

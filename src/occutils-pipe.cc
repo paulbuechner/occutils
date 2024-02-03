@@ -1,6 +1,9 @@
 #include "occutils/occutils-pipe.h"
 
+// OCC includes
 #include <BRepOffsetAPI_MakePipe.hxx>
+#include <TopoDS_Shape.hxx>
+#include <TopoDS_Wire.hxx>
 
 namespace occutils::pipe {
 

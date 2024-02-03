@@ -1,7 +1,10 @@
 #pragma once
 
-#include <LDOM_Element.hxx>
+// std includes
 #include <string>
+
+// OCC includes
+#include <LDOM_Element.hxx>
 
 namespace occutils::ldom {
 

@@ -1,11 +1,14 @@
 #pragma once
 
-#include <TopoDS_Edge.hxx>
-#include <TopoDS_Face.hxx>
-#include <TopoDS_Wire.hxx>
+// std includes
 #include <initializer_list>
 #include <optional>
 #include <vector>
+
+// OCC includes
+#include <TopoDS_Edge.hxx>
+#include <TopoDS_Face.hxx>
+#include <TopoDS_Wire.hxx>
 
 namespace occutils::face {
 

@@ -1,5 +1,9 @@
 #include "occutils/occutils-curve.h"
 
+// std includes
+#include <vector>
+
+// OCC includes
 #include <BRep_Tool.hxx>
 #include <GCPnts_AbscissaPoint.hxx>
 #include <GeomAbs_CurveType.hxx>
@@ -9,7 +13,8 @@ namespace occutils {
 namespace curve {
 
 GeomAdaptor_Curve FromEdge(const TopoDS_Edge& edge) {
-  Standard_Real umin, umax;
+  double umin;
+  double umax;
   // Get unbounded curve plus separate bounding parameters
   auto rawCurve = BRep_Tool::Curve(edge, umin, umax);
   return {rawCurve, umin, umax};
@@ -76,19 +81,6 @@ std::vector<GeomAdaptor_Curve> Only(
   return Filter(curves, [type](const GeomAdaptor_Curve& curve) {
     return curve.GetType() == type;
   });
-}
-
-template <typename Predicate>
-std::vector<GeomAdaptor_Curve> Filter(
-    const std::vector<GeomAdaptor_Curve>& curves, Predicate predicate) {
-  std::vector<GeomAdaptor_Curve> ret;
-  ret.reserve(curves.size());
-  for (const auto& curve : curves) {
-    if (predicate(curve)) {
-      ret.push_back(curve);
-    }
-  }
-  return ret;
 }
 
 }  // namespace curves

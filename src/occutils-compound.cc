@@ -1,8 +1,10 @@
 #include "occutils/occutils-compound.h"
 
+// OCC includes
 #include <BRep_Builder.hxx>
+#include <TopoDS_Compound.hxx>
 
-#include "occutils/occutils-list-utils.h"
+// occutils includes
 #include "occutils/occutils-shape.h"
 
 namespace occutils::compound {
@@ -28,12 +30,12 @@ TopoDS_Compound From(const std::vector<TopoDS_Shape>& shapes) {
   return ToCompound(shapes);
 }
 
-TopoDS_Compound From(const std::vector<TopoDS_Face>& shapes) {
-  return ToCompound(shapes);
+TopoDS_Compound From(const std::vector<TopoDS_Face>& faces) {
+  return ToCompound(faces);
 }
 
-TopoDS_Compound From(const std::vector<TopoDS_Solid>& shapes) {
-  return ToCompound(shapes);
+TopoDS_Compound From(const std::vector<TopoDS_Solid>& solids) {
+  return ToCompound(solids);
 }
 
 }  // namespace occutils::compound

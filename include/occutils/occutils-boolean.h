@@ -1,13 +1,17 @@
 #pragma once
 
-#include <occutils/occutils-list-utils.h>
+// std includes
+#include <initializer_list>
+#include <vector>
 
+// OCC includes
 #include <TopTools_ListOfShape.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Solid.hxx>
-#include <initializer_list>
-#include <vector>
+
+// occutils includes
+#include "occutils/occutils-list-utils.h"
 
 /**
  * Boolean operation utilities
@@ -117,7 +121,7 @@ TopoDS_Shape Cut(const Container<TopoDS_Shape, Allocator1>& positive,
 
 /**
  * Boolean subtraction with two lists of TopoDS_Solids.
- * This is a common usecase, hence we provide a utility function.
+ * This is a common use-case, hence we provide a utility function.
  * tools is subtracted from argument, i.e. tools is negative, arguments is
  * positive
  */
@@ -126,7 +130,7 @@ TopoDS_Shape Cut(const std::vector<TopoDS_Solid>& positive,
 
 /**
  * Boolean subtraction with two lists of TopoDS_Solids.
- * This is a common usecase, hence we provide a utility function.
+ * This is a common use-case, hence we provide a utility function.
  * tools is subtracted from argument, i.e. tools is negative, arguments is
  * positive
  */
@@ -135,7 +139,7 @@ TopoDS_Shape Cut(const TopoDS_Solid& positive,
 
 /**
  * Boolean subtraction with two lists of TopoDS_Faces.
- * This is a common usecase, hence we provide a utility function.
+ * This is a common use-case, hence we provide a utility function.
  * tools is subtracted from argument, i.e. tools is negative, arguments is
  * positive
  */
@@ -144,7 +148,7 @@ TopoDS_Shape Cut(const std::vector<TopoDS_Face>& positive,
 
 /**
  * Boolean subtraction with two lists of TopoDS_Faces.
- * This is a common usecase, hence we provide a utility function.
+ * This is a common use-case, hence we provide a utility function.
  * tools is subtracted from argument, i.e. tools is negative, arguments is
  * positive
  */

@@ -3,9 +3,13 @@
 /**
  * Utilities for analyzing lines
  */
+
+// std includes
+#include <optional>
+
+// OCC includes
 #include <gp_Lin.hxx>
 #include <gp_Lin2d.hxx>
-#include <optional>
 
 namespace occutils::line {
 

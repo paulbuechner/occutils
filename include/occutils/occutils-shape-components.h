@@ -3,14 +3,18 @@
 /**
  * Utilities for dissecting shapes into their components.
  */
+
+// std includes
+#include <optional>
+#include <vector>
+
+// OCC includes
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Solid.hxx>
 #include <TopoDS_Vertex.hxx>
 #include <TopoDS_Wire.hxx>
-#include <optional>
-#include <vector>
 
 namespace occutils::shape_components {
 

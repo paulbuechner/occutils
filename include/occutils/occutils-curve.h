@@ -1,5 +1,6 @@
 #pragma once
 
+// OCC includes
 #include <GeomAdaptor_Curve.hxx>
 #include <Geom_Curve.hxx>
 #include <Geom_TrimmedCurve.hxx>
@@ -65,7 +66,16 @@ std::vector<GeomAdaptor_Curve> Only(
  */
 template <typename Predicate>
 std::vector<GeomAdaptor_Curve> Filter(
-    const std::vector<GeomAdaptor_Curve>& curves, Predicate predicate);
+    const std::vector<GeomAdaptor_Curve>& curves, Predicate predicate) {
+  std::vector<GeomAdaptor_Curve> ret;
+  ret.reserve(curves.size());
+  for (const auto& curve : curves) {
+    if (predicate(curve)) {
+      ret.push_back(curve);
+    }
+  }
+  return ret;
+}
 
 }  // namespace curves
 

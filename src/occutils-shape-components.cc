@@ -1,10 +1,24 @@
 #include "occutils/occutils-shape-components.h"
 
+// std includes
+#include <optional>
+#include <vector>
+
+// OCC includes
 #include <BRep_Tool.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
+#include <TopoDS_Edge.hxx>
+#include <TopoDS_Face.hxx>
+#include <TopoDS_Shape.hxx>
+#include <TopoDS_Solid.hxx>
+#include <TopoDS_Vertex.hxx>
+#include <TopoDS_Wire.hxx>
+#include <gp_Pnt.hxx>
 
+// occutils includes
 #include "occutils/occutils-exceptions.h"
+#include "occutils/occutils-shape.h"
 
 namespace occutils::shape_components {
 
@@ -12,11 +26,11 @@ std::vector<TopoDS_Solid> AllSolidsWithin(const TopoDS_Shape& shape) {
   std::vector<TopoDS_Solid> solids;
   for (TopExp_Explorer solidExplorer(shape, TopAbs_SOLID); solidExplorer.More();
        solidExplorer.Next()) {
-    const auto& face = TopoDS::Solid(solidExplorer.Current());
-    if (face.IsNull()) {
+    const auto& solid = TopoDS::Solid(solidExplorer.Current());
+    if (solid.IsNull()) {
       continue;
     }
-    solids.push_back(face);
+    solids.push_back(solid);
   }
   return solids;
 }
@@ -27,11 +41,11 @@ std::vector<TopoDS_Solid> AllSolidsWithin(
   for (const auto& shape : shapes) {
     for (TopExp_Explorer solidExplorer(shape, TopAbs_SOLID);
          solidExplorer.More(); solidExplorer.Next()) {
-      const auto& face = TopoDS::Solid(solidExplorer.Current());
-      if (face.IsNull()) {
+      const auto& solid = TopoDS::Solid(solidExplorer.Current());
+      if (solid.IsNull()) {
         continue;
       }
-      solids.push_back(face);
+      solids.push_back(solid);
     }
   }
   return solids;
@@ -201,9 +215,8 @@ std::vector<gp_Pnt> AllVertexCoordinatesWithin(
 std::optional<TopoDS_Solid> TryGetSingleSolid(const TopoDS_Shape& shape,
                                               bool firstOfMultipleOK) {
   // Is shape itself a solid?
-  if (shape.ShapeType() == TopAbs_SOLID) {
-    return TopoDS::Solid(shape);
-  }
+  if (shape::IsSolid(shape)) return TopoDS::Solid(shape);
+
   // Else, expect there to be ONE sub-solid
   auto solids = shape_components::AllSolidsWithin(shape);
   if (solids.empty()) {
@@ -218,9 +231,8 @@ std::optional<TopoDS_Solid> TryGetSingleSolid(const TopoDS_Shape& shape,
 std::optional<TopoDS_Face> TryGetSingleFace(const TopoDS_Shape& shape,
                                             bool firstOfMultipleOK) {
   // Is shape itself a solid?
-  if (shape.ShapeType() == TopAbs_FACE) {
-    return TopoDS::Face(shape);
-  }
+  if (shape::IsFace(shape)) return TopoDS::Face(shape);
+
   // Else, expect there to be ONE sub-face
   auto faces = shape_components::AllFacesWithin(shape);
   if (faces.empty()) {
@@ -235,9 +247,8 @@ std::optional<TopoDS_Face> TryGetSingleFace(const TopoDS_Shape& shape,
 std::optional<TopoDS_Edge> TryGetSingleEdge(const TopoDS_Shape& shape,
                                             bool firstOfMultipleOK) {
   // Is shape itself an edge?
-  if (shape.ShapeType() == TopAbs_EDGE) {
-    return TopoDS::Edge(shape);
-  }
+  if (shape::IsEdge(shape)) return TopoDS::Edge(shape);
+
   // Else, expect there to be ONE sub-edge
   auto edges = shape_components::AllEdgesWithin(shape);
   if (edges.empty()) {
@@ -252,9 +263,8 @@ std::optional<TopoDS_Edge> TryGetSingleEdge(const TopoDS_Shape& shape,
 std::optional<TopoDS_Wire> TryGetSingleWire(const TopoDS_Shape& shape,
                                             bool firstOfMultipleOK) {
   // Is shape itself a solid?
-  if (shape.ShapeType() == TopAbs_WIRE) {
-    return TopoDS::Wire(shape);
-  }
+  if (shape::IsWire(shape)) return TopoDS::Wire(shape);
+
   // Else, expect there to be ONE sub-wire
   auto wires = shape_components::AllWiresWithin(shape);
   if (wires.empty()) {
@@ -268,10 +278,9 @@ std::optional<TopoDS_Wire> TryGetSingleWire(const TopoDS_Shape& shape,
 
 std::optional<TopoDS_Vertex> TryGetSingleVertex(const TopoDS_Shape& shape,
                                                 bool firstOfMultipleOK) {
-  // Is shape itself a solid?
-  if (shape.ShapeType() == TopAbs_VERTEX) {
-    return TopoDS::Vertex(shape);
-  }
+  // Is shape itself a vertex?
+  if (shape::IsVertex(shape)) return TopoDS::Vertex(shape);
+  
   // Else, expect there to be ONE sub-vertex
   auto vertices = shape_components::AllVerticesWithin(shape);
   if (vertices.empty()) {

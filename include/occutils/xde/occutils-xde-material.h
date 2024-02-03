@@ -1,12 +1,15 @@
 #pragma once
 
+// std includes
+#include <memory>
+#include <string>
+#include <utility>
+
+// OCC includes
 #include <Quantity_Color.hxx>
 #include <TDF_Label.hxx>
 #include <TopoDS_Shape.hxx>
 #include <XCAFDoc_ColorType.hxx>
-#include <memory>
-#include <string>
-#include <utility>
 
 namespace occutils::xde {
 

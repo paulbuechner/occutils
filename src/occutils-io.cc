@@ -1,10 +1,19 @@
 #include "occutils/occutils-io.h"
 
-#include <IGESControl_Reader.hxx>
-#include <STEPControl_Reader.hxx>
+// std includes
 #include <algorithm>
 #include <filesystem>
+#include <memory>
+#include <string>
 
+// OCC includes
+#include <IFSelect_ReturnStatus.hxx>
+#include <IGESControl_Reader.hxx>
+#include <STEPControl_Reader.hxx>
+#include <TopoDS_Shape.hxx>
+#include <XSControl_Reader.hxx>
+
+// occutils includes
 #include "occutils/occutils-exceptions.h"
 
 namespace occutils::io {
@@ -27,11 +36,9 @@ std::shared_ptr<XSControl_Reader> STEPorIGESReader(
                  [](unsigned char c) { return std::tolower(c); });
 
   if (extension == ".step" || extension == ".stp") {
-    reader = std::shared_ptr<XSControl_Reader>(
-        dynamic_cast<XSControl_Reader*>(new STEPControl_Reader()));
+    reader = STEPReader();
   } else if (extension == ".iges" || extension == ".igs") {
-    reader = std::shared_ptr<XSControl_Reader>(
-        dynamic_cast<XSControl_Reader*>(new IGESControl_Reader()));
+    reader = IGESReader();
   } else {
     throw OCCIOException(
         "Unknown file extension (.stp/.step or .igs/.iges expected): " +
@@ -72,8 +79,8 @@ static std::string _IFSelectReturnStatusToString(IFSelect_ReturnStatus code) {
 
 void ReadFile(const std::shared_ptr<XSControl_Reader>& reader,
               const std::string& filename) {
-  auto readStat = reader->ReadFile(filename.c_str());
-  if (readStat != IFSelect_ReturnStatus::IFSelect_RetDone) {
+  if (auto readStat = reader->ReadFile(filename.c_str());
+      readStat != IFSelect_RetDone) {
     throw OCCIOException("Failed to read file, error code: " +
                          _IFSelectReturnStatusToString(readStat));
   }
@@ -81,8 +88,7 @@ void ReadFile(const std::shared_ptr<XSControl_Reader>& reader,
 
 TopoDS_Shape ReadOneShape(const std::shared_ptr<XSControl_Reader>& reader) {
   // Check if there is anything to convert
-  auto numroots = reader->NbRootsForTransfer();
-  if (numroots < 1) {
+  if (auto numRoots = reader->NbRootsForTransfer(); numRoots < 1) {
     throw OCCIOException(
         "Failed to read file: No roots to transfer are present");
   }

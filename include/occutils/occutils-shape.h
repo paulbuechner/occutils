@@ -3,13 +3,16 @@
 /**
  * Utilities for dissecting shapes into their components.
  */
+
+// std includes
+#include <vector>
+
+// OCC includes
 #include <TopTools_ListOfShape.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Solid.hxx>
 #include <gp_XYZ.hxx>
-#include <initializer_list>
-#include <vector>
 
 namespace occutils {
 

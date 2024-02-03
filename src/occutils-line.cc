@@ -1,6 +1,13 @@
 #include "occutils/occutils-line.h"
 
+// std includes
+#include <optional>
+
+// OCC includes
 #include <IntAna2d_AnaIntersection.hxx>
+#include <gp_Lin.hxx>
+#include <gp_Lin2d.hxx>
+#include <gp_Pnt2d.hxx>
 
 namespace occutils::line {
 

@@ -1,7 +1,17 @@
 #include "occutils/occutils-face.h"
 
-#include <BRepBuilderAPI_MakeFace.hxx>
+// std includes
+#include <initializer_list>
+#include <optional>
 
+// OCC includes
+#include <BRepBuilderAPI_MakeFace.hxx>
+#include <TopoDS_Face.hxx>
+#include <TopoDS_Wire.hxx>
+#include <gp_Ax1.hxx>
+#include <gp_Pnt.hxx>
+
+// occutils includes
 #include "occutils/occutils-surface.h"
 #include "occutils/occutils-wire.h"
 

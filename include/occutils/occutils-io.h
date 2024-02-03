@@ -1,9 +1,12 @@
 #pragma once
 
-#include <TopoDS_Shape.hxx>
-#include <XSControl_Reader.hxx>
+// std includes
 #include <memory>
 #include <string>
+
+// OCC includes
+#include <TopoDS_Shape.hxx>
+#include <XSControl_Reader.hxx>
 
 namespace occutils::io {
 

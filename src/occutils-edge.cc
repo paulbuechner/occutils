@@ -1,8 +1,13 @@
 #include "occutils/occutils-edge.h"
 
+// OCC includes
 #include <BRepBuilderAPI_MakeEdge.hxx>
+#include <TopoDS_Edge.hxx>
+#include <gp_Ax2.hxx>
 #include <gp_Circ.hxx>
+#include <gp_Pnt.hxx>
 
+// occutils includes
 #include "occutils/occutils-curve.h"
 #include "occutils/occutils-equality.h"
 #include "occutils/occutils-point.h"

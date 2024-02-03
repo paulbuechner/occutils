@@ -1,5 +1,6 @@
 #pragma once
 
+// OCC includes
 #include <TopoDS_Edge.hxx>
 #include <gp_Ax1.hxx>
 #include <gp_Ax2.hxx>

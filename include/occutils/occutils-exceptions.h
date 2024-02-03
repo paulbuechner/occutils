@@ -1,5 +1,6 @@
 #pragma once
 
+// std includes
 #include <stdexcept>
 
 /**
@@ -13,6 +14,14 @@ struct OCCUtilsBaseException : std::invalid_argument {
  * Baseclass for exceptions that incorporate an invalid argument
  */
 struct OCCInvalidArgumentException : OCCUtilsBaseException {
+  using OCCUtilsBaseException::OCCUtilsBaseException;
+};
+
+/**
+ * Baseclass for exceptions that refer to a runtime error which can't assigned
+ * more specific exception type.
+ */
+struct OCCRuntimeException : OCCUtilsBaseException {
   using OCCUtilsBaseException::OCCUtilsBaseException;
 };
 

@@ -3,8 +3,9 @@
 /**
  * Create boundary representation (BRep) primitives
  */
+
+// OCC includes
 #include <TopoDS_Solid.hxx>
-#include <cstdint>
 #include <gp_Pnt.hxx>
 
 namespace occutils::primitive {

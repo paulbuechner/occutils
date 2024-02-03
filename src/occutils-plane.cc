@@ -1,5 +1,12 @@
 #include "occutils/occutils-plane.h"
 
+// OCC includes
+#include <Precision.hxx>
+#include <gp_Pln.hxx>
+#include <gp_Pnt.hxx>
+#include <gp_Vec.hxx>
+
+// occutils includes
 #include "occutils/occutils-equality.h"
 #include "occutils/occutils-exceptions.h"
 

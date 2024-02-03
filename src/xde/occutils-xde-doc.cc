@@ -47,6 +47,12 @@
 
 #include "occutils/xde/occutils-xde-doc.h"
 
+// std includes
+#include <filesystem>
+#include <set>
+#include <vector>
+
+// OCC includes
 #include <APIHeaderSection_MakeHeader.hxx>
 #include <BRepBuilderAPI_Transform.hxx>
 #include <Interface_Static.hxx>
@@ -65,9 +71,6 @@
 #include <XCAFDoc_LayerTool.hxx>
 #include <XCAFDoc_MaterialTool.hxx>
 #include <XCAFDoc_ShapeTool.hxx>
-#include <filesystem>
-#include <set>
-#include <vector>
 
 namespace occutils::xde {
 

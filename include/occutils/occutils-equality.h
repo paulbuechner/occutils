@@ -7,6 +7,8 @@
  * All equalities are computed with Precision::Confusion()
  * as tolerance.
  */
+
+// OCC includes
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
 #include <gp_XYZ.hxx>

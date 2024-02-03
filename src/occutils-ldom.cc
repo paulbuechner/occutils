@@ -1,8 +1,11 @@
 #include "occutils/occutils-ldom.h"
 
+// std includes
+#include <string>
+
+// OCC includes
 #include <LDOMString.hxx>
 #include <LDOM_Element.hxx>
-#include <string>
 
 namespace occutils::ldom {
 

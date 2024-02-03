@@ -68,7 +68,6 @@ include(cmake/internal_utils.cmake)
 build_3rd_party_copyright()
 
 # Dependencies
-find_package(freetype CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 find_package(OpenCASCADE CONFIG REQUIRED)
 

@@ -3,17 +3,20 @@
 /**
  * Utilities for analyzing surfaces
  */
+
+// std includes
+#include <map>
+#include <vector>
+
+// OCC includes
 #include <GeomAdaptor_Surface.hxx>
 #include <Geom_Line.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>
-#include <functional>
 #include <gp_Ax1.hxx>
 #include <gp_Dir.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_XY.hxx>
-#include <map>
-#include <vector>
 
 namespace occutils {
 

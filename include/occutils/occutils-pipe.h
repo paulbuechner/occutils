@@ -1,5 +1,6 @@
 #pragma once
 
+// OCC includes
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Wire.hxx>
 

@@ -1,8 +1,11 @@
 #pragma once
 
-#include <gp_Pnt.hxx>
+// std includes
 #include <initializer_list>
 #include <vector>
+
+// OCC includes
+#include <gp_Pnt.hxx>
 
 /**
  * Add the coordinates of two points.

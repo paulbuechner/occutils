@@ -1,10 +1,13 @@
 #pragma once
 
-#include <NCollection_List.hxx>
+// std includes
 #include <initializer_list>
 #include <list>
-#include <utility>  // std::pair<>
+#include <utility>
 #include <vector>
+
+// OCC includes
+#include <NCollection_List.hxx>
 
 namespace occutils::list_utils {
 

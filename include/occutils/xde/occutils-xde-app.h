@@ -47,6 +47,7 @@
 
 #pragma once
 
+// OCC includes
 #include <Standard_Type.hxx>
 #include <XCAFApp_Application.hxx>
 

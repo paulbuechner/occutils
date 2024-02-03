@@ -1,11 +1,19 @@
 #include "occutils/occutils-shape.h"
 
+// OCC includes
+#include <utility>
+#include <vector>
+
+// OCC includes
 #include <BRepBndLib.hxx>
 #include <BRepGProp.hxx>
 #include <Bnd_Box.hxx>
 #include <GProp_GProps.hxx>
-#include <algorithm>
-#include <utility>
+#include <TopoDS_Face.hxx>
+#include <TopoDS_Shape.hxx>
+#include <TopoDS_Solid.hxx>
+#include <gp_Vec.hxx>
+#include <gp_XYZ.hxx>
 
 namespace occutils {
 
@@ -42,7 +50,13 @@ double Volume(const TopoDS_Shape& shape) {
 }
 
 std::pair<gp_Vec, gp_Vec> BoundingBox(const TopoDS_Shape& shape) {
-  Standard_Real xmin, xmax, ymin, ymax, zmin, zmax;
+  double xmin;
+  double xmax;
+  double ymin;
+  double ymax;
+  double zmin;
+  double zmax;
+  //
   Bnd_Box box;
   BRepBndLib::Add(shape, box);
   box.Get(xmin, ymin, zmin, xmax, ymax, zmax);
@@ -51,7 +65,13 @@ std::pair<gp_Vec, gp_Vec> BoundingBox(const TopoDS_Shape& shape) {
 }
 
 gp_XYZ BoundingBoxSize(const TopoDS_Shape& shape) {
-  Standard_Real xmin, xmax, ymin, ymax, zmin, zmax;
+  double xmin;
+  double xmax;
+  double ymin;
+  double ymax;
+  double zmin;
+  double zmax;
+  //
   Bnd_Box box;
   BRepBndLib::Add(shape, box);
   box.Get(xmin, ymin, zmin, xmax, ymax, zmax);
@@ -72,7 +92,7 @@ namespace shapes {
  * Internal converter function
  */
 template <typename T>
-std::vector<TopoDS_Shape> _ToShapes(const std::vector<T>& elems) {
+std::vector<TopoDS_Shape> ToShapes(const std::vector<T>& elems) {
   // Create return vector
   std::vector<TopoDS_Shape> ret;
   ret.reserve(elems.size());
@@ -82,11 +102,11 @@ std::vector<TopoDS_Shape> _ToShapes(const std::vector<T>& elems) {
 }
 
 std::vector<TopoDS_Shape> FromSolids(const std::vector<TopoDS_Solid>& solids) {
-  return _ToShapes(solids);
+  return ToShapes(solids);
 }
 
 std::vector<TopoDS_Shape> FromFaces(const std::vector<TopoDS_Face>& faces) {
-  return _ToShapes(faces);
+  return ToShapes(faces);
 }
 
 }  // namespace shapes

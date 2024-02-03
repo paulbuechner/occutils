@@ -1,10 +1,18 @@
 #include "occutils/occutils-wire.h"
 
 // std includes
+#include <initializer_list>
 #include <stdexcept>
+#include <vector>
 
 // OCC includes
 #include <BRepLib_MakeWire.hxx>
+#include <TopoDS_Shape.hxx>
+#include <TopoDS_Wire.hxx>
+#include <gp_Ax2.hxx>
+#include <gp_Dir.hxx>
+#include <gp_Pnt.hxx>
+#include <gp_Vec.hxx>
 
 // occutils includes
 #include "occutils/occutils-edge.h"
