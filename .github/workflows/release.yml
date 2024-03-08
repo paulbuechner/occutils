@@ -392,7 +392,7 @@ jobs:
       - name: Create Release
         if: "contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
