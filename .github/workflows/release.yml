@@ -152,7 +152,7 @@ jobs:
       - name: Test (Release configuration)
         shell: bash
         run: |
-          ctest --preset occutils-ninja-multiconfiguration-vcpkg
+          ctest -C Release --preset occutils-ninja-multiconfiguration-vcpkg
 
       # Upload vcpkg's logs as artifacts.
       - name: Upload vcpkg build log files

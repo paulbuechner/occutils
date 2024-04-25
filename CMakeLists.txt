@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 
 option(OCCUTILS_BUILD_TESTS "Build tests" OFF)
-if (OCCUTILS_BUILD_TESTS)
-  list(APPEND VCPKG_MANIFEST_FEATURES "tests")
-endif ()
 
 set(VCPKG_OVERLAY_TRIPLETS "${CMAKE_CURRENT_LIST_DIR}/vcpkg/triplets" CACHE STRING "")
 
@@ -62,13 +59,12 @@ option(OCCUTILS_BUILD_WARNINGS "Enable compiler warnings" OFF)
 include(GNUInstallDirs)
 
 # Define helper functions and macros used by occutils
-include(cmake/internal_utils.cmake)
+include(cmake/occutils_internal_utils.cmake)
 
 # Licensing
-build_3rd_party_copyright()
+occutils_build_3rd_party_copyright()
 
 # Dependencies
-find_package(GTest CONFIG REQUIRED)
 find_package(OpenCASCADE CONFIG REQUIRED)
 
 # Build
@@ -79,7 +75,7 @@ target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
 )
 
 if (OCCUTILS_BUILD_WARNINGS)
-  target_enable_warnings(${PROJECT_NAME})
+  occutils_target_enable_warnings(${PROJECT_NAME})
 endif ()
 
 # If the CMake version supports it, attach header directory information

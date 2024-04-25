@@ -1,5 +1,5 @@
 # Defines the occutils library the user should link with
-function (cxx_library_with_type name type)
+function (local_occutils_cxx_library_with_type name type)
   # type can be either STATIC or SHARED to denote a static or shared library.
   # ARGN refers to additional arguments after 'type'.
   add_library(${name} ${type} ${ARGN})
@@ -40,11 +40,11 @@ endfunction ()
 # Helper functions for creating build targets.
 
 function (cxx_shared_library name)
-  cxx_library_with_type(${name} SHARED ${ARGN})
+  local_occutils_cxx_library_with_type(${name} SHARED ${ARGN})
 endfunction ()
 
 function (cxx_library name)
-  cxx_library_with_type(${name} "" ${ARGN})
+  local_occutils_cxx_library_with_type(${name} "" ${ARGN})
 endfunction ()
 
 ########################################################################
@@ -52,7 +52,7 @@ endfunction ()
 # Configure compiler warnings
 
 # Turn on warnings on the given target
-function (target_enable_warnings target_name)
+function (occutils_target_enable_warnings target_name)
   if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     list(APPEND MSVC_OPTIONS "/W4")
     if (MSVC_VERSION GREATER 1900) # Allow non fatal security warnings for msvc 2015
@@ -77,7 +77,7 @@ endfunction ()
 # Configure installation
 
 # Install 3rd party copyright notices
-function (build_3rd_party_copyright)
+function (occutils_build_3rd_party_copyright)
   set(LICENSE_3RD_PARTY_FILE ${CMAKE_CURRENT_BINARY_DIR}/LICENSE-3RD-PARTY.txt)
   file(REMOVE ${LICENSE_3RD_PARTY_FILE}) # Delete the old file
 
@@ -85,7 +85,7 @@ function (build_3rd_party_copyright)
   set(COPYRIGHT_FILES ${SEARCH_RESULT} CACHE INTERNAL "copyright files")
 
   # Handle duplicate copyright files
-  remove_duplicate_by_file_content("${COPYRIGHT_FILES}" "COPYRIGHT_FILES" "Boost Software License")
+  local_occutils_remove_duplicate_by_file_content("${COPYRIGHT_FILES}" "COPYRIGHT_FILES" "Boost Software License")
 
   # Exclude libraries by name
   set(EXCLUDED_LIBRARIES "vcpkg-*")
@@ -119,7 +119,7 @@ function (build_3rd_party_copyright)
 endfunction ()
 
 # Remove duplicate from list by content
-function (remove_duplicate_by_file_content list list_name filter_by)
+function (local_occutils_remove_duplicate_by_file_content list list_name filter_by)
   set(INCLUDED OFF)
   foreach (file ${list})
     file(STRINGS ${file} content)
