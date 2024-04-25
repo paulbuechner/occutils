@@ -51,6 +51,39 @@ std::vector<TopoDS_Solid> AllSolidsWithin(
   return solids;
 }
 
+//------------------------------------------------------------------------------
+
+std::vector<TopoDS_Shell> AllShellsWithin(const TopoDS_Shape& shape) {
+  std::vector<TopoDS_Shell> shells;
+  for (TopExp_Explorer shellExplorer(shape, TopAbs_SHELL); shellExplorer.More();
+       shellExplorer.Next()) {
+    const auto& shell = TopoDS::Shell(shellExplorer.Current());
+    if (shell.IsNull()) {
+      continue;
+    }
+    shells.push_back(shell);
+  }
+  return shells;
+}
+
+std::vector<TopoDS_Shell> AllShellsWithin(
+    const std::vector<TopoDS_Shape>& shapes) {
+  std::vector<TopoDS_Shell> shells;
+  for (const auto& shape : shapes) {
+    for (TopExp_Explorer shellExplorer(shape, TopAbs_SHELL);
+         shellExplorer.More(); shellExplorer.Next()) {
+      const auto& shell = TopoDS::Shell(shellExplorer.Current());
+      if (shell.IsNull()) {
+        continue;
+      }
+      shells.push_back(shell);
+    }
+  }
+  return shells;
+}
+
+//------------------------------------------------------------------------------
+
 std::vector<TopoDS_Face> AllFacesWithin(const TopoDS_Shape& shape) {
   std::vector<TopoDS_Face> faces;
   for (TopExp_Explorer faceExplorer(shape, TopAbs_FACE); faceExplorer.More();
@@ -79,6 +112,8 @@ std::vector<TopoDS_Face> AllFacesWithin(
   }
   return faces;
 }
+
+//------------------------------------------------------------------------------
 
 std::vector<TopoDS_Edge> AllEdgesWithin(const TopoDS_Shape& shape) {
   std::vector<TopoDS_Edge> edges;
@@ -125,6 +160,8 @@ std::vector<TopoDS_Edge> AllEdgesWithin(
   return edges;
 }
 
+//------------------------------------------------------------------------------
+
 std::vector<TopoDS_Wire> AllWiresWithin(const TopoDS_Shape& shape) {
   std::vector<TopoDS_Wire> wires;
   for (TopExp_Explorer wireExplorer(shape, TopAbs_WIRE); wireExplorer.More();
@@ -153,6 +190,8 @@ std::vector<TopoDS_Wire> AllWiresWithin(
   }
   return wires;
 }
+
+//------------------------------------------------------------------------------
 
 std::vector<TopoDS_Vertex> AllVerticesWithin(const TopoDS_Shape& shape) {
   std::vector<TopoDS_Vertex> wires;
@@ -183,6 +222,8 @@ std::vector<TopoDS_Vertex> AllVerticesWithin(
   return wires;
 }
 
+//------------------------------------------------------------------------------
+
 std::vector<gp_Pnt> AllVertexCoordinatesWithin(const TopoDS_Shape& shape) {
   std::vector<gp_Pnt> vertices;
   for (TopExp_Explorer vertexExplorer(shape, TopAbs_VERTEX);
@@ -212,6 +253,8 @@ std::vector<gp_Pnt> AllVertexCoordinatesWithin(
   return vertices;
 }
 
+//------------------------------------------------------------------------------
+
 std::optional<TopoDS_Solid> TryGetSingleSolid(const TopoDS_Shape& shape,
                                               bool firstOfMultipleOK) {
   // Is shape itself a solid?
@@ -226,6 +269,22 @@ std::optional<TopoDS_Solid> TryGetSingleSolid(const TopoDS_Shape& shape,
     return std::nullopt;
   }
   return solids[0];
+}
+
+std::optional<TopoDS_Shell> TryGetSingleShell(const TopoDS_Shape& shape,
+                                              bool firstOfMultipleOK) {
+  // Is shape itself a shell?
+  if (shape::IsShell(shape)) return TopoDS::Shell(shape);
+
+  // Else, expect there to be ONE sub-solid
+  auto shells = shape_components::AllShellsWithin(shape);
+  if (shells.empty()) {
+    return std::nullopt;
+  }
+  if (shells.size() > 1 && !firstOfMultipleOK) {
+    return std::nullopt;
+  }
+  return shells[0];
 }
 
 std::optional<TopoDS_Face> TryGetSingleFace(const TopoDS_Shape& shape,
@@ -280,7 +339,7 @@ std::optional<TopoDS_Vertex> TryGetSingleVertex(const TopoDS_Shape& shape,
                                                 bool firstOfMultipleOK) {
   // Is shape itself a vertex?
   if (shape::IsVertex(shape)) return TopoDS::Vertex(shape);
-  
+
   // Else, expect there to be ONE sub-vertex
   auto vertices = shape_components::AllVerticesWithin(shape);
   if (vertices.empty()) {
@@ -292,8 +351,19 @@ std::optional<TopoDS_Vertex> TryGetSingleVertex(const TopoDS_Shape& shape,
   return vertices[0];
 }
 
+//------------------------------------------------------------------------------
+
 TopoDS_Solid GetSingleSolid(const TopoDS_Shape& shape, bool firstOfMultipleOK) {
   auto opt = TryGetSingleSolid(shape, firstOfMultipleOK);
+  if (!opt.has_value()) {
+    throw OCCTopologyCountMismatchException(
+        "Shape is not a solid and does not contain a single solid");
+  }
+  return opt.value();
+}
+
+TopoDS_Shell GetSingleShell(const TopoDS_Shape& shape, bool firstOfMultipleOK) {
+  auto opt = TryGetSingleShell(shape, firstOfMultipleOK);
   if (!opt.has_value()) {
     throw OCCTopologyCountMismatchException(
         "Shape is not a solid and does not contain a single solid");
