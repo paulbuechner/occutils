@@ -16,10 +16,10 @@ list(APPEND occutils_test_libs
 )
 
 # Add executable
-occutils_test_cxx_executable("occutils-test-all" src/occutils-test-all.cc "${occutils_test_libs}")
+occutils_test_cxx_executable(${PROJECT_NAME} src/occutils-test-all.cc "${occutils_test_libs}")
 
 # Add target_include_directories
-target_include_directories("occutils-test-all" SYSTEM PRIVATE
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
                            ${OpenCASCADE_INCLUDE_DIR}
 )
 
