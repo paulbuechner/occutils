@@ -16,6 +16,7 @@
 #include <LDOMParser.hxx>
 #include <fstream>
 #include <utility>
+#include <vector>
 
 #include "occutils/occutils-ldom.h"
 
@@ -111,4 +112,16 @@ TEST_F(LibraryXMLTest, TestLibraryParsing) {
 
   // Check if the rating is 4.5
   EXPECT_EQ(rating, 4.5);
+}
+
+TEST_F(LibraryXMLTest, TestGetChildrenByName) {
+  // Get the root element
+  LDOM_Element rootElement = myDocument.getDocumentElement();
+
+  // Test `GetChildrenByName`
+  // Get the all child elements of the root element with the tag name "book"
+  std::vector<LDOM_Element> children = GetChildrenByName(rootElement, "book");
+
+  // Check if the number of child elements is 2
+  EXPECT_EQ(children.size(), 2);
 }

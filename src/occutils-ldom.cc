@@ -2,6 +2,7 @@
 
 // std includes
 #include <string>
+#include <vector>
 
 // OCC includes
 #include <LDOMString.hxx>
@@ -56,6 +57,26 @@ std::string GetFirstChildTagName(LDOM_Element const &parentEl,
 
 //-----------------------------------------------------------------------------
 
+std::vector<LDOM_Element> GetChildrenByName(LDOM_Element const &parentEl,
+                                            std::string_view childName) {
+  if (parentEl == nullptr || childName.empty()) return {};
+
+  std::vector<LDOM_Element> children;
+  for (LDOM_Node aChildNode = parentEl.getFirstChild(); !aChildNode.isNull();
+       aChildNode = aChildNode.getNextSibling()) {
+    if (aChildNode.getNodeType() == LDOM_Node::ELEMENT_NODE) {
+      auto const aNextElement = (LDOM_Element &)(aChildNode);
+
+      if (childName == GetLocalTagName(aNextElement)) {
+        children.push_back(aNextElement);
+      }
+    }
+  }
+  return children;
+}
+
+//-----------------------------------------------------------------------------
+
 LDOM_Element GetFirstChildByName(LDOM_Element const &parentEl,
                                  std::string_view childName) {
   if (parentEl == nullptr || childName.empty()) return {};
@@ -63,7 +84,6 @@ LDOM_Element GetFirstChildByName(LDOM_Element const &parentEl,
   for (LDOM_Node aChildNode = parentEl.getFirstChild(); !aChildNode.isNull();
        aChildNode = aChildNode.getNextSibling()) {
     if (aChildNode.getNodeType() == LDOM_Node::ELEMENT_NODE) {
-      // Use C-style cast as a last resort to avoid compiler warnings.
       auto const aNextElement = (LDOM_Element &)(aChildNode);
 
       if (childName == GetLocalTagName(aNextElement)) return aNextElement;

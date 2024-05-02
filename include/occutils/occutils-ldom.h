@@ -2,6 +2,7 @@
 
 // std includes
 #include <string>
+#include <vector>
 
 // OCC includes
 #include <LDOM_Element.hxx>
@@ -74,6 +75,27 @@ std::string GetAttrValue(LDOM_Element const &el, std::string_view name);
  * returned.
  */
 std::string GetFirstChildTagName(const LDOM_Element &parentEl, bool keepPrefix);
+
+/**
+ * @brief Retrieves the all child elements of a given parent element that
+ * matches a specified name.
+ *
+ * This function iterates through the child nodes of the specified parent
+ * element \c (parentEl), looking for all element nodes whose tag name matches
+ * the \c childName. If such a node is found, it is added to the returned vector
+ * of \c LDOM_Element.
+ *
+ * @param parentEl A constant reference to an \c LDOM_Element object
+ * representing the parent element.
+ * @param childName A \c std::string_view representing the name of the child
+ * elements to search for.
+ * @return A vector of \c LDOM_Element objects representing the all matching
+ * child elements. If no matching child elements are found, or if \c parentEl is
+ * null or \c childName is empty, an empty vector of \c LDOM_Element object is
+ * returned.
+ */
+std::vector<LDOM_Element> GetChildrenByName(const LDOM_Element &parentEl,
+                                            std::string_view childName);
 
 /**
  * @brief Retrieves the first child element of a given parent element that
