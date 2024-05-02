@@ -19,29 +19,39 @@ namespace occutils {
 
 namespace shape {
 
-bool IsSolid(const TopoDS_Shape& shape) {
-  return shape.ShapeType() == TopAbs_SOLID;
+bool IsCompound(const TopoDS_Shape& shape) {
+  return shape.ShapeType() == TopAbs_COMPOUND;
 }
 
-bool IsFace(const TopoDS_Shape& shape) {
-  return shape.ShapeType() == TopAbs_FACE;
+bool IsCompoundSolid(const TopoDS_Shape& shape) {
+  return shape.ShapeType() == TopAbs_COMPSOLID;
+}
+
+bool IsSolid(const TopoDS_Shape& shape) {
+  return shape.ShapeType() == TopAbs_SOLID;
 }
 
 bool IsShell(const TopoDS_Shape& shape) {
   return shape.ShapeType() == TopAbs_SHELL;
 }
 
-bool IsEdge(const TopoDS_Shape& shape) {
-  return shape.ShapeType() == TopAbs_EDGE;
+bool IsFace(const TopoDS_Shape& shape) {
+  return shape.ShapeType() == TopAbs_FACE;
 }
 
 bool IsWire(const TopoDS_Shape& shape) {
   return shape.ShapeType() == TopAbs_WIRE;
 }
 
+bool IsEdge(const TopoDS_Shape& shape) {
+  return shape.ShapeType() == TopAbs_EDGE;
+}
+
 bool IsVertex(const TopoDS_Shape& shape) {
   return shape.ShapeType() == TopAbs_VERTEX;
 }
+
+//------------------------------------------------------------------------------
 
 double Volume(const TopoDS_Shape& shape) {
   GProp_GProps gprops;

@@ -19,14 +19,19 @@ namespace occutils {
 namespace shape {
 
 /**
+ * @return true if the given shape is a TopoDS_CompSolid
+ */
+bool IsCompoundSolid(const TopoDS_Shape& shape);
+
+/**
+ * @return true if the given shape is a TopoDS_Compound
+ */
+bool IsCompound(const TopoDS_Shape& shape);
+
+/**
  * @return true if the given shape is a TopoDS_Solid
  */
 bool IsSolid(const TopoDS_Shape& shape);
-
-/**
- * @return true if the given shape is a TopoDS_Face
- */
-bool IsFace(const TopoDS_Shape& shape);
 
 /**
  * @return true if the given shape is a TopoDS_Shell
@@ -34,14 +39,19 @@ bool IsFace(const TopoDS_Shape& shape);
 bool IsShell(const TopoDS_Shape& shape);
 
 /**
- * @return true if the given shape is a TopoDS_Edge
+ * @return true if the given shape is a TopoDS_Face
  */
-bool IsEdge(const TopoDS_Shape& shape);
+bool IsFace(const TopoDS_Shape& shape);
 
 /**
  * @return true if the given shape is a TopoDS_Wire
  */
 bool IsWire(const TopoDS_Shape& shape);
+
+/**
+ * @return true if the given shape is a TopoDS_Edge
+ */
+bool IsEdge(const TopoDS_Shape& shape);
 
 /**
  * @return true if the given shape is a TopoDS_Vertex
