@@ -49,7 +49,6 @@
 
 // std includes
 #include <filesystem>
-#include <set>
 #include <vector>
 
 // OCC includes
@@ -310,8 +309,8 @@ TDF_Label Doc::FindOrCreateMaterial(const Material& material) {
     Handle(TCollection_HAsciiString) densName;
     Handle(TCollection_HAsciiString) densValType;
 
-    if (XCAFDoc_MaterialTool::GetMaterial(materialLabel, name, description,
-                                          density, densName, densValType)) {
+    if (XCAFDoc_MaterialTool().GetMaterial(materialLabel, name, description,
+                                           density, densName, densValType)) {
       Material extMaterial(name->ToCString(), description->ToCString(), density,
                            densName->ToCString(), densValType->ToCString());
       if (extMaterial == material) {  // Found existing material
@@ -404,15 +403,15 @@ bool Doc::GetColor(const TDF_Label& label, Quantity_ColorRGBA& color) const {
 
     // Get one of the possibly available colors.
     isColorFound =
-        XCAFDoc_ColorTool::GetColor(refLabel, XCAFDoc_ColorSurf, color);
+        XCAFDoc_ColorTool().GetColor(refLabel, XCAFDoc_ColorSurf, color);
 
     if (!isColorFound)
       isColorFound =
-          XCAFDoc_ColorTool::GetColor(refLabel, XCAFDoc_ColorGen, color);
+          XCAFDoc_ColorTool().GetColor(refLabel, XCAFDoc_ColorGen, color);
 
     if (!isColorFound)
       isColorFound =
-          XCAFDoc_ColorTool::GetColor(refLabel, XCAFDoc_ColorCurv, color);
+          XCAFDoc_ColorTool().GetColor(refLabel, XCAFDoc_ColorCurv, color);
   }
 
   return isColorFound;
