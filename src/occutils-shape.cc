@@ -1,19 +1,15 @@
 #include "occutils/occutils-shape.h"
 
-// OCC includes
-#include <utility>
+// std includes
 #include <vector>
 
 // OCC includes
 #include <BRepBndLib.hxx>
 #include <BRepGProp.hxx>
-#include <Bnd_Box.hxx>
 #include <GProp_GProps.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Solid.hxx>
-#include <gp_Vec.hxx>
-#include <gp_XYZ.hxx>
 
 namespace occutils {
 
@@ -57,41 +53,6 @@ double Volume(const TopoDS_Shape& shape) {
   GProp_GProps gprops;
   BRepGProp::VolumeProperties(shape, gprops);
   return gprops.Mass();
-}
-
-std::pair<gp_Vec, gp_Vec> BoundingBox(const TopoDS_Shape& shape) {
-  double xmin;
-  double xmax;
-  double ymin;
-  double ymax;
-  double zmin;
-  double zmax;
-  //
-  Bnd_Box box;
-  BRepBndLib::Add(shape, box);
-  box.Get(xmin, ymin, zmin, xmax, ymax, zmax);
-
-  return std::make_pair(gp_Vec(xmin, ymin, zmin), gp_Vec(xmax, ymax, zmax));
-}
-
-gp_XYZ BoundingBoxSize(const TopoDS_Shape& shape) {
-  double xmin;
-  double xmax;
-  double ymin;
-  double ymax;
-  double zmin;
-  double zmax;
-  //
-  Bnd_Box box;
-  BRepBndLib::Add(shape, box);
-  box.Get(xmin, ymin, zmin, xmax, ymax, zmax);
-
-  return {abs(xmax - xmin), abs(ymax - ymin), abs(zmax - zmin)};
-}
-
-double BoundingBoxVolume(const TopoDS_Shape& shape) {
-  gp_XYZ bbox = BoundingBoxSize(shape);
-  return bbox.X() * bbox.Y() * bbox.Z();
 }
 
 }  // namespace shape

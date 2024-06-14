@@ -17,6 +17,7 @@
 
 // The following lines pull in the real occutils-test-*.cc files.
 
+#include "occutils-test-bounding-box.cc"
 #include "occutils-test-ldom.cc"
 #include "occutils-test-line.cc"
 #include "xde/occutils-test-xde-doc.cc"

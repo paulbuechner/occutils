@@ -5,6 +5,7 @@
 // The following lines pull in the real occutils*.cc files.
 #include "occutils-axis.cc"
 #include "occutils-boolean.cc"
+#include "occutils-bounding-box.cc"
 #include "occutils-compound.cc"
 #include "occutils-curve.cc"
 #include "occutils-direction.cc"
