@@ -11,8 +11,13 @@
  *                                                                         *
  ***************************************************************************/
 
+// gtest includes
 #include <gtest/gtest.h>
 
+// OCC includes
+#include <gp_Lin2d.hxx>
+
+// occutils includes
 #include "occutils/occutils-direction.h"
 #include "occutils/occutils-equality.h"
 #include "occutils/occutils-line.h"

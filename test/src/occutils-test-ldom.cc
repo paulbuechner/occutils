@@ -11,13 +11,22 @@
  *                                                                         *
  ***************************************************************************/
 
+// gtest includes
 #include <gtest/gtest.h>
 
-#include <LDOMParser.hxx>
+// std includes
 #include <fstream>
+#include <string>
 #include <utility>
 #include <vector>
 
+// OCC includes
+#include <LDOMParser.hxx>
+#include <LDOM_Document.hxx>
+#include <LDOM_Element.hxx>
+#include <LDOM_Node.hxx>
+
+// occutils includes
 #include "occutils/occutils-ldom.h"
 
 using namespace occutils::ldom;
