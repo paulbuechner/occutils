@@ -13,13 +13,13 @@
     },
     {
       "name": "opencascade",
-      "version>=": "7.6.0#1"
+      "version>=": "7.6.0"
     }
   ],
   "overrides": [
     {
       "name": "opencascade",
-      "version": "7.6.0#1"
+      "version": "7.6.0"
     }
   ],
   "features": {
