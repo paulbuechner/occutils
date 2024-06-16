@@ -57,12 +57,12 @@ class XMLParsingTest : public ::testing::Test {
 };
 
 // Example usage
-class LibraryXMLTest : public XMLParsingTest {
+class test_ldom : public XMLParsingTest {
  public:
-  LibraryXMLTest() : XMLParsingTest("data/ldom/library.xml") {}
+  test_ldom() : XMLParsingTest("data/ldom/library.xml") {}
 };
 
-TEST_F(LibraryXMLTest, TestLibraryParsing) {
+TEST_F(test_ldom, TestLibraryParsing) {
   // Get the root element
   LDOM_Element rootElement = myDocument.getDocumentElement();
   std::string rootTagName = GetLocalTagName(rootElement);
@@ -123,7 +123,7 @@ TEST_F(LibraryXMLTest, TestLibraryParsing) {
   EXPECT_EQ(rating, 4.5);
 }
 
-TEST_F(LibraryXMLTest, TestGetChildrenByName) {
+TEST_F(test_ldom, TestGetChildrenByName) {
   // Get the root element
   LDOM_Element rootElement = myDocument.getDocumentElement();
 

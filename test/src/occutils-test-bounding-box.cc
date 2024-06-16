@@ -24,7 +24,7 @@
 
 using namespace occutils::bbox;
 
-TEST(Is1DTest, FlatAlongAxis) {
+TEST(test_bounding_box, Is1DTest_FlatAlongAxis) {
   Bnd_Box bbox;
   double tolerance = 1e-6;
 
@@ -65,7 +65,7 @@ TEST(Is1DTest, FlatAlongAxis) {
 
 //------------------------------------------------------------------------------
 
-TEST(Is2DTest, FlatAlongAxis) {
+TEST(test_bounding_box, Is2DTest_FlatAlongAxis) {
   Bnd_Box bbox;
   double tolerance = 1e-6;
 
@@ -99,7 +99,7 @@ TEST(Is2DTest, FlatAlongAxis) {
 
 //------------------------------------------------------------------------------
 
-TEST(Is3DTest, NotFlatAlongAnyAxis) {
+TEST(test_bounding_box, Is3DTest_NotFlatAlongAnyAxis) {
   Bnd_Box bbox;
   double tolerance = 1e-6;
 
@@ -140,7 +140,7 @@ TEST(Is3DTest, NotFlatAlongAnyAxis) {
 
 //------------------------------------------------------------------------------
 
-TEST(ShapeTest, HandlesVoidBoundingBox) {
+TEST(test_bounding_box, ShapeTest_HandlesVoidBoundingBox) {
   // Create a void bounding box
   Bnd_Box bbox;
 
@@ -155,7 +155,7 @@ TEST(ShapeTest, HandlesVoidBoundingBox) {
 
 //------------------------------------------------------------------------------
 
-TEST(ShapeTest, Handles1DBoundingBox) {
+TEST(test_bounding_box, ShapeTest_Handles1DBoundingBox) {
   // Create a 1D bounding box
   Bnd_Box bbox;
   bbox.Update(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);  // Edge along the Z-axis
@@ -172,7 +172,7 @@ TEST(ShapeTest, Handles1DBoundingBox) {
 
 //------------------------------------------------------------------------------
 
-TEST(ShapeTest, Handles2DBoundingBox) {
+TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox) {
   // Create a 2D bounding box
   Bnd_Box bbox;
   bbox.Update(0.0, 0.0, 0.0, 1.0, 1.0,
@@ -190,7 +190,7 @@ TEST(ShapeTest, Handles2DBoundingBox) {
 
 //------------------------------------------------------------------------------
 
-TEST(ShapeTest, Handles3DBoundingBox) {
+TEST(test_bounding_box, ShapeTest_Handles3DBoundingBox) {
   // Create a 3D bounding box
   Bnd_Box bbox;
   bbox.Update(0.0, 0.0, 0.0, 1.0, 1.0, 1.0);

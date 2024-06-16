@@ -11,17 +11,22 @@
  *                                                                         *
  ***************************************************************************/
 
+// gtest includes
 #include <gtest/gtest.h>
 
-#include <BRepPrimAPI_MakeBox.hxx>
+// std includes
 #include <filesystem>
 
+// OCC includes
+#include <BRepPrimAPI_MakeBox.hxx>
+
+// occutils includes
 #include "occutils/xde/occutils-xde-doc.h"
 #include "occutils/xde/occutils-xde-material.h"
 
 using namespace occutils::xde;
 
-class DocTest : public ::testing::Test {
+class test_xde_doc : public ::testing::Test {
  protected:
   Doc m_doc;  // Instance of class to be tested
 
@@ -39,7 +44,7 @@ class DocTest : public ::testing::Test {
   }
 };
 
-TEST_F(DocTest, AddShapeWithProps) {
+TEST_F(test_xde_doc, DocTest_AddShapeWithProps) {
   // Create a simple box shape
   TopoDS_Shape boxShape = BRepPrimAPI_MakeBox(10.0, 10.0, 10.0).Shape();
 
@@ -58,7 +63,7 @@ TEST_F(DocTest, AddShapeWithProps) {
   ASSERT_TRUE(m_doc.SaveSTEP("generated/STEP/box_with_props.stp"));
 }
 
-TEST_F(DocTest, FindExistingMaterial) {
+TEST_F(test_xde_doc, DocTest_FindExistingMaterial) {
   // Setup - Create a material that exists in the application context
   Material existingMaterial("Steel", "High-grade steel", 7.85, "kg/m^3",
                             "Density");
@@ -78,7 +83,7 @@ TEST_F(DocTest, FindExistingMaterial) {
   ASSERT_EQ(m_doc.GetMaterials().size(), 1);
 }
 
-TEST_F(DocTest, CreateNewMaterial) {
+TEST_F(test_xde_doc, DocTest_CreateNewMaterial) {
   // Setup - Define a new material that does not exist
   Material newMaterial("NewMaterial", "Description", 1.23, "unit", "valueType");
 
@@ -93,7 +98,7 @@ TEST_F(DocTest, CreateNewMaterial) {
   ASSERT_EQ(m_doc.GetMaterials().size(), 2);
 }
 
-TEST_F(DocTest, LoadSaveSTEP) {
+TEST_F(test_xde_doc, DocTest_LoadSaveSTEP) {
   // Read the STEP file
   ASSERT_TRUE(m_doc.LoadSTEP("data/STEP/as1-oc-214.stp"));
 

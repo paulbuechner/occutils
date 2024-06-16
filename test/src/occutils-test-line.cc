@@ -23,7 +23,7 @@
 #include "occutils/occutils-line.h"
 #include "occutils/occutils-print-occ.h"
 
-TEST(LineTest, LineParallel2d) {
+TEST(test_line, LineTest_LineParallel2d) {
   // A line should be parallel to itself
   gp_Lin2d linX(gp_Pnt2d(0, 0), occutils::direction::X2d());
   EXPECT_TRUE(occutils::line::IsParallel(linX, linX));
@@ -41,7 +41,7 @@ TEST(LineTest, LineParallel2d) {
   EXPECT_FALSE(occutils::line::IsParallel(linY, linMinusX));
 }
 
-TEST(LineTest, LineIntersection2D) {
+TEST(test_line, LineTest_LineIntersection2D) {
   // Intersect between a line and itself has infinite points
   gp_Lin2d lin1(gp_Pnt2d(0, 0), occutils::direction::X2d());
   auto result = occutils::line::Intersection(lin1, lin1);
