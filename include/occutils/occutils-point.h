@@ -5,6 +5,7 @@
 #include <vector>
 
 // OCC includes
+#include <Precision.hxx>
 #include <gp_Pnt.hxx>
 
 /**
@@ -60,5 +61,32 @@ gp_Pnt OrthogonalProjectOnto(const gp_Pnt &pnt, const gp_Ax1 &ax);
  * Orthogonally project pnt onto ax
  */
 gp_Pnt2d OrthogonalProjectOnto(const gp_Pnt2d &pnt, const gp_Ax2d &ax);
+
+/**
+ * @struct Compare
+ * @brief Comparator for gp_Pnt objects.
+ *
+ * This struct provides a comparison operator for gp_Pnt objects, which compares
+ * the points based on their X, Y, and Z coordinates with a precision threshold.
+ */
+struct Compare {
+  /**
+   * @brief Compare two gp_Pnt objects.
+   *
+   * This operator compares two gp_Pnt objects based on their X, Y, and Z
+   * coordinates. The comparison is done with a precision threshold
+   * (Precision::Confusion() = 1e-7) to handle floating-point inaccuracies.
+   *
+   * @param a The first gp_Pnt object to compare.
+   * @param b The second gp_Pnt object to compare.
+   * @return True if the first point is considered less than the second point,
+   * false otherwise.
+   */
+  bool operator()(const gp_Pnt &a, const gp_Pnt &b) const {
+    if (std::abs(a.X() - b.X()) > Precision::Confusion()) return a.X() < b.X();
+    if (std::abs(a.Y() - b.Y()) > Precision::Confusion()) return a.Y() < b.Y();
+    return a.Z() < b.Z();
+  }
+};
 
 }  // namespace occutils::point

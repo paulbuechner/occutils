@@ -15,6 +15,7 @@
 #include <gtest/gtest.h>
 
 // OCC includes
+#include <BRepTools.hxx>
 #include <Bnd_Box.hxx>
 #include <Precision.hxx>
 #include <TopoDS_Shape.hxx>
@@ -172,7 +173,7 @@ TEST(test_bounding_box, ShapeTest_Handles1DBoundingBox) {
 
 //------------------------------------------------------------------------------
 
-TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox) {
+TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox01) {
   // Create a 2D bounding box
   Bnd_Box bbox;
   bbox.Update(0.0, 0.0, 0.0, 1.0, 1.0,
@@ -182,6 +183,42 @@ TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox) {
 
   // Call the function
   TopoDS_Shape result = Shape(bbox, tolerance);
+  //
+  BRepTools::Write(result, "generated/ShapeTest_Handles2DBoundingBox01.brep");
+
+  // Check if the result is a face
+  ASSERT_FALSE(result.IsNull()) << "Result is not null";
+  ASSERT_TRUE(result.ShapeType() == TopAbs_FACE) << "Result is a face";
+}
+
+TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox02) {
+  // Create a 2D bounding box
+  Bnd_Box bbox;
+  bbox.Update(56.32, -6, 1.2, 69.12, -4.4, 1.2);
+
+  double tolerance = Precision::Confusion();
+
+  // Call the function
+  TopoDS_Shape result = Shape(bbox, tolerance);
+  //
+  BRepTools::Write(result, "generated/ShapeTest_Handles2DBoundingBox02.brep");
+
+  // Check if the result is a face
+  ASSERT_FALSE(result.IsNull()) << "Result is not null";
+  ASSERT_TRUE(result.ShapeType() == TopAbs_FACE) << "Result is a face";
+}
+
+TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox03) {
+  // Create a 2D bounding box
+  Bnd_Box bbox;
+  bbox.Update(69, -10, 6.5, 69, 10, 7);
+
+  double tolerance = Precision::Confusion();
+
+  // Call the function
+  TopoDS_Shape result = Shape(bbox, tolerance);
+  //
+  BRepTools::Write(result, "generated/ShapeTest_Handles2DBoundingBox03.brep");
 
   // Check if the result is a face
   ASSERT_FALSE(result.IsNull()) << "Result is not null";

@@ -1,7 +1,7 @@
 #include "occutils/occutils-bounding-box.h"
 
 // std includes
-#include <utility>
+#include <set>
 #include <vector>
 
 // OCC includes
@@ -15,6 +15,7 @@
 // occutils includes
 #include "occutils/occutils-edge.h"
 #include "occutils/occutils-face.h"
+#include "occutils/occutils-point.h"
 #include "occutils/occutils-primitive.h"
 
 namespace occutils::bbox {
@@ -108,7 +109,12 @@ TopoDS_Shape Shape(const Bnd_Box& bbox, double tolerance) {
     //
     obb.GetVertex(corners);
 
-    return face::FromPoints({corners[0], corners[1], corners[2], corners[3]});
+    // Remove "duplicate" points as the OBB may return the same point multiple
+    // times due to the way the box is constructed
+    std::set<gp_Pnt, point::Compare> unique(corners, corners + 8);
+    std::vector<gp_Pnt> points(unique.begin(), unique.end());
+
+    return face::FromPoints({points[0], points[1], points[3], points[2]});
   }
 
   // 3D bounding box
