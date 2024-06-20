@@ -71,6 +71,19 @@ gp_Pnt2d OrthogonalProjectOnto(const gp_Pnt2d &pnt, const gp_Ax2d &ax);
  */
 struct Compare {
   /**
+   * @brief The tolerance for comparing two points.
+   */
+  double tol;
+
+  /**
+   * @brief Construct a new Compare object for comparing gp_Pnt.
+   *
+   * @param tol The tolerance for comparing two points, defaults to
+   * Precision::Confusion() = 1e-7.
+   */
+  explicit Compare(const double tol = Precision::Confusion()) : tol(tol) {}
+
+  /**
    * @brief Compare two gp_Pnt objects.
    *
    * This operator compares two gp_Pnt objects based on their X, Y, and Z
@@ -83,9 +96,10 @@ struct Compare {
    * false otherwise.
    */
   bool operator()(const gp_Pnt &a, const gp_Pnt &b) const {
-    if (std::abs(a.X() - b.X()) > Precision::Confusion()) return a.X() < b.X();
-    if (std::abs(a.Y() - b.Y()) > Precision::Confusion()) return a.Y() < b.Y();
-    return a.Z() < b.Z();
+    if (std::abs(a.X() - b.X()) > tol) return a.X() < b.X();
+    if (std::abs(a.Y() - b.Y()) > tol) return a.Y() < b.Y();
+    if (std::abs(a.Z() - b.Z()) > tol) return a.Z() < b.Z();
+    return false;
   }
 };
 

@@ -93,26 +93,26 @@ bool Is3D(const Bnd_Box& bbox, double tolerance) {
 
 //------------------------------------------------------------------------------
 
-TopoDS_Shape Shape(const Bnd_Box& bbox, double tolerance) {
+TopoDS_Shape Shape(const Bnd_Box& bbox, const double tol) {
   if (bbox.IsVoid()) return {};  // empty bounding box
 
   // 1D bounding box
-  if (Is1D(bbox, tolerance)) {
+  if (Is1D(bbox, tol)) {
     return edge::FromPoints(bbox.CornerMin(), bbox.CornerMax());
   }
 
   // 2D bounding box
-  if (Is2D(bbox, tolerance)) {
+  if (Is2D(bbox, tol)) {
     // Use OBB to work out the face in 3D space
-    Bnd_OBB obb(bbox);
+    const Bnd_OBB obb(bbox);
     gp_Pnt corners[8];
     //
     obb.GetVertex(corners);
 
     // Remove "duplicate" points as the OBB may return the same point multiple
     // times due to the way the box is constructed
-    std::set<gp_Pnt, point::Compare> unique(corners, corners + 8);
-    std::vector<gp_Pnt> points(unique.begin(), unique.end());
+    std::set unique(corners, corners + 8, point::Compare(tol));
+    std::vector points(unique.begin(), unique.end());
 
     return face::FromPoints({points[0], points[1], points[3], points[2]});
   }
