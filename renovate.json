@@ -3,8 +3,14 @@
   "extends": ["config:base", ":semanticCommitTypeAll(chore)"],
   "packageRules": [
     {
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "description": "Exclude patch updates",
+      "matchUpdateTypes": ["patch"],
+      "enabled": false
+    },
+    {
+      "matchUpdateTypes": ["minor", "pin", "digest"],
       "automerge": true
     }
-  ]
+  ],
+  "schedule": ["after 4am on Monday"]
 }
