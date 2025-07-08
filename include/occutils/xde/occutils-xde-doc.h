@@ -48,16 +48,17 @@
 #pragma once
 
 // std includes
+#include <functional>
 #include <vector>
 
 // OCC includes
+#include <APIHeaderSection_MakeHeader.hxx>
 #include <Quantity_Color.hxx>
 #include <Standard_Type.hxx>
 #include <TDF_Label.hxx>
 #include <TDocStd_Document.hxx>
 #include <TopoDS_Shape.hxx>
 #include <XCAFDoc_ColorTool.hxx>
-#include <XCAFDoc_ColorType.hxx>
 #include <XCAFDoc_MaterialTool.hxx>
 #include <XCAFDoc_ShapeTool.hxx>
 
@@ -66,7 +67,8 @@
 #include "occutils/xde/occutils-xde-material.h"
 #include "occutils/xde/occutils-xde-shape.h"
 
-namespace occutils::xde {
+namespace occutils::xde
+{
 
 /**
  * @struct DocInternals
@@ -99,11 +101,12 @@ struct DocInternals;
  *       and dependencies in the header file, aiding in reducing
  *       compilation times and providing ABI stability.
  */
-class Doc : public Standard_Transient {
+class Doc : public Standard_Transient
+{
   // OCCT RTTI
   DEFINE_STANDARD_RTTI_INLINE(Doc, Standard_Transient)
 
- public:
+public:
   /**
    * @brief Constructs a new Doc object.
    *
@@ -116,12 +119,12 @@ class Doc : public Standard_Transient {
    *
    * @param doc The CAF Document to initialize the Doc with.
    */
-  Doc(const Handle(TDocStd_Document) & doc);
+  Doc(const Handle(TDocStd_Document)& doc);
 
   /*
    * Construction and Initialization
    */
- public:
+public:
   /**
    * @brief Creates new empty XDE Document under this Assembly Document facade.
    */
@@ -144,11 +147,13 @@ class Doc : public Standard_Transient {
    *
    * @param filename The path and name of the file to write to.
    * @param exportUnit The unit to be used for exporting. Defaults to "MM".
+   * @param headerCustomizer A Function to customize the header section (optional).
    *
    * @return true if successful, false otherwise.
    */
-  bool SaveSTEP(const std::string& filename,
-                const std::string& exportUnit = "MM");
+  bool SaveSTEP(const std::string&                                filename,
+                const std::string&                                exportUnit       = "MM",
+                std::function<void(APIHeaderSection_MakeHeader&)> headerCustomizer = {}) const;
 
   /**
    * @brief Checks if the Assembly Document is empty.
@@ -161,7 +166,7 @@ class Doc : public Standard_Transient {
   /*
    * API
    */
- public:
+public:
   /**
    * @brief Adds a shape without special attributes to the application.
    *
@@ -171,8 +176,7 @@ class Doc : public Standard_Transient {
    * @return TDF_Label The label of the added shape in the internal storage.
    *         Can be used for subsequent referencing.
    */
-  TDF_Label AddShape(const TopoDS_Shape& shape,
-                     const std::string& shapeName = std::string()) const;
+  TDF_Label AddShape(const TopoDS_Shape& shape, const std::string& shapeName = std::string()) const;
 
   /**
    * @brief Adds a shape with specified properties to the application.
@@ -184,8 +188,7 @@ class Doc : public Standard_Transient {
    * @return TDF_Label The label of the added shape in the internal storage.
    *         Can be used for subsequent referencing.
    */
-  TDF_Label AddShapeWithProps(const TopoDS_Shape& shape,
-                              const ShapeProperties& props);
+  TDF_Label AddShapeWithProps(const TopoDS_Shape& shape, const ShapeProperties& props);
 
   /**
    * @brief Retrieves the TDF_Label associated with a given TopoDS_Shape in the
@@ -240,7 +243,7 @@ class Doc : public Standard_Transient {
    *      TDF_Label materialLabel = app.FindOrCreateMaterial(material);
    *      // Use materialLabel as needed
    */
-  TDF_Label FindOrCreateMaterial(const Material& material);
+  TDF_Label FindOrCreateMaterial(const Material& material) const;
 
   /**
    * @brief Retrieves the labels of all materials in the application.
@@ -346,8 +349,7 @@ class Doc : public Standard_Transient {
    * @param changeTransp A boolean flag to indicate whether to change the
    * transparency.
    */
-  void SetColor(const TDF_Label& label, const Quantity_ColorRGBA& color,
-                bool changeTransp);
+  void SetColor(const TDF_Label& label, const Quantity_ColorRGBA& color, bool changeTransp);
 
   /**
    * @brief Removes all color attributes from the shapes in the current
@@ -380,7 +382,7 @@ class Doc : public Standard_Transient {
    * @return A reference to the handle of the current document. The handle
    * allows both reading and modification of the document.
    */
-  Handle(TDocStd_Document) & ChangeDocument();
+  Handle(TDocStd_Document)& ChangeDocument();
 
   /**
    * @brief Retrieves a constant reference to the current document.
@@ -394,7 +396,7 @@ class Doc : public Standard_Transient {
    * @note Marked as [[nodiscard]] to encourage checking the returned handle, as
    * it provides essential document access.
    */
-  [[nodiscard]] const Handle(TDocStd_Document) & GetDocument() const;
+  [[nodiscard]] const Handle(TDocStd_Document)& GetDocument() const;
 
   /**
    * @brief Retrieves the shape tool associated with the current document.
@@ -430,14 +432,14 @@ class Doc : public Standard_Transient {
    */
   Handle(XCAFDoc_MaterialTool) GetMaterialTool() const;
 
- protected:
+protected:
   /**
    * @brief Initializes the Data Model with the passed CAF Document and prepares
    * integral Data Model Engines.
    *
    * @param doc The CAF Document to initialize the Model with.
    */
-  void init(const Handle(TDocStd_Document) & doc);
+  void init(const Handle(TDocStd_Document)& doc);
 
   /**
    * @brief Creates a new CAF Document.
@@ -453,8 +455,8 @@ class Doc : public Standard_Transient {
    */
   Handle(App) getApplication();
 
- protected:
-  Handle(TDocStd_Document) m_doc;  //!< Underlying XCAF document.
+protected:
+  Handle(TDocStd_Document) m_doc; //!< Underlying XCAF document.
 };
 
-}  // namespace occutils::xde
+} // namespace occutils::xde

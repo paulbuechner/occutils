@@ -49,6 +49,7 @@
 
 // std includes
 #include <filesystem>
+#include <functional>
 #include <vector>
 
 // OCC includes
@@ -65,31 +66,36 @@
 #include <TDocStd_Document.hxx>
 #include <XCAFDoc.hxx>
 #include <XCAFDoc_ColorTool.hxx>
-#include <XCAFDoc_DimTolTool.hxx>
 #include <XCAFDoc_DocumentTool.hxx>
-#include <XCAFDoc_LayerTool.hxx>
 #include <XCAFDoc_MaterialTool.hxx>
 #include <XCAFDoc_ShapeTool.hxx>
 
-namespace occutils::xde {
+namespace occutils::xde
+{
 
-Doc::Doc() : Standard_Transient() { this->NewDocument(); }
+Doc::Doc()
+{
+  this->NewDocument();
+}
 
 //-----------------------------------------------------------------------------
 
-Doc::Doc(const Handle(TDocStd_Document) & doc) : Standard_Transient() {
+Doc::Doc(const Handle(TDocStd_Document)& doc)
+{
   this->init(doc);
 }
 
 // -----------------------------------------------------------------------------
 
-void Doc::NewDocument() {
-  this->init(this->newDocument());  // Initialize internal structure.
+void Doc::NewDocument()
+{
+  this->init(this->newDocument()); // Initialize internal structure.
 }
 
 // -----------------------------------------------------------------------------
 
-bool Doc::LoadSTEP(const std::string& filename) {
+bool Doc::LoadSTEP(const std::string& filename)
+{
   STEPCAFControl_Reader reader;
   reader.SetColorMode(true);
   reader.SetLayerMode(true);
@@ -97,12 +103,13 @@ bool Doc::LoadSTEP(const std::string& filename) {
   reader.SetMatMode(true);
   reader.SetPropsMode(true);
 
-  if (auto status = reader.ReadFile(filename.c_str());
-      status != IFSelect_RetDone) {
+  if (auto status = reader.ReadFile(filename.c_str()); status != IFSelect_RetDone)
+  {
     return false;
   }
 
-  if (!reader.Transfer(m_doc)) {
+  if (!reader.Transfer(m_doc))
+  {
     return false;
   }
 
@@ -111,52 +118,61 @@ bool Doc::LoadSTEP(const std::string& filename) {
 
 // -----------------------------------------------------------------------------
 
-bool Doc::SaveSTEP(const std::string& filename, const std::string& units) {
+bool Doc::SaveSTEP(const std::string&                                filename,
+                   const std::string&                                exportUnit,
+                   std::function<void(APIHeaderSection_MakeHeader&)> headerCustomizer) const
+{
   // Check input units.
-  if (units != "MM"       //
-      && units != "INCH"  //
-      && units != "FT"    //
-      && units != "MI"    //
-      && units != "M"     //
-      && units != "KM"    //
-      && units != "MIL"   //
-      && units != "UM"    //
-      && units != "CM"    //
-      && units != "UI") {
-    std::cerr << "Wrong units name: " << units << std::endl;
+  if (exportUnit != "MM"      //
+      && exportUnit != "INCH" //
+      && exportUnit != "FT"   //
+      && exportUnit != "MI"   //
+      && exportUnit != "M"    //
+      && exportUnit != "KM"   //
+      && exportUnit != "MIL"  //
+      && exportUnit != "UM"   //
+      && exportUnit != "CM"   //
+      && exportUnit != "UI")
+  {
+    std::cerr << "Wrong units name: " << exportUnit << std::endl;
     return false;
   }
 
   STEPControl_Controller::Init();
 
   // Set output units.
-  Interface_Static::SetCVal("write.step.unit", units.c_str());
+  Interface_Static::SetCVal("write.step.unit", exportUnit.c_str());
 
   // Do not write pcurves.
   Interface_Static::SetIVal("write.surfacecurve.mode", 0);
 
-  try {
+  try
+  {
     STEPCAFControl_Writer writer;
     {
       // Save information
       Handle(StepData_StepModel) stepModel = writer.ChangeWriter().Model();
-      if (stepModel.IsNull()) return false;
+      if (stepModel.IsNull())
+        return false;
 
       APIHeaderSection_MakeHeader headerMaker(stepModel);
 
-      Handle(TCollection_HAsciiString) author =
-          new TCollection_HAsciiString("occutils");
-      Handle(TCollection_HAsciiString) originatingSystem =
-          new TCollection_HAsciiString("occutils");
-      Handle(TCollection_HAsciiString) organization =
-          new TCollection_HAsciiString("occutils");
-
-      headerMaker.SetAuthorValue(1, author);
-      headerMaker.SetOriginatingSystem(originatingSystem);
-      headerMaker.SetOrganizationValue(1, organization);
+      if (headerCustomizer)
+      {
+        headerCustomizer(headerMaker);
+      }
+      else
+      {
+        auto mkString = [&](const char* s) { return new TCollection_HAsciiString(s); };
+        //
+        headerMaker.SetAuthorValue(1, mkString("occutils"));
+        headerMaker.SetOriginatingSystem(mkString("occutils"));
+        headerMaker.SetOrganizationValue(1, mkString("occutils"));
+      }
 
       STEPControl_StepModelType mode = STEPControl_AsIs;
-      switch (Interface_Static::IVal("write.step.mode")) {
+      switch (Interface_Static::IVal("write.step.mode"))
+      {
         case 0:
           mode = STEPControl_AsIs;
           break;
@@ -177,18 +193,21 @@ bool Doc::SaveSTEP(const std::string& filename, const std::string& units) {
       }
 
       Standard_CString multiFile = nullptr;
-      int extMode = Interface_Static::IVal("write.step.extern.mode");
+      int              extMode   = Interface_Static::IVal("write.step.extern.mode");
       //
-      if (extMode != 0) {
+      if (extMode != 0)
+      {
         // get prefix for file
         multiFile = Interface_Static::CVal("write.step.extern.prefix");
       }
 
       // Disable writing of GDT if not AP242
       int ap = Interface_Static::IVal("write.step.schema");
-      if (ap != 5) writer.SetDimTolMode(false);
+      if (ap != 5)
+        writer.SetDimTolMode(false);
 
-      if (!writer.Transfer(this->m_doc, mode, multiFile)) {
+      if (!writer.Transfer(this->m_doc, mode, multiFile))
+      {
         std::cerr << "STEP writer failed (error while transferring "
                      "document into STEP model)."
                   << std::endl;
@@ -203,13 +222,14 @@ bool Doc::SaveSTEP(const std::string& filename, const std::string& units) {
 
       // Check if directory exists
       if (std::filesystem::path dirPath = filePath.parent_path();
-          !std::filesystem::exists(dirPath) &&
-          !std::filesystem::create_directories(dirPath)) {
+          !std::filesystem::exists(dirPath) && !std::filesystem::create_directories(dirPath))
+      {
         // Handle error: unable to create directory
         return false;
       }
 
-      if (writer.Write(filename.c_str()) != IFSelect_RetDone) {
+      if (writer.Write(filename.c_str()) != IFSelect_RetDone)
+      {
         std::cerr << "STEP writer failed (error while flushing produced model "
                      "into file)."
                   << std::endl;
@@ -217,7 +237,9 @@ bool Doc::SaveSTEP(const std::string& filename, const std::string& units) {
       }
     }
     return true;
-  } catch (...) {
+  }
+  catch (...)
+  {
     std::cerr << "STEP writer failed (exception occurred)." << std::endl;
     return false;
   }
@@ -225,23 +247,26 @@ bool Doc::SaveSTEP(const std::string& filename, const std::string& units) {
 
 // -----------------------------------------------------------------------------
 
-bool Doc::IsEmpty() const {
-  if (m_doc.IsNull()) return true;
+bool Doc::IsEmpty() const
+{
+  if (m_doc.IsNull())
+    return true;
 
   TDF_ChildIterator cit(m_doc->Main());
-  const bool isDocEmpty = !cit.More();
+  const bool        isDocEmpty = !cit.More();
 
   return isDocEmpty;
 }
 
 // -----------------------------------------------------------------------------
 
-TDF_Label Doc::AddShape(const TopoDS_Shape& shape,
-                        const std::string& shapeName) const {
-  TDF_Label shapeLabel = this->GetShapeTool()->NewShape();
+TDF_Label Doc::AddShape(const TopoDS_Shape& shape, const std::string& shapeName) const
+{
+  const TDF_Label shapeLabel = this->GetShapeTool()->NewShape();
   this->GetShapeTool()->SetShape(shapeLabel, shape);
 
-  if (!shapeName.empty()) {
+  if (!shapeName.empty())
+  {
     TDataStd_Name::Set(shapeLabel, shapeName.c_str());
   }
 
@@ -250,24 +275,26 @@ TDF_Label Doc::AddShape(const TopoDS_Shape& shape,
 
 // -----------------------------------------------------------------------------
 
-TDF_Label Doc::AddShapeWithProps(const TopoDS_Shape& shape,
-                                 const ShapeProperties& props) {
+TDF_Label Doc::AddShapeWithProps(const TopoDS_Shape& shape, const ShapeProperties& props)
+{
   TDF_Label shapeLabel = this->GetShapeTool()->NewShape();
   this->GetShapeTool()->SetShape(shapeLabel, shape);
 
   // Set color if specified
-  if (props.HasColor()) {
-    this->GetColorTool()->SetColor(shapeLabel, props.GetColor(),
-                                   props.GetColorType());
+  if (props.HasColor())
+  {
+    this->GetColorTool()->SetColor(shapeLabel, props.GetColor(), props.GetColorType());
   }
 
   // Add name if specified
-  if (!props.GetName().empty()) {
+  if (!props.GetName().empty())
+  {
     TDataStd_Name::Set(shapeLabel, props.GetName().c_str());
   }
 
   // Add material if specified
-  if (!props.GetMaterial().IsNull()) {
+  if (!props.GetMaterial().IsNull())
+  {
     TDF_Label materialLabel = FindOrCreateMaterial(props.GetMaterial());
     this->GetMaterialTool()->SetMaterial(shapeLabel, materialLabel);
   }
@@ -277,15 +304,18 @@ TDF_Label Doc::AddShapeWithProps(const TopoDS_Shape& shape,
 
 // -----------------------------------------------------------------------------
 
-TDF_Label Doc::GetLabel(const TopoDS_Shape& shape) const {
-  if (shape.IsNull()) return {};
+TDF_Label Doc::GetLabel(const TopoDS_Shape& shape) const
+{
+  if (shape.IsNull())
+    return {};
 
   TDF_Label foundLabel;
-  TDF_ChildIterator it(this->GetShapeTool()->Label(), Standard_True);
-  for (; it.More(); it.Next()) {
-    TDF_Label currentLabel = it.Value();
+  for (TDF_ChildIterator it(this->GetShapeTool()->Label(), Standard_True); it.More(); it.Next())
+  {
+    TDF_Label    currentLabel = it.Value();
     TopoDS_Shape currentShape = XCAFDoc_ShapeTool::GetShape(currentLabel);
-    if (currentShape.IsSame(shape)) {
+    if (currentShape.IsSame(shape))
+    {
       foundLabel = currentLabel;
       break;
     }
@@ -295,54 +325,63 @@ TDF_Label Doc::GetLabel(const TopoDS_Shape& shape) const {
 
 // -----------------------------------------------------------------------------
 
-TDF_Label Doc::FindOrCreateMaterial(const Material& material) {
-  Handle(XCAFDoc_MaterialTool) MT = this->GetMaterialTool();
+TDF_Label Doc::FindOrCreateMaterial(const Material& material) const
+{
+  const Handle(XCAFDoc_MaterialTool) MT = this->GetMaterialTool();
 
   // Check if the material already exists
   TDF_LabelSequence materials;
   MT->GetMaterialLabels(materials);
-  for (Standard_Integer i = 1; i <= materials.Length(); i++) {
-    TDF_Label materialLabel = materials.Value(i);
+  for (Standard_Integer i = 1; i <= materials.Length(); i++)
+  {
+    TDF_Label                        materialLabel = materials.Value(i);
     Handle(TCollection_HAsciiString) name;
     Handle(TCollection_HAsciiString) description;
-    Standard_Real density;
+    Standard_Real                    density;
     Handle(TCollection_HAsciiString) densName;
     Handle(TCollection_HAsciiString) densValType;
 
-    if (XCAFDoc_MaterialTool().GetMaterial(materialLabel, name, description,
-                                           density, densName, densValType)) {
-      Material extMaterial(name->ToCString(), description->ToCString(), density,
-                           densName->ToCString(), densValType->ToCString());
-      if (extMaterial == material) {  // Found existing material
+    if (XCAFDoc_MaterialTool()
+          .GetMaterial(materialLabel, name, description, density, densName, densValType))
+    {
+      Material extMaterial(name->ToCString(),
+                           description->ToCString(),
+                           density,
+                           densName->ToCString(),
+                           densValType->ToCString());
+      if (extMaterial == material)
+      { // Found existing material
         return materialLabel;
       }
     }
   }
 
   // Material not found, create a new one
-  Handle(TCollection_HAsciiString) name =
-      new TCollection_HAsciiString(material.GetName().c_str());
-  Handle(TCollection_HAsciiString) description =
-      new TCollection_HAsciiString(material.GetDescription().c_str());
-  Handle(TCollection_HAsciiString) densName =
-      new TCollection_HAsciiString(material.GetDensityName().c_str());
-  Handle(TCollection_HAsciiString) densValType =
-      new TCollection_HAsciiString(material.GetDensityValueType().c_str());
+  const Handle(TCollection_HAsciiString) name =
+    new TCollection_HAsciiString(material.GetName().c_str());
+  const Handle(TCollection_HAsciiString) description =
+    new TCollection_HAsciiString(material.GetDescription().c_str());
+  const Handle(TCollection_HAsciiString) densName =
+    new TCollection_HAsciiString(material.GetDensityName().c_str());
+  const Handle(TCollection_HAsciiString) densValType =
+    new TCollection_HAsciiString(material.GetDensityValueType().c_str());
 
-  TDF_Label newMaterialLabel = MT->AddMaterial(
-      name, description, material.GetDensity(), densName, densValType);
+  const TDF_Label newMaterialLabel =
+    MT->AddMaterial(name, description, material.GetDensity(), densName, densValType);
 
   return newMaterialLabel;
 }
 
 // -----------------------------------------------------------------------------
 
-std::vector<TDF_Label> Doc::GetMaterials() const {
+std::vector<TDF_Label> Doc::GetMaterials() const
+{
   TDF_LabelSequence materials;
   this->GetMaterialTool()->GetMaterialLabels(materials);
 
   std::vector<TDF_Label> materialLabels;
-  for (Standard_Integer i = 1; i <= materials.Length(); i++) {
+  for (Standard_Integer i = 1; i <= materials.Length(); i++)
+  {
     materialLabels.push_back(materials.Value(i));
   }
   return materialLabels;
@@ -350,28 +389,34 @@ std::vector<TDF_Label> Doc::GetMaterials() const {
 
 //-----------------------------------------------------------------------------
 
-TopoDS_Shape Doc::GetShape(const TDF_Label& label) {
-  if (label.IsNull()) return {};
+TopoDS_Shape Doc::GetShape(const TDF_Label& label)
+{
+  if (label.IsNull())
+    return {};
 
   return XCAFDoc_ShapeTool::GetShape(label);
 }
 
 //-----------------------------------------------------------------------------
 
-TopoDS_Shape Doc::GetOneShape() const {
+TopoDS_Shape Doc::GetOneShape() const
+{
   // Get all parts.
   TDF_LabelSequence labels;
   this->GetShapeTool()->GetFreeShapes(labels);
 
-  if (!labels.Length()) return {};
+  if (!labels.Length())
+    return {};
 
-  if (labels.Length() == 1) return XCAFDoc_ShapeTool::GetShape(labels.First());
+  if (labels.Length() == 1)
+    return XCAFDoc_ShapeTool::GetShape(labels.First());
 
   // Put everything into compound and return.
-  TopoDS_Compound C;
-  BRep_Builder B;
+  TopoDS_Compound        C;
+  constexpr BRep_Builder B;
   B.MakeCompound(C);
-  for (int i = 1; i <= labels.Length(); ++i) {
+  for (int i = 1; i <= labels.Length(); ++i)
+  {
     TopoDS_Shape S = XCAFDoc_ShapeTool::GetShape(labels(i));
     B.Add(C, S);
   }
@@ -380,21 +425,25 @@ TopoDS_Shape Doc::GetOneShape() const {
 
 // -----------------------------------------------------------------------------
 
-bool Doc::GetColor(const TDF_Label& label, Quantity_Color& color) const {
+bool Doc::GetColor(const TDF_Label& label, Quantity_Color& color) const
+{
   Quantity_ColorRGBA colorRGBA;
-  const bool isOk = this->GetColor(label, colorRGBA);
+  const bool         isOk = this->GetColor(label, colorRGBA);
 
-  if (isOk) color = colorRGBA.GetRGB();
+  if (isOk)
+    color = colorRGBA.GetRGB();
 
   return isOk;
 }
 
 //-----------------------------------------------------------------------------
 
-bool Doc::GetColor(const TDF_Label& label, Quantity_ColorRGBA& color) const {
+bool Doc::GetColor(const TDF_Label& label, Quantity_ColorRGBA& color) const
+{
   bool isColorFound = false;
 
-  if (!this->GetColorTool().IsNull()) {
+  if (!this->GetColorTool().IsNull())
+  {
     // Get the source label.
     TDF_Label refLabel = label;
     //
@@ -402,16 +451,13 @@ bool Doc::GetColor(const TDF_Label& label, Quantity_ColorRGBA& color) const {
       XCAFDoc_ShapeTool::GetReferredShape(label, refLabel);
 
     // Get one of the possibly available colors.
-    isColorFound =
-        XCAFDoc_ColorTool().GetColor(refLabel, XCAFDoc_ColorSurf, color);
+    isColorFound = XCAFDoc_ColorTool().GetColor(refLabel, XCAFDoc_ColorSurf, color);
 
     if (!isColorFound)
-      isColorFound =
-          XCAFDoc_ColorTool().GetColor(refLabel, XCAFDoc_ColorGen, color);
+      isColorFound = XCAFDoc_ColorTool().GetColor(refLabel, XCAFDoc_ColorGen, color);
 
     if (!isColorFound)
-      isColorFound =
-          XCAFDoc_ColorTool().GetColor(refLabel, XCAFDoc_ColorCurv, color);
+      isColorFound = XCAFDoc_ColorTool().GetColor(refLabel, XCAFDoc_ColorCurv, color);
   }
 
   return isColorFound;
@@ -419,24 +465,30 @@ bool Doc::GetColor(const TDF_Label& label, Quantity_ColorRGBA& color) const {
 
 //-----------------------------------------------------------------------------
 
-bool Doc::GetColorAlpha(const TDF_Label& label, double& alpha) const {
+bool Doc::GetColorAlpha(const TDF_Label& label, double& alpha) const
+{
   // Get color for the part itself.
   Quantity_ColorRGBA colorRGBA;
-  bool isColorFound = this->GetColor(label, colorRGBA);
+  bool               isColorFound = this->GetColor(label, colorRGBA);
 
-  if (isColorFound) {
+  if (isColorFound)
+  {
     alpha = colorRGBA.Alpha();
-  } else {  // Try getting color from any of the sub-shapes as a fallback
-            // solution
+  }
+  else
+  { // Try getting color from any of the sub-shapes as a fallback
+    // solution
     TDF_LabelSequence subShapes;
     XCAFDoc_ShapeTool::GetSubShapes(label, subShapes);
 
-    if (subShapes.IsEmpty()) return isColorFound;
+    if (subShapes.IsEmpty())
+      return isColorFound;
 
     if (TDF_LabelSequence::Iterator it(subShapes); it.More())
       isColorFound = this->GetColor(it.Value(), colorRGBA);
 
-    if (isColorFound) alpha = colorRGBA.Alpha();
+    if (isColorFound)
+      alpha = colorRGBA.Alpha();
   }
 
   return isColorFound;
@@ -444,8 +496,10 @@ bool Doc::GetColorAlpha(const TDF_Label& label, double& alpha) const {
 
 //-----------------------------------------------------------------------------
 
-void Doc::SetColor(const TDF_Label& label, const Quantity_Color& color) {
-  if (label.IsNull()) return;
+void Doc::SetColor(const TDF_Label& label, const Quantity_Color& color)
+{
+  if (label.IsNull())
+    return;
 
   TCollection_AsciiString partId;
   TDF_Tool::Entry(label, partId);
@@ -460,9 +514,10 @@ void Doc::SetColor(const TDF_Label& label, const Quantity_Color& color) {
 
 //-----------------------------------------------------------------------------
 
-void Doc::SetColor(const TDF_Label& label, const Quantity_ColorRGBA& color,
-                   const bool changeTransp) {
-  if (label.IsNull()) return;
+void Doc::SetColor(const TDF_Label& label, const Quantity_ColorRGBA& color, const bool changeTransp)
+{
+  if (label.IsNull())
+    return;
 
   /*
    * Colors should be set to non-assemblies labels only. Assigning color to
@@ -470,65 +525,79 @@ void Doc::SetColor(const TDF_Label& label, const Quantity_ColorRGBA& color,
    * architecture.
    */
 
-  if (XCAFDoc_ShapeTool::IsReference(label)) {
+  if (XCAFDoc_ShapeTool::IsReference(label))
+  {
     // Set color to the prototype.
     TDF_Label protoLab;
     XCAFDoc_ShapeTool::GetReferredShape(label, protoLab);
 
     this->SetColor(protoLab, color, changeTransp);
-  } else if (XCAFDoc_ShapeTool::IsAssembly(label)) {
+  }
+  else if (XCAFDoc_ShapeTool::IsAssembly(label))
+  {
     // Set color to all assembly components.
     TDF_LabelSequence components;
     XCAFDoc_ShapeTool::GetComponents(label, components, true);
 
-    for (TDF_LabelSequence::Iterator cit(components); cit.More(); cit.Next()) {
+    for (TDF_LabelSequence::Iterator cit(components); cit.More(); cit.Next())
+    {
       this->SetColor(cit.Value(), color, changeTransp);
     }
-  } else /* Shape */
+  }
+  else /* Shape */
   {
     TopoDS_Shape shape = XCAFDoc_ShapeTool::GetShape(label);
 
-    if (shape.IsNull()) return;
+    if (shape.IsNull())
+      return;
 
     Quantity_ColorRGBA colorRGBA(color);
 
-    if (!changeTransp) {
+    if (!changeTransp)
+    {
       double alpha = 1.0;
 
-      if (this->GetColorAlpha(label, alpha)) colorRGBA.SetAlpha((float)alpha);
+      if (this->GetColorAlpha(label, alpha))
+        colorRGBA.SetAlpha((float)alpha);
     }
 
     Handle(XCAFDoc_ColorTool) CT = this->GetColorTool();
 
     Handle(TDataStd_TreeNode) colorAttr;
-    bool isGenColor =
-        label.FindAttribute(XCAFDoc::ColorRefGUID(XCAFDoc_ColorGen), colorAttr);
+    bool isGenColor = label.FindAttribute(XCAFDoc::ColorRefGUID(XCAFDoc_ColorGen), colorAttr);
 
-    if (shape.ShapeType() == TopAbs_EDGE) {
+    if (shape.ShapeType() == TopAbs_EDGE)
+    {
       CT->SetColor(label, colorRGBA, XCAFDoc_ColorCurv);
-    } else {
+    }
+    else
+    {
       CT->SetColor(label, colorRGBA, XCAFDoc_ColorSurf);
       CT->SetColor(label, colorRGBA, XCAFDoc_ColorCurv);
     }
-    if (isGenColor) {
+    if (isGenColor)
+    {
       CT->SetColor(label, colorRGBA, XCAFDoc_ColorGen);
     }
 
     TDF_LabelSequence subshapes;
     XCAFDoc_ShapeTool::GetSubShapes(label, subshapes);
 
-    for (TDF_LabelSequence::Iterator iter(subshapes); iter.More();
-         iter.Next()) {
-      if (this->GetShape(iter.Value()).ShapeType() == TopAbs_EDGE) {
+    for (TDF_LabelSequence::Iterator iter(subshapes); iter.More(); iter.Next())
+    {
+      if (this->GetShape(iter.Value()).ShapeType() == TopAbs_EDGE)
+      {
         CT->SetColor(iter.Value(), colorRGBA, XCAFDoc_ColorCurv);
-      } else {
+      }
+      else
+      {
         CT->SetColor(iter.Value(), colorRGBA, XCAFDoc_ColorSurf);
         CT->SetColor(iter.Value(), colorRGBA, XCAFDoc_ColorCurv);
       }
 
-      isGenColor = iter.Value().FindAttribute(
-          XCAFDoc::ColorRefGUID(XCAFDoc_ColorGen), colorAttr);
-      if (isGenColor) {
+      isGenColor = iter.Value().FindAttribute(XCAFDoc::ColorRefGUID(XCAFDoc_ColorGen), colorAttr);
+      if (isGenColor)
+      {
         CT->SetColor(iter.Value(), colorRGBA, XCAFDoc_ColorGen);
       }
     }
@@ -537,14 +606,16 @@ void Doc::SetColor(const TDF_Label& label, const Quantity_ColorRGBA& color,
 
 // -----------------------------------------------------------------------------
 
-void Doc::ResetColors() const {
+void Doc::ResetColors() const
+{
   // Get color tool.
   Handle(XCAFDoc_ColorTool) CT = this->GetColorTool();
 
   TDF_LabelSequence colorLabs;
   CT->GetColors(colorLabs);
 
-  for (TDF_LabelSequence::Iterator lit(colorLabs); lit.More(); lit.Next()) {
+  for (TDF_LabelSequence::Iterator lit(colorLabs); lit.More(); lit.Next())
+  {
     TDF_Label colorLab = lit.Value();
     CT->RemoveColor(colorLab);
   }
@@ -552,42 +623,53 @@ void Doc::ResetColors() const {
 
 // -----------------------------------------------------------------------------
 
-Handle(TDocStd_Document) & Doc::ChangeDocument() { return m_doc; }
+Handle(TDocStd_Document)& Doc::ChangeDocument()
+{
+  return m_doc;
+}
 
 // -----------------------------------------------------------------------------
 
-const Handle(TDocStd_Document) & Doc::GetDocument() const { return m_doc; }
+const Handle(TDocStd_Document)& Doc::GetDocument() const
+{
+  return m_doc;
+}
 
 // -----------------------------------------------------------------------------
 
-Handle(XCAFDoc_ShapeTool) Doc::GetShapeTool() const {
+Handle(XCAFDoc_ShapeTool) Doc::GetShapeTool() const
+{
   return XCAFDoc_DocumentTool::ShapeTool(m_doc->Main());
 }
 
 // -----------------------------------------------------------------------------
 
-Handle(XCAFDoc_ColorTool) Doc::GetColorTool() const {
+Handle(XCAFDoc_ColorTool) Doc::GetColorTool() const
+{
   return XCAFDoc_DocumentTool::ColorTool(m_doc->Main());
 }
 
 // -----------------------------------------------------------------------------
 
-Handle(XCAFDoc_MaterialTool) Doc::GetMaterialTool() const {
+Handle(XCAFDoc_MaterialTool) Doc::GetMaterialTool() const
+{
   return XCAFDoc_DocumentTool::MaterialTool(m_doc->Main());
 }
 
 // -----------------------------------------------------------------------------
 
-void Doc::init(const Handle(TDocStd_Document) & doc) {
+void Doc::init(const Handle(TDocStd_Document)& doc)
+{
   // Store the pointer to the passed Document in the member field.
   m_doc = doc;
 }
 
 //-----------------------------------------------------------------------------
 
-Handle(TDocStd_Document) Doc::newDocument() {
+Handle(TDocStd_Document) Doc::newDocument()
+{
   Handle(TDocStd_Document) D;
-  Handle(App) A = this->getApplication();
+  Handle(App)              A = this->getApplication();
 
   // Create XDE Document and return.
   A->NewDocument("BinXCAF", D);
@@ -596,6 +678,9 @@ Handle(TDocStd_Document) Doc::newDocument() {
 
 //-----------------------------------------------------------------------------
 
-Handle(App) Doc::getApplication() { return App::Instance(); }
+Handle(App) Doc::getApplication()
+{
+  return App::Instance();
+}
 
-}  // namespace occutils::xde
+} // namespace occutils::xde
