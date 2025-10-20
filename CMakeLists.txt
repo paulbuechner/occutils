@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.25)
 
 option(OCCUTILS_BUILD_TESTS "Build tests" OFF)
 
-set(VCPKG_OVERLAY_TRIPLETS "${CMAKE_CURRENT_LIST_DIR}/vcpkg/triplets" CACHE STRING "")
-
 set(OCCUTILS_VERSION 0.0.0)
 project(occutils VERSION ${OCCUTILS_VERSION} LANGUAGES CXX)
 
@@ -48,6 +46,8 @@ option(OCCUTILS_INSTALL "Generate the install target" ${OCCUTILS_MASTER_PROJECT}
 
 # These commands only run if this is the main project
 if (OCCUTILS_MASTER_PROJECT)
+  set(VCPKG_OVERLAY_TRIPLETS "${CMAKE_CURRENT_LIST_DIR}/vcpkg/triplets" CACHE STRING "")
+
   # BUILD_SHARED_LIBS is a standard CMake variable, but we declare it here to
   # make it prominent in the GUI.
   option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." OFF)
