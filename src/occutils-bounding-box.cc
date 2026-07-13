@@ -18,9 +18,11 @@
 #include "occutils/occutils-point.h"
 #include "occutils/occutils-primitive.h"
 
-namespace occutils::bbox {
+namespace occutils::bbox
+{
 
-std::pair<gp_Vec, gp_Vec> BoundingBox(const TopoDS_Shape& shape) {
+std::pair<gp_Vec, gp_Vec> BoundingBox(const TopoDS_Shape& shape)
+{
   double xMin;
   double xMax;
   double yMin;
@@ -37,7 +39,8 @@ std::pair<gp_Vec, gp_Vec> BoundingBox(const TopoDS_Shape& shape) {
 
 //------------------------------------------------------------------------------
 
-gp_XYZ BoundingBoxSize(const TopoDS_Shape& shape) {
+gp_XYZ BoundingBoxSize(const TopoDS_Shape& shape)
+{
   double xMin;
   double xMax;
   double yMin;
@@ -54,64 +57,70 @@ gp_XYZ BoundingBoxSize(const TopoDS_Shape& shape) {
 
 //------------------------------------------------------------------------------
 
-double BoundingBoxVolume(const TopoDS_Shape& shape) {
-  gp_XYZ bbox = BoundingBoxSize(shape);
+double BoundingBoxVolume(const TopoDS_Shape& shape)
+{
+  const gp_XYZ bbox = BoundingBoxSize(shape);
   return bbox.X() * bbox.Y() * bbox.Z();
 }
 
 //------------------------------------------------------------------------------
 
-bool Is1D(const Bnd_Box& bbox, double tolerance) {
-  bool xFlat = bbox.IsXThin(tolerance);
-  bool yFlat = bbox.IsYThin(tolerance);
-  bool zFlat = bbox.IsZThin(tolerance);
+bool Is1D(const Bnd_Box& bbox, double tolerance)
+{
+  const bool xFlat = bbox.IsXThin(tolerance);
+  const bool yFlat = bbox.IsYThin(tolerance);
+  const bool zFlat = bbox.IsZThin(tolerance);
 
-  return (xFlat && yFlat && !zFlat) || (xFlat && !yFlat && zFlat) ||
-         (!xFlat && yFlat && zFlat);
+  return (xFlat && yFlat && !zFlat) || (xFlat && !yFlat && zFlat) || (!xFlat && yFlat && zFlat);
 }
 
 //------------------------------------------------------------------------------
 
-bool Is2D(const Bnd_Box& bbox, double tolerance) {
-  bool xFlat = bbox.IsXThin(tolerance);
-  bool yFlat = bbox.IsYThin(tolerance);
-  bool zFlat = bbox.IsZThin(tolerance);
+bool Is2D(const Bnd_Box& bbox, double tolerance)
+{
+  const bool xFlat = bbox.IsXThin(tolerance);
+  const bool yFlat = bbox.IsYThin(tolerance);
+  const bool zFlat = bbox.IsZThin(tolerance);
 
-  return (xFlat && !yFlat && !zFlat) || (!xFlat && !yFlat && zFlat) ||
-         (!xFlat && yFlat && !zFlat);
+  return (xFlat && !yFlat && !zFlat) || (!xFlat && !yFlat && zFlat) || (!xFlat && yFlat && !zFlat);
 }
 
 //------------------------------------------------------------------------------
 
-bool Is3D(const Bnd_Box& bbox, double tolerance) {
-  bool xFlat = bbox.IsXThin(tolerance);
-  bool yFlat = bbox.IsYThin(tolerance);
-  bool zFlat = bbox.IsZThin(tolerance);
+bool Is3D(const Bnd_Box& bbox, double tolerance)
+{
+  const bool xFlat = bbox.IsXThin(tolerance);
+  const bool yFlat = bbox.IsYThin(tolerance);
+  const bool zFlat = bbox.IsZThin(tolerance);
 
   return !xFlat && !yFlat && !zFlat;
 }
 
 //------------------------------------------------------------------------------
 
-TopoDS_Shape Shape(const Bnd_Box& bbox, const double tol) {
-  if (bbox.IsVoid()) return {};  // empty bounding box
+TopoDS_Shape Shape(const Bnd_Box& bbox, const double tol)
+{
+  if (bbox.IsVoid())
+    return {}; // empty bounding box
 
   // 1D bounding box
-  if (Is1D(bbox, tol)) {
+  if (Is1D(bbox, tol))
+  {
     return edge::FromPoints(bbox.CornerMin(), bbox.CornerMax());
   }
 
   // 2D bounding box
-  if (Is2D(bbox, tol)) {
+  if (Is2D(bbox, tol))
+  {
     // Use OBB to work out the face in 3D space
     const Bnd_OBB obb(bbox);
-    gp_Pnt corners[8];
+    gp_Pnt        corners[8];
     //
     obb.GetVertex(corners);
 
     // Remove "duplicate" points as the OBB may return the same point multiple
     // times due to the way the box is constructed
-    std::set unique(corners, corners + 8, point::Compare(tol));
+    std::set    unique(corners, corners + 8, point::Compare(tol));
     std::vector points(unique.begin(), unique.end());
 
     return face::FromPoints({points[0], points[1], points[3], points[2]});
@@ -121,4 +130,4 @@ TopoDS_Shape Shape(const Bnd_Box& bbox, const double tol) {
   return primitive::MakeBox(bbox.CornerMin(), bbox.CornerMax());
 }
 
-}  // namespace occutils::bbox
+} // namespace occutils::bbox

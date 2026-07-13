@@ -6,21 +6,26 @@
 
 // std includes
 #include <map>
+#include <optional>
+#include <string>
 #include <vector>
 
 // OCC includes
 #include <GeomAdaptor_Surface.hxx>
-#include <Geom_Line.hxx>
+#include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>
 #include <gp_Ax1.hxx>
 #include <gp_Dir.hxx>
-#include <gp_Pnt2d.hxx>
+#include <gp_Lin.hxx>
+#include <gp_Pnt.hxx>
 #include <gp_XY.hxx>
 
-namespace occutils {
+namespace occutils
+{
 
-namespace surface {
+namespace surface
+{
 
 /**
  * Get the total surface area of a face, solid etc.
@@ -54,12 +59,12 @@ std::pair<double, gp_Pnt> AreaAndCenterOfMass(const TopoDS_Shape& face);
  * @returns The gp_Ax1 of the point on the surface described by U/V coords and
  * the direction
  */
-gp_Ax1 Normal(const GeomAdaptor_Surface& surf, double u = 0.0, double v = 0.0,
-              double precision = 1e-6);
-gp_Ax1 Normal(const GeomAdaptor_Surface& surf, const gp_Pnt2d& uv,
-              double precision = 1e-6);
-gp_Ax1 Normal(const GeomAdaptor_Surface& surf, const gp_XY& uv,
-              double precision = 1e-6);
+gp_Ax1 Normal(const GeomAdaptor_Surface& surf,
+              double                     u         = 0.0,
+              double                     v         = 0.0,
+              double                     precision = 1e-6);
+gp_Ax1 Normal(const GeomAdaptor_Surface& surf, const gp_Pnt2d& uv, double precision = 1e-6);
+gp_Ax1 Normal(const GeomAdaptor_Surface& surf, const gp_XY& uv, double precision = 1e-6);
 
 /**
  * Compute the normal direction of a surface at the given U/V coordinates.
@@ -68,8 +73,10 @@ gp_Ax1 Normal(const GeomAdaptor_Surface& surf, const gp_XY& uv,
  * @param v The V coordinate
  * @param precision Affects computation speed.
  */
-gp_Dir NormalDirection(const GeomAdaptor_Surface& surf, double u = 0.0,
-                       double v = 0.0, double precision = 1e-6);
+gp_Dir NormalDirection(const GeomAdaptor_Surface& surf,
+                       double                     u         = 0.0,
+                       double                     v         = 0.0,
+                       double                     precision = 1e-6);
 
 bool IsPlane(const GeomAdaptor_Surface& surf);
 bool IsCylinder(const GeomAdaptor_Surface& surf);
@@ -109,25 +116,24 @@ gp_Pnt PointAt(const GeomAdaptor_Surface& surf, const gp_XY& uv);
  * as U/V coordinates!
  */
 std::vector<gp_XY> UniformUVSampleLocations(const GeomAdaptor_Surface& surf,
-                                            size_t uSamples = 10,
-                                            size_t vSamples = 10);
+                                            size_t                     uSamples = 10,
+                                            size_t                     vSamples = 10);
 
 /**
  * Like UniformUVSampleLocations(), but computes sample points within the
  * limits, not including the U/V limits. Equivalent to calling
  * UniformUVSampleLocations() with 2 more samples in each direction
  */
-std::vector<gp_XY> UniformUVSampleLocationsWithin(
-    const GeomAdaptor_Surface& surf, size_t uSamples = 10,
-    size_t vSamples = 10);
+std::vector<gp_XY> UniformUVSampleLocationsWithin(const GeomAdaptor_Surface& surf,
+                                                  size_t                     uSamples = 10,
+                                                  size_t                     vSamples = 10);
 
 /**
  * Compute the 3D intersection between a line and a surface.
  * @returns nullopt if there is no intersection or the Algorithm fails, the 3D
  * point else
  */
-std::optional<gp_Pnt> Intersection(const gp_Lin& line,
-                                   const GeomAdaptor_Surface& surface);
+std::optional<gp_Pnt> Intersection(const gp_Lin& line, const GeomAdaptor_Surface& surface);
 
 /**
  * Compute the 3D intersection between a two surfaces.
@@ -152,12 +158,14 @@ std::optional<TopoDS_Edge> Intersection(const GeomAdaptor_Surface& S1,
 // gp_Pnt CurvatureAt(const GeomAdaptor_Surface& surf, double u = 0.0, double v
 // = 0.0);
 
-}  // namespace surface
+} // namespace surface
 
-namespace surfaces {
+namespace surfaces
+{
 
-struct SurfaceInfo {
-  TopoDS_Face face;
+struct SurfaceInfo
+{
+  TopoDS_Face         face;
   GeomAdaptor_Surface surface;
 };
 
@@ -171,18 +179,17 @@ std::vector<SurfaceInfo> FromShape(const TopoDS_Shape& shape);
 /**
  * Filter surfaces by type
  */
-std::vector<SurfaceInfo> Only(const std::vector<SurfaceInfo>& surfaces,
-                              GeomAbs_SurfaceType type);
+std::vector<SurfaceInfo> Only(const std::vector<SurfaceInfo>& surfaces, GeomAbs_SurfaceType type);
 
 /**
  * Filter surfaces by a custom filter function
  */
 template <typename FilterFunc>
-std::vector<SurfaceInfo> Filter(const std::vector<SurfaceInfo>& surfaces,
-                                const FilterFunc& filter);
+std::vector<SurfaceInfo> Filter(const std::vector<SurfaceInfo>& surfaces, const FilterFunc& filter);
 
-struct SurfaceTypeStats {
-  void Add(GeomAbs_SurfaceType typ, size_t cnt = 1);
+struct SurfaceTypeStats
+{
+  void   Add(GeomAbs_SurfaceType typ, size_t cnt = 1);
   size_t Count(GeomAbs_SurfaceType typ);
   // Get a human-readable summary of the stats
   std::string Summary();
@@ -192,6 +199,6 @@ struct SurfaceTypeStats {
 
 SurfaceTypeStats Statistics(const std::vector<SurfaceInfo>& surfaces);
 
-}  // namespace surfaces
+} // namespace surfaces
 
-}  // namespace occutils
+} // namespace occutils

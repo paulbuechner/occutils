@@ -8,12 +8,14 @@
 #include <TopoDS_Solid.hxx>
 #include <gp_Pnt.hxx>
 
-namespace occutils::primitive {
+namespace occutils::primitive
+{
 
 /**
  * Configure how a primitive is centered in the coordinate system
  */
-enum class PositionCentering {
+enum class PositionCentering
+{
   DoNotCenter,
   CenterX,
   CenterY,
@@ -26,7 +28,12 @@ enum class PositionCentering {
  * Configure in which axis a primitive is oriented.
  * Defines the direction of the primitive's main axis.
  */
-enum class Orientation { X, Y, Z };
+enum class Orientation
+{
+  X,
+  Y,
+  Z
+};
 
 /**
  * Make a box that can be centered on all axes individually.
@@ -38,9 +45,11 @@ enum class Orientation { X, Y, Z };
  * CenterY, 3 - CenterZ.
  * @param origin The point where to create the box. Default is (0,0,0)
  */
-TopoDS_Solid MakeBox(double xSize, double ySize, double zSize,
+TopoDS_Solid MakeBox(double            xSize,
+                     double            ySize,
+                     double            zSize,
                      PositionCentering center = PositionCentering::DoNotCenter,
-                     gp_Pnt origin = gp_Pnt());
+                     gp_Pnt            origin = gp_Pnt());
 
 /**
  * Make a box that stretches from point a to point b.
@@ -59,9 +68,9 @@ TopoDS_Solid MakeBox(const std::pair<gp_Vec, gp_Vec>& ab);
  * CenterY, 3 - CenterZ.
  * @param origin The point where to create the box. Default is (0,0,0)
  */
-TopoDS_Solid MakeCube(double size,
+TopoDS_Solid MakeCube(double            size,
                       PositionCentering center = PositionCentering::DoNotCenter,
-                      gp_Pnt origin = gp_Pnt());
+                      const gp_Pnt&     origin = gp_Pnt());
 
 /**
  * Make a cone.
@@ -72,8 +81,11 @@ TopoDS_Solid MakeCube(double size,
  * @param axis Defines both the origin point and the axis of the cone
  * @param centerLength Whether to center the cone on its length
  */
-TopoDS_Solid MakeCone(const gp_Ax1& axis, double diameter1, double diameter2,
-                      double length, bool centerLength = false);
+TopoDS_Solid MakeCone(const gp_Ax1& axis,
+                      double        diameter1,
+                      double        diameter2,
+                      double        length,
+                      bool          centerLength = false);
 
 /**
  * Make a cylinder that can be centered.
@@ -90,9 +102,10 @@ TopoDS_Solid MakeCone(const gp_Ax1& axis, double diameter1, double diameter2,
  * of its bounding box.
  * @param origin The point where to create the cylinder. Default is (0,0,0)
  */
-TopoDS_Solid MakeCylinder(
-    double diameter, double length, Orientation orientation = Orientation::Z,
-    PositionCentering center = PositionCentering::DoNotCenter,
-    gp_Pnt origin = gp_Pnt());
+TopoDS_Solid MakeCylinder(double            diameter,
+                          double            length,
+                          Orientation       orientation = Orientation::Z,
+                          PositionCentering center      = PositionCentering::DoNotCenter,
+                          gp_Pnt            origin      = gp_Pnt());
 
-}  // namespace occutils::primitive
+} // namespace occutils::primitive

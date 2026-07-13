@@ -4,21 +4,24 @@
 #include <vector>
 
 // OCC includes
-#include <TopTools_ListOfShape.hxx>
+#include <NCollection_List.hxx>
 #include <TopoDS_CompSolid.hxx>
 #include <TopoDS_Compound.hxx>
 #include <TopoDS_Face.hxx>
+#include <TopoDS_Edge.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Shell.hxx>
 #include <TopoDS_Solid.hxx>
 #include <TopoDS_Vertex.hxx>
+#include <TopoDS_Wire.hxx>
 
-namespace occutils::compound {
+namespace occutils::compound
+{
 
 /**
  * Create a compound from multiple shapes
  */
-TopoDS_Compound From(const TopTools_ListOfShape& shapes);
+TopoDS_Compound From(const NCollection_List<TopoDS_Shape>& shapes);
 
 /**
  * Create a compound from multiple shapes
@@ -65,4 +68,4 @@ TopoDS_Compound From(const std::vector<TopoDS_Edge>& edges);
  */
 TopoDS_Compound From(const std::vector<TopoDS_Vertex>& vertices);
 
-}  // namespace occutils::compound
+} // namespace occutils::compound

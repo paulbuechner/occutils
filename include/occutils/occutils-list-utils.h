@@ -9,7 +9,8 @@
 // OCC includes
 #include <NCollection_List.hxx>
 
-namespace occutils::list_utils {
+namespace occutils::list_utils
+{
 
 /**
  * Split a NCollection_List<T> into
@@ -17,14 +18,20 @@ namespace occutils::list_utils {
  */
 template <typename T>
 std::pair<NCollection_List<T>, NCollection_List<T>> SplitIntoHeadAndTail(
-    const NCollection_List<T>& arg, size_t headSize) {
+  const NCollection_List<T>& arg,
+  size_t                     headSize)
+{
   auto ret = std::make_pair(NCollection_List<T>(), NCollection_List<T>());
   // Iterate arg
-  for (const T& value : arg) {
-    if (headSize > 0) {
+  for (const T& value : arg)
+  {
+    if (headSize > 0)
+    {
       ret.first.Append(value);
       headSize--;
-    } else {
+    }
+    else
+    {
       ret.second.Append(value);
     }
   }
@@ -35,11 +42,12 @@ std::pair<NCollection_List<T>, NCollection_List<T>> SplitIntoHeadAndTail(
  * Convert any STL or STL-like container of type T
  * to a NCollection_List<T>.
  */
-template <template <typename, typename> typename Container, typename T,
-          typename Allocator>
-NCollection_List<T> ToOCCList(const Container<T, Allocator>& args) {
+template <template <typename, typename> typename Container, typename T, typename Allocator>
+NCollection_List<T> ToOCCList(const Container<T, Allocator>& args)
+{
   NCollection_List<T> ret;
-  for (const T& arg : args) {
+  for (const T& arg : args)
+  {
     ret.Append(arg);
   }
   return ret;
@@ -50,9 +58,11 @@ NCollection_List<T> ToOCCList(const Container<T, Allocator>& args) {
  * to a NCollection_List<T>.
  */
 template <typename T>
-NCollection_List<T> ToOCCList(const std::initializer_list<T>& args) {
+NCollection_List<T> ToOCCList(const std::initializer_list<T>& args)
+{
   NCollection_List<T> ret;
-  for (const T& arg : args) {
+  for (const T& arg : args)
+  {
     ret.Append(arg);
   }
   return ret;
@@ -64,31 +74,37 @@ NCollection_List<T> ToOCCList(const std::initializer_list<T>& args) {
  * e.g. {arg1, arg2, arg3} to an OCC list
  */
 template <template <typename> typename Container, typename T>
-NCollection_List<T> ToOCCList(const Container<T>& args) {
+NCollection_List<T> ToOCCList(const Container<T>& args)
+{
   NCollection_List<T> ret;
-  for (const T& arg : args) {
+  for (const T& arg : args)
+  {
     ret.Append(arg);
   }
   return ret;
 }
 
 template <typename T>
-std::vector<T> ToSTLVector(const NCollection_List<T>& args) {
+std::vector<T> ToSTLVector(const NCollection_List<T>& args)
+{
   std::vector<T> ret;
   ret.reserve(args.size());
-  for (const T& arg : args) {
+  for (const T& arg : args)
+  {
     ret.push_back(arg);
   }
   return ret;
 }
 
 template <typename T>
-std::list<T> ToSTLList(const NCollection_List<T>& args) {
+std::list<T> ToSTLList(const NCollection_List<T>& args)
+{
   std::list<T> ret;
-  for (const T& arg : args) {
+  for (const T& arg : args)
+  {
     ret.push_back(arg);
   }
   return ret;
 }
 
-}  // namespace occutils::list_utils
+} // namespace occutils::list_utils

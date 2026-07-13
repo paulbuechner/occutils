@@ -48,6 +48,7 @@
 #pragma once
 
 // OCC includes
+#include <Standard_Handle.hxx>
 #include <Standard_Type.hxx>
 #include <XCAFApp_Application.hxx>
 
@@ -67,7 +68,7 @@ class App : public XCAFApp_Application {
    *
    * @return The static instance of XCAF Application
    */
-  static Handle(App) Instance();
+  static occ::handle<App> Instance();
 
  protected:
   App();

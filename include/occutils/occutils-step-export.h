@@ -6,7 +6,8 @@
 // OCC includes
 #include <TopoDS_Shape.hxx>
 
-namespace occutils::step_export {
+namespace occutils::step_export
+{
 
 /**
  * Export a shape to a file
@@ -16,7 +17,8 @@ namespace occutils::step_export {
  * @throws OCCRuntimeException in case of transfer error
  * @throws OCCIOException in case of write error
  */
-void ExportSTEP(const TopoDS_Shape& shape, const std::string& filename,
-                const std::string& unit = "MM");
+void ExportSTEP(const TopoDS_Shape& shape,
+                const std::string&  filename,
+                const std::string&  unit = "MM");
 
-}  // namespace occutils::step_export
+} // namespace occutils::step_export

@@ -2,20 +2,22 @@
 
 // OCC includes
 #include <BRepFilletAPI_MakeFillet.hxx>
+#include <NCollection_IndexedMap.hxx>
 #include <TopExp.hxx>
-#include <TopTools_IndexedMapOfShape.hxx>
 #include <TopoDS.hxx>
-#include <TopoDS_Edge.hxx>
 
-namespace occutils::fillet {
+namespace occutils::fillet
+{
 
-TopoDS_Shape FilletAll(const TopoDS_Shape& shape, double radius) {
+TopoDS_Shape FilletAll(const TopoDS_Shape& shape, const double radius)
+{
   BRepFilletAPI_MakeFillet filletMaker(shape);
   // Iterate edges
-  TopTools_IndexedMapOfShape edges;
+  NCollection_IndexedMap<TopoDS_Shape, TopTools_ShapeMapHasher> edges;
   TopExp::MapShapes(shape, TopAbs_EDGE, edges);
 
-  for (Standard_Integer i = 1; i <= edges.Extent(); i++) {
+  for (int i = 1; i <= edges.Extent(); i++)
+  {
     const TopoDS_Edge& edge = TopoDS::Edge(edges(i));
     filletMaker.Add(radius, edge);
   }
@@ -23,4 +25,4 @@ TopoDS_Shape FilletAll(const TopoDS_Shape& shape, double radius) {
   return filletMaker.Shape();
 }
 
-}  // namespace occutils::fillet
+} // namespace occutils::fillet

@@ -2,7 +2,6 @@
 
 // std includes
 #include <utility>
-#include <vector>
 
 // OCC includes
 #include <Bnd_Box.hxx>
@@ -11,7 +10,8 @@
 #include <gp_Vec.hxx>
 #include <gp_XYZ.hxx>
 
-namespace occutils::bbox {
+namespace occutils::bbox
+{
 
 /**
  * Compute the bounding box of the given shape,
@@ -84,4 +84,4 @@ bool Is3D(const Bnd_Box& bbox, double tol = Precision::Confusion());
  */
 TopoDS_Shape Shape(const Bnd_Box& bbox, double tol = Precision::Confusion());
 
-}  // namespace occutils::bbox
+} // namespace occutils::bbox

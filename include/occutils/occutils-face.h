@@ -8,9 +8,9 @@
 // OCC includes
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>
-#include <TopoDS_Wire.hxx>
 
-namespace occutils::face {
+namespace occutils::face
+{
 
 /**
  * Construct a face from the given outer wire.
@@ -55,8 +55,10 @@ TopoDS_Face FromPoints(const std::vector<gp_Pnt>& points);
  * @returns The gp_Ax1 of the point on the surface described by U/V coords and
  * the normal direction, or nothing if the face does not have any surface
  */
-std::optional<gp_Ax1> Normal(const TopoDS_Face& face, double u = 0.0,
-                             double v = 0.0, double precision = 1e-6);
+std::optional<gp_Ax1> Normal(const TopoDS_Face& face,
+                             double             u         = 0.0,
+                             double             v         = 0.0,
+                             double             precision = 1e-6);
 
 /**
  * Compute the normal direction of a surface at the given U/V coordinates.
@@ -65,7 +67,9 @@ std::optional<gp_Ax1> Normal(const TopoDS_Face& face, double u = 0.0,
  * @param v The V coordinate
  * @param precision Affects computation speed.
  */
-std::optional<gp_Dir> NormalDirection(const TopoDS_Face& face, double u = 0.0,
-                                      double v = 0.0, double precision = 1e-6);
+std::optional<gp_Dir> NormalDirection(const TopoDS_Face& face,
+                                      double             u         = 0.0,
+                                      double             v         = 0.0,
+                                      double             precision = 1e-6);
 
-}  // namespace occutils::face
+} // namespace occutils::face

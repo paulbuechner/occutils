@@ -50,12 +50,15 @@
 // occutils xde includes
 #include "occutils/xde/occutils-xde-app.h"
 
-namespace occutils::xde {
+namespace occutils::xde
+{
 
-Handle(App) App::Instance() {
-  static Handle(App) A;  // Singleton.
+occ::handle<App> App::Instance()
+{
+  static occ::handle<App> A; // Singleton.
 
-  if (A.IsNull()) {
+  if (A.IsNull())
+  {
     A = new App();
   }
 
@@ -64,6 +67,6 @@ Handle(App) App::Instance() {
 
 //-----------------------------------------------------------------------------
 
-App::App() : XCAFApp_Application() {}
+App::App() {}
 
-}  // namespace occutils::xde
+} // namespace occutils::xde

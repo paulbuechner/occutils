@@ -7,7 +7,8 @@
 // OCC includes
 #include <LDOM_Element.hxx>
 
-namespace occutils::ldom {
+namespace occutils::ldom
+{
 
 /**
  * @brief Extracts the local tag name from an XML or HTML element.
@@ -23,7 +24,7 @@ namespace occutils::ldom {
  *                   returned. Defaults to false.
  * @return The local tag name as a std::string.
  */
-std::string GetLocalTagName(LDOM_Element const &el, bool keepPrefix = false);
+std::string GetLocalTagName(LDOM_Element const& el, bool keepPrefix = false);
 
 /**
  * @brief Extracts the local attribute name from an XML or HTML node.
@@ -38,7 +39,7 @@ std::string GetLocalTagName(LDOM_Element const &el, bool keepPrefix = false);
  * @return The local attribute name as a std::string, without the namespace
  * prefix.
  */
-std::string GetLocalAttrName(LDOM_Node const &el);
+std::string GetLocalAttrName(LDOM_Node const& el);
 
 /**
  * @brief Retrieves the value of a specified attribute from an element.
@@ -53,7 +54,7 @@ std::string GetLocalAttrName(LDOM_Node const &el);
  * @return The value of the attribute as a std::string, or an empty string if
  * the attribute is not found.
  */
-std::string GetAttrValue(LDOM_Element const &el, std::string_view name);
+std::string GetAttrValue(LDOM_Element const& el, std::string_view name);
 
 /**
  * @brief Retrieves the tag name of the first child element of a given parent
@@ -74,7 +75,7 @@ std::string GetAttrValue(LDOM_Element const &el, std::string_view name);
  * first child is not an element node or no child exists, an empty string is
  * returned.
  */
-std::string GetFirstChildTagName(const LDOM_Element &parentEl, bool keepPrefix);
+std::string GetFirstChildTagName(const LDOM_Element& parentEl, bool keepPrefix);
 
 /**
  * @brief Retrieves the all child elements of a given parent element that
@@ -94,8 +95,8 @@ std::string GetFirstChildTagName(const LDOM_Element &parentEl, bool keepPrefix);
  * null or \c childName is empty, an empty vector of \c LDOM_Element object is
  * returned.
  */
-std::vector<LDOM_Element> GetChildrenByName(const LDOM_Element &parentEl,
-                                            std::string_view childName);
+std::vector<LDOM_Element> GetChildrenByName(const LDOM_Element& parentEl,
+                                            std::string_view    childName);
 
 /**
  * @brief Retrieves the first child element of a given parent element that
@@ -113,8 +114,7 @@ std::vector<LDOM_Element> GetChildrenByName(const LDOM_Element &parentEl,
  * element. If no matching child element is found, or if \c parentEl is null or
  * \c childName is empty, an empty \c LDOM_Element object is returned.
  */
-LDOM_Element GetFirstChildByName(const LDOM_Element &parentEl,
-                                 std::string_view childName);
+LDOM_Element GetFirstChildByName(const LDOM_Element& parentEl, std::string_view childName);
 
 /**
  * @brief Retrieves the value of a specified attribute from an element and
@@ -132,8 +132,7 @@ LDOM_Element GetFirstChildByName(const LDOM_Element &parentEl,
  * name of the attribute.
  * @param value A reference to an integer where the result will be stored.
  */
-void GetAttributeAsInteger(const LDOM_Element &elem,
-                           const std::string &attrName, int &value);
+void GetAttributeAsInteger(const LDOM_Element& elem, const std::string& attrName, int& value);
 
 /**
  * @brief Retrieves the value of a specified attribute from an element and
@@ -152,7 +151,6 @@ void GetAttributeAsInteger(const LDOM_Element &elem,
  * of the attribute.
  * @param value A reference to a double where the result will be stored.
  */
-void GetAttributeAsDouble(const LDOM_Element &elem, const std::string &attrName,
-                          double &value);
+void GetAttributeAsDouble(const LDOM_Element& elem, const std::string& attrName, double& value);
 
-}  // namespace occutils::ldom
+} // namespace occutils::ldom

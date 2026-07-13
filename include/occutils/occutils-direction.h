@@ -6,7 +6,8 @@
 
 gp_Vec operator*(const gp_Dir& a, double factor);
 
-namespace occutils::direction {
+namespace occutils::direction
+{
 
 /**
  * Get the global X axis direction
@@ -63,4 +64,4 @@ gp_Dir2d MinusY2d();
  */
 gp_Dir Orthogonal(const gp_Dir& a, const gp_Dir& b);
 
-}  // namespace occutils::direction
+} // namespace occutils::direction

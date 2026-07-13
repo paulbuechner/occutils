@@ -31,20 +31,25 @@
 
 using namespace occutils::ldom;
 
-class XMLParsingTest : public ::testing::Test {
- protected:
-  LDOMParser myParser;
+class XMLParsingTest : public ::testing::Test
+{
+protected:
+  LDOMParser    myParser;
   LDOM_Document myDocument;
-  std::string xmlFilePath;
+  std::string   xmlFilePath;
 
   // Constructor to set the file path
   explicit XMLParsingTest(std::string filePath)
-      : xmlFilePath(std::move(filePath)) {}
+      : xmlFilePath(std::move(filePath))
+  {
+  }
 
   // Set up the test environment
-  void SetUp() override {
+  void SetUp() override
+  {
     std::ifstream fileStream(xmlFilePath);
-    if (!fileStream.is_open()) {
+    if (!fileStream.is_open())
+    {
       FAIL() << "Failed to open XML file: " << xmlFilePath;
     }
 
@@ -57,16 +62,21 @@ class XMLParsingTest : public ::testing::Test {
 };
 
 // Example usage
-class test_ldom : public XMLParsingTest {
- public:
-  test_ldom() : XMLParsingTest("data/ldom/library.xml") {}
+class test_ldom : public XMLParsingTest
+{
+public:
+  test_ldom()
+      : XMLParsingTest("data/ldom/library.xml")
+  {
+  }
 };
 
-TEST_F(test_ldom, TestLibraryParsing) {
+TEST_F(test_ldom, TestLibraryParsing)
+{
   // Get the root element
-  LDOM_Element rootElement = myDocument.getDocumentElement();
-  std::string rootTagName = GetLocalTagName(rootElement);
-  std::string rootNodeName = GetLocalAttrName(rootElement);
+  LDOM_Element rootElement  = myDocument.getDocumentElement();
+  std::string  rootTagName  = GetLocalTagName(rootElement);
+  std::string  rootNodeName = GetLocalAttrName(rootElement);
 
   // Check if the root tag name is "library"
   EXPECT_EQ(rootTagName, "library");
@@ -74,7 +84,7 @@ TEST_F(test_ldom, TestLibraryParsing) {
 
   //
   // Get the first child element
-  LDOM_Node firstChild = rootElement.getFirstChild();
+  LDOM_Node    firstChild   = rootElement.getFirstChild();
   LDOM_Element firstChildEl = (LDOM_Element&)firstChild;
 
   // Get the tag name of the first child element
@@ -123,13 +133,14 @@ TEST_F(test_ldom, TestLibraryParsing) {
   EXPECT_EQ(rating, 4.5);
 }
 
-TEST_F(test_ldom, TestGetChildrenByName) {
+TEST_F(test_ldom, TestGetChildrenByName)
+{
   // Get the root element
-  LDOM_Element rootElement = myDocument.getDocumentElement();
+  const LDOM_Element rootElement = myDocument.getDocumentElement();
 
   // Test `GetChildrenByName`
   // Get the all child elements of the root element with the tag name "book"
-  std::vector<LDOM_Element> children = GetChildrenByName(rootElement, "book");
+  const std::vector<LDOM_Element> children = GetChildrenByName(rootElement, "book");
 
   // Check if the number of child elements is 2
   EXPECT_EQ(children.size(), 2);

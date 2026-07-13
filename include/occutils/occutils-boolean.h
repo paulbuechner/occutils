@@ -5,7 +5,7 @@
 #include <vector>
 
 // OCC includes
-#include <TopTools_ListOfShape.hxx>
+#include <NCollection_List.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Solid.hxx>
@@ -16,7 +16,8 @@
 /**
  * Boolean operation utilities
  */
-namespace occutils::boolean {
+namespace occutils::boolean
+{
 
 /**
  * Fuse two or more shapes in an OCC-style container.
@@ -27,7 +28,7 @@ namespace occutils::boolean {
  *
  * @throws OCCInvalidArgumentException if the list is empty.
  */
-TopoDS_Shape Fuse(const TopTools_ListOfShape& shapes);
+TopoDS_Shape Fuse(const NCollection_List<TopoDS_Shape>& shapes);
 
 /**
  * Fuse with two lists of arguments.
@@ -41,8 +42,8 @@ TopoDS_Shape Fuse(const TopTools_ListOfShape& shapes);
  *
  * @throws OCCInvalidArgumentException if either list is empty.
  */
-TopoDS_Shape Fuse(const TopTools_ListOfShape& arguments,
-                  const TopTools_ListOfShape& tools);
+TopoDS_Shape Fuse(const NCollection_List<TopoDS_Shape>& arguments,
+                  const NCollection_List<TopoDS_Shape>& tools);
 
 /**
  * Fuse two or more shapes in an STL-like container.
@@ -55,7 +56,8 @@ TopoDS_Shape Fuse(const TopTools_ListOfShape& arguments,
  * container.
  */
 template <template <typename, typename> typename Container, typename Allocator>
-TopoDS_Shape Fuse(const Container<TopoDS_Shape, Allocator>& shapes) {
+TopoDS_Shape Fuse(const Container<TopoDS_Shape, Allocator>& shapes)
+{
   return Fuse(occutils::list_utils::ToOCCList(shapes));
 }
 
@@ -70,7 +72,8 @@ TopoDS_Shape Fuse(const Container<TopoDS_Shape, Allocator>& shapes) {
  * container.
  */
 template <template <typename> typename Container>
-TopoDS_Shape Fuse(const Container<TopoDS_Shape>& shapes) {
+TopoDS_Shape Fuse(const Container<TopoDS_Shape>& shapes)
+{
   return Fuse(occutils::list_utils::ToOCCList(shapes));
 }
 
@@ -156,8 +159,8 @@ TopoDS_Shape Fuse(const std::initializer_list<TopoDS_Face>& shapes);
  *
  * @throws OCCInvalidArgumentException if either list is empty.
  */
-TopoDS_Shape Cut(const TopTools_ListOfShape& positive,
-                 const TopTools_ListOfShape& negative);
+TopoDS_Shape Cut(const NCollection_List<TopoDS_Shape>& positive,
+                 const NCollection_List<TopoDS_Shape>& negative);
 
 /**
  * Boolean subtraction between two shapes.
@@ -188,8 +191,7 @@ TopoDS_Shape Cut(const TopoDS_Shape& positive, const TopoDS_Shape& negative);
  * @throws OCCInvalidArgumentException if the positive shape is null or the list
  * of negative shapes is empty.
  */
-TopoDS_Shape Cut(const TopoDS_Shape& positive,
-                 const TopTools_ListOfShape& negative);
+TopoDS_Shape Cut(const TopoDS_Shape& positive, const NCollection_List<TopoDS_Shape>& negative);
 
 /**
  * Boolean subtraction between a shape and an initializer list of arguments.
@@ -207,8 +209,7 @@ TopoDS_Shape Cut(const TopoDS_Shape& positive,
  * @throws OCCInvalidArgumentException if the positive shape is null or the list
  * of negative shapes is empty.
  */
-TopoDS_Shape Cut(const TopoDS_Shape& positive,
-                 const std::initializer_list<TopoDS_Shape>& negative);
+TopoDS_Shape Cut(const TopoDS_Shape& positive, const std::initializer_list<TopoDS_Shape>& negative);
 
 /**
  * Boolean subtraction between a shape and a variable shape container of
@@ -226,8 +227,8 @@ TopoDS_Shape Cut(const TopoDS_Shape& positive,
  * container of negative shapes is empty.
  */
 template <template <typename, typename> typename Container, typename Allocator>
-TopoDS_Shape Cut(const TopoDS_Shape& positive,
-                 const Container<TopoDS_Shape, Allocator>& negative) {
+TopoDS_Shape Cut(const TopoDS_Shape& positive, const Container<TopoDS_Shape, Allocator>& negative)
+{
   return Cut(occutils::list_utils::ToOCCList({positive}),
              occutils::list_utils::ToOCCList(negative));
 }
@@ -246,12 +247,13 @@ TopoDS_Shape Cut(const TopoDS_Shape& positive,
  *
  * @throws OCCInvalidArgumentException if either container is empty.
  */
-template <template <typename, typename> typename Container, typename Allocator1,
+template <template <typename, typename> typename Container,
+          typename Allocator1,
           typename Allocator2>
 TopoDS_Shape Cut(const Container<TopoDS_Shape, Allocator1>& positive,
-                 const Container<TopoDS_Shape, Allocator2>& negative) {
-  return Cut(occutils::list_utils::ToOCCList(positive),
-             occutils::list_utils::ToOCCList(negative));
+                 const Container<TopoDS_Shape, Allocator2>& negative)
+{
+  return Cut(occutils::list_utils::ToOCCList(positive), occutils::list_utils::ToOCCList(negative));
 }
 
 /**
@@ -287,8 +289,7 @@ TopoDS_Shape Cut(const std::vector<TopoDS_Solid>& positive,
  * @throws OCCInvalidArgumentException if the positive solid is null or the
  * vector of negative solids is empty.
  */
-TopoDS_Shape Cut(const TopoDS_Solid& positive,
-                 const std::vector<TopoDS_Solid>& negative);
+TopoDS_Shape Cut(const TopoDS_Solid& positive, const std::vector<TopoDS_Solid>& negative);
 
 /**
  * Boolean subtraction between two vectors of TopoDS_Faces.
@@ -323,8 +324,7 @@ TopoDS_Shape Cut(const std::vector<TopoDS_Face>& positive,
  * @throws OCCInvalidArgumentException if the positive face is null or the
  * vector of negative faces is empty.
  */
-TopoDS_Shape Cut(const TopoDS_Face& positive,
-                 const std::vector<TopoDS_Face>& negative);
+TopoDS_Shape Cut(const TopoDS_Face& positive, const std::vector<TopoDS_Face>& negative);
 
 //------------------------------------------------------------------------------
 
@@ -340,8 +340,8 @@ TopoDS_Shape Cut(const TopoDS_Face& positive,
  *
  * @throws OCCInvalidArgumentException if either list is empty.
  */
-TopoDS_Shape Common(const TopTools_ListOfShape& arguments,
-                    const TopTools_ListOfShape& tools);
+TopoDS_Shape Common(const NCollection_List<TopoDS_Shape>& arguments,
+                    const NCollection_List<TopoDS_Shape>& tools);
 
 /**
  * Boolean intersection between two shapes.
@@ -369,8 +369,7 @@ TopoDS_Shape Common(const TopoDS_Shape& arguments, const TopoDS_Shape& tools);
  *
  * @throws OCCInvalidArgumentException if either shape is null or list is empty.
  */
-TopoDS_Shape Common(const TopoDS_Shape& arguments,
-                    const TopTools_ListOfShape& tools);
+TopoDS_Shape Common(const TopoDS_Shape& arguments, const NCollection_List<TopoDS_Shape>& tools);
 
 /**
  * Boolean intersection between a shape and an initializer list of shapes.
@@ -385,7 +384,7 @@ TopoDS_Shape Common(const TopoDS_Shape& arguments,
  *
  * @throws OCCInvalidArgumentException if either shape is null or list is empty.
  */
-TopoDS_Shape Common(const TopoDS_Shape& arguments,
+TopoDS_Shape Common(const TopoDS_Shape&                        arguments,
                     const std::initializer_list<TopoDS_Shape>& tools);
 
 /**
@@ -404,8 +403,8 @@ TopoDS_Shape Common(const TopoDS_Shape& arguments,
  * empty.
  */
 template <template <typename, typename> typename Container, typename Allocator>
-TopoDS_Shape Common(const TopoDS_Shape& arguments,
-                    const Container<TopoDS_Shape, Allocator>& tools) {
+TopoDS_Shape Common(const TopoDS_Shape& arguments, const Container<TopoDS_Shape, Allocator>& tools)
+{
   return Common(occutils::list_utils::ToOCCList({arguments}),
                 occutils::list_utils::ToOCCList(tools));
 }
@@ -423,12 +422,13 @@ TopoDS_Shape Common(const TopoDS_Shape& arguments,
  *
  * @throws OCCInvalidArgumentException if either container is empty.
  */
-template <template <typename, typename> typename Container, typename Allocator1,
+template <template <typename, typename> typename Container,
+          typename Allocator1,
           typename Allocator2>
 TopoDS_Shape Common(const Container<TopoDS_Shape, Allocator1>& arguments,
-                    const Container<TopoDS_Shape, Allocator2>& tools) {
-  return Common(occutils::list_utils::ToOCCList(arguments),
-                occutils::list_utils::ToOCCList(tools));
+                    const Container<TopoDS_Shape, Allocator2>& tools)
+{
+  return Common(occutils::list_utils::ToOCCList(arguments), occutils::list_utils::ToOCCList(tools));
 }
 
 /**
@@ -461,8 +461,7 @@ TopoDS_Shape Common(const std::vector<TopoDS_Solid>& arguments,
  * @throws OCCInvalidArgumentException if either TopoDS_Solid is null or vector
  * is empty.
  */
-TopoDS_Shape Common(const TopoDS_Solid& arguments,
-                    const std::vector<TopoDS_Solid>& tools);
+TopoDS_Shape Common(const TopoDS_Solid& arguments, const std::vector<TopoDS_Solid>& tools);
 
 /**
  * Boolean intersection between two vectors of TopoDS_Faces.
@@ -493,8 +492,7 @@ TopoDS_Shape Common(const std::vector<TopoDS_Face>& arguments,
  * @throws OCCInvalidArgumentException if either TopoDS_Face is null or vector
  * is empty.
  */
-TopoDS_Shape Common(const TopoDS_Face& arguments,
-                    const std::vector<TopoDS_Face>& tools);
+TopoDS_Shape Common(const TopoDS_Face& arguments, const std::vector<TopoDS_Face>& tools);
 
 //------------------------------------------------------------------------------
 
@@ -511,8 +509,8 @@ TopoDS_Shape Common(const TopoDS_Face& arguments,
  *
  * @throws OCCInvalidArgumentException if either list is empty.
  */
-TopoDS_Shape Section(const TopTools_ListOfShape& positive,
-                     const TopTools_ListOfShape& negative);
+TopoDS_Shape Section(const NCollection_List<TopoDS_Shape>& positive,
+                     const NCollection_List<TopoDS_Shape>& negative);
 
 /**
  * Boolean section between two shapes.
@@ -541,8 +539,7 @@ TopoDS_Shape Section(const TopoDS_Shape& arguments, const TopoDS_Shape& tools);
  * @throws OCCInvalidArgumentException if the argument shape is null or the list
  * of tools is empty.
  */
-TopoDS_Shape Section(const TopoDS_Shape& arguments,
-                     const TopTools_ListOfShape& tools);
+TopoDS_Shape Section(const TopoDS_Shape& arguments, const NCollection_List<TopoDS_Shape>& tools);
 
 /**
  * Boolean section between a shape and an initializer list of tools.
@@ -559,7 +556,7 @@ TopoDS_Shape Section(const TopoDS_Shape& arguments,
  * @throws OCCInvalidArgumentException if the argument shape is null or the list
  * of tools is empty.
  */
-TopoDS_Shape Section(const TopoDS_Shape& arguments,
+TopoDS_Shape Section(const TopoDS_Shape&                        arguments,
                      const std::initializer_list<TopoDS_Shape>& tools);
 
 /**
@@ -577,8 +574,8 @@ TopoDS_Shape Section(const TopoDS_Shape& arguments,
  * container is empty.
  */
 template <template <typename, typename> typename Container, typename Allocator>
-TopoDS_Shape Section(const TopoDS_Shape& arguments,
-                     const Container<TopoDS_Shape, Allocator>& tools) {
+TopoDS_Shape Section(const TopoDS_Shape& arguments, const Container<TopoDS_Shape, Allocator>& tools)
+{
   return Section(occutils::list_utils::ToOCCList({arguments}),
                  occutils::list_utils::ToOCCList(tools));
 }
@@ -596,10 +593,12 @@ TopoDS_Shape Section(const TopoDS_Shape& arguments,
  *
  * @throws OCCInvalidArgumentException if either container is empty.
  */
-template <template <typename, typename> typename Container, typename Allocator1,
+template <template <typename, typename> typename Container,
+          typename Allocator1,
           typename Allocator2>
 TopoDS_Shape Section(const Container<TopoDS_Shape, Allocator1>& arguments,
-                     const Container<TopoDS_Shape, Allocator2>& tools) {
+                     const Container<TopoDS_Shape, Allocator2>& tools)
+{
   return Section(occutils::list_utils::ToOCCList(arguments),
                  occutils::list_utils::ToOCCList(tools));
 }
@@ -632,8 +631,7 @@ TopoDS_Shape Section(const std::vector<TopoDS_Solid>& arguments,
  * @throws OCCInvalidArgumentException if the argument solid is null or the
  * vector of tools is empty.
  */
-TopoDS_Shape Section(const TopoDS_Solid& arguments,
-                     const std::vector<TopoDS_Solid>& tools);
+TopoDS_Shape Section(const TopoDS_Solid& arguments, const std::vector<TopoDS_Solid>& tools);
 
 /**
  * Boolean section between two vectors of TopoDS_Face.
@@ -662,7 +660,6 @@ TopoDS_Shape Section(const std::vector<TopoDS_Face>& arguments,
  * @throws OCCInvalidArgumentException if the argument face is null or the
  * vector of tools is empty.
  */
-TopoDS_Shape Section(const TopoDS_Face& arguments,
-                     const std::vector<TopoDS_Face>& tools);
+TopoDS_Shape Section(const TopoDS_Face& arguments, const std::vector<TopoDS_Face>& tools);
 
-}  // namespace occutils::boolean
+} // namespace occutils::boolean

@@ -8,7 +8,8 @@
 #include <TopoDS_Shape.hxx>
 #include <XSControl_Reader.hxx>
 
-namespace occutils::io {
+namespace occutils::io
+{
 
 /**
  * Read the given file and extract a shape from it.
@@ -27,7 +28,8 @@ namespace occutils::io {
  */
 TopoDS_Shape Read(const std::string& filename);
 
-namespace Reader {
+namespace Reader
+{
 /**
  * Get the appropriate XSControl_Reader instance for the given filename.
  * - If filename ends with ".stp" or ".step" (case-insensitive), it will use
@@ -57,8 +59,7 @@ std::shared_ptr<XSControl_Reader> IGESReader();
  * Make the given XSControl_Reader read the given file.
  * @throws OCCIOException in case of read error
  */
-void ReadFile(const std::shared_ptr<XSControl_Reader>& reader,
-              const std::string& filename);
+void ReadFile(const std::shared_ptr<XSControl_Reader>& reader, const std::string& filename);
 
 /**
  * Read a single shape from the given reader:
@@ -72,6 +73,6 @@ void ReadFile(const std::shared_ptr<XSControl_Reader>& reader,
  */
 TopoDS_Shape ReadOneShape(const std::shared_ptr<XSControl_Reader>& reader);
 
-}  // namespace Reader
+} // namespace Reader
 
-}  // namespace occutils::io
+} // namespace occutils::io

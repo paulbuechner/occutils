@@ -54,6 +54,7 @@
 // OCC includes
 #include <APIHeaderSection_MakeHeader.hxx>
 #include <Quantity_Color.hxx>
+#include <Standard_Handle.hxx>
 #include <Standard_Type.hxx>
 #include <TDF_Label.hxx>
 #include <TDocStd_Document.hxx>
@@ -119,7 +120,7 @@ public:
    *
    * @param doc The CAF Document to initialize the Doc with.
    */
-  Doc(const Handle(TDocStd_Document)& doc);
+  Doc(const occ::handle<TDocStd_Document>& doc);
 
   /*
    * Construction and Initialization
@@ -188,7 +189,7 @@ public:
    * @return TDF_Label The label of the added shape in the internal storage.
    *         Can be used for subsequent referencing.
    */
-  TDF_Label AddShapeWithProps(const TopoDS_Shape& shape, const ShapeProperties& props);
+  TDF_Label AddShapeWithProps(const TopoDS_Shape& shape, const ShapeProperties& props) const;
 
   /**
    * @brief Retrieves the TDF_Label associated with a given TopoDS_Shape in the
@@ -382,7 +383,7 @@ public:
    * @return A reference to the handle of the current document. The handle
    * allows both reading and modification of the document.
    */
-  Handle(TDocStd_Document)& ChangeDocument();
+  occ::handle<TDocStd_Document>& ChangeDocument();
 
   /**
    * @brief Retrieves a constant reference to the current document.
@@ -396,7 +397,7 @@ public:
    * @note Marked as [[nodiscard]] to encourage checking the returned handle, as
    * it provides essential document access.
    */
-  [[nodiscard]] const Handle(TDocStd_Document)& GetDocument() const;
+  [[nodiscard]] const occ::handle<TDocStd_Document>& GetDocument() const;
 
   /**
    * @brief Retrieves the shape tool associated with the current document.
@@ -407,7 +408,7 @@ public:
    *
    * @return A handle to the shape tool of the current document.
    */
-  Handle(XCAFDoc_ShapeTool) GetShapeTool() const;
+  occ::handle<XCAFDoc_ShapeTool> GetShapeTool() const;
 
   /**
    * @brief Retrieves the color tool associated with the current document.
@@ -418,7 +419,7 @@ public:
    *
    * @return A handle to the color tool of the current document.
    */
-  Handle(XCAFDoc_ColorTool) GetColorTool() const;
+  occ::handle<XCAFDoc_ColorTool> GetColorTool() const;
 
   /**
    * @brief Retrieves the material tool associated with the current document.
@@ -430,7 +431,7 @@ public:
    *
    * @return A handle to the material tool of the current document.
    */
-  Handle(XCAFDoc_MaterialTool) GetMaterialTool() const;
+  occ::handle<XCAFDoc_MaterialTool> GetMaterialTool() const;
 
 protected:
   /**
@@ -439,24 +440,24 @@ protected:
    *
    * @param doc The CAF Document to initialize the Model with.
    */
-  void init(const Handle(TDocStd_Document)& doc);
+  void init(const occ::handle<TDocStd_Document>& doc);
 
   /**
    * @brief Creates a new CAF Document.
    *
    * @return The newly created CAF Document.
    */
-  Handle(TDocStd_Document) newDocument();
+  occ::handle<TDocStd_Document> newDocument();
 
   /**
    * @brief Retrieves the XDE Application instance.
    *
    * @return The XDE Application instance.
    */
-  Handle(App) getApplication();
+  occ::handle<App> getApplication();
 
 protected:
-  Handle(TDocStd_Document) m_doc; //!< Underlying XCAF document.
+  occ::handle<TDocStd_Document> m_doc; //!< Underlying XCAF document.
 };
 
 } // namespace occutils::xde

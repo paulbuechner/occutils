@@ -6,14 +6,13 @@
 // OCC includes
 #include <Quantity_Color.hxx>
 #include <Quantity_ColorRGBA.hxx>
-#include <TDF_Label.hxx>
-#include <TopoDS_Shape.hxx>
 #include <XCAFDoc_ColorType.hxx>
 
 // occutils xde includes
 #include "occutils/xde/occutils-xde-material.h"
 
-namespace occutils::xde {
+namespace occutils::xde
+{
 
 /**
  * @brief Represents properties for a shape to be added to an application.
@@ -21,8 +20,9 @@ namespace occutils::xde {
  * This class encapsulates various attributes like color, name and material for
  * a shape. It provides setters and getters for these attributes.
  */
-class ShapeProperties {
- public:
+class ShapeProperties
+{
+public:
   // Default constructor
   ShapeProperties() = default;
 
@@ -39,11 +39,11 @@ class ShapeProperties {
    * @param color The color to be associated with the shape.
    * @param colorType The type of the color. Defaults to XCAFDoc_ColorGen.
    */
-  void SetColor(const Quantity_Color& color,
-                XCAFDoc_ColorType colorType = XCAFDoc_ColorGen) {
-    m_color = Quantity_ColorRGBA(color);
+  void SetColor(const Quantity_Color& color, XCAFDoc_ColorType colorType = XCAFDoc_ColorGen)
+  {
+    m_color     = Quantity_ColorRGBA(color);
     m_colorType = colorType;
-    m_hasColor = true;
+    m_hasColor  = true;
   }
 
   /**
@@ -52,11 +52,11 @@ class ShapeProperties {
    * @param color The color with alpha channel to be associated with the shape.
    * @param colorType The type of the color. Defaults to XCAFDoc_ColorGen.
    */
-  void SetColor(const Quantity_ColorRGBA& color,
-                XCAFDoc_ColorType colorType = XCAFDoc_ColorGen) {
-    m_color = color;
+  void SetColor(const Quantity_ColorRGBA& color, XCAFDoc_ColorType colorType = XCAFDoc_ColorGen)
+  {
+    m_color     = color;
     m_colorType = colorType;
-    m_hasColor = true;
+    m_hasColor  = true;
   }
 
   /**
@@ -101,7 +101,7 @@ class ShapeProperties {
    */
   [[nodiscard]] bool HasColor() const { return m_hasColor; }
 
- private:
+private:
   /**
    * @brief The name of the shape.
    */
@@ -128,4 +128,4 @@ class ShapeProperties {
   bool m_hasColor = false;
 };
 
-}  // namespace occutils::xde
+} // namespace occutils::xde

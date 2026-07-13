@@ -13,7 +13,8 @@
 // occutils includes
 #include "occutils/occutils-direction.h"
 
-namespace occutils::wire {
+namespace occutils::wire
+{
 
 /**
  * Create a wire from a single edge. Ensure that the edge is a valid candidate
@@ -34,9 +35,10 @@ TopoDS_Wire FromEdges(const std::vector<TopoDS_Edge>& edges);
 
 /**
  * Make a TopoDS_Wire by linearly connecting all of the given points in order,
+ * @param points The points to connect in order
  * @param close If set to true, connect the last point to the first point.
  */
-TopoDS_Wire FromPoints(const std::vector<gp_Pnt>& edges, bool close = false);
+TopoDS_Wire FromPoints(const std::vector<gp_Pnt>& points, bool close = false);
 
 /**
  * Build a wire incrementally,
@@ -45,8 +47,9 @@ TopoDS_Wire FromPoints(const std::vector<gp_Pnt>& edges, bool close = false);
  * This is a convenience wrapper to
  * programmatically build wires.
  */
-class IncrementalBuilder {
- public:
+class IncrementalBuilder
+{
+public:
   IncrementalBuilder(const gp_Pnt& pnt);
 
   /**
@@ -58,8 +61,13 @@ class IncrementalBuilder {
    * ALPHA - API MAY CHANGE!
    * Create a 90° arc from the current position.
    */
-  void Arc90(double dx, double dy, double dz, double centerDx, double centerDy,
-             double centerDz, const gp_Dir& normal = occutils::direction::Z());
+  void Arc90(double        dx,
+             double        dy,
+             double        dz,
+             double        centerDx,
+             double        centerDy,
+             double        centerDz,
+             const gp_Dir& normal = direction::Z());
 
   /**
    * Get the current direction vector,
@@ -70,7 +78,7 @@ class IncrementalBuilder {
   /**
    * Get the current position
    */
-  gp_Pnt Location();
+  [[nodiscard]] gp_Pnt Location() const;
 
   /**
    * Get the resulting wire.
@@ -86,14 +94,14 @@ class IncrementalBuilder {
    * Create a pipe from the wire using a circular profile
    * of the given radius.
    */
-  TopoDS_Shape PipeWithCircularProfile(double radius);
+  [[nodiscard]] TopoDS_Shape PipeWithCircularProfile(double radius) const;
 
   // Current location
   gp_Pnt current;
 
   // Current direction
-  std::optional<gp_Dir> currentDirection;
+  std::optional<gp_Dir>    currentDirection;
   std::vector<TopoDS_Edge> edges;
 };
 
-}  // namespace occutils::wire
+} // namespace occutils::wire

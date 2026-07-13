@@ -8,14 +8,15 @@
 #include <vector>
 
 // OCC includes
-#include <TopTools_ListOfShape.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Solid.hxx>
 
-namespace occutils {
+namespace occutils
+{
 
-namespace shape {
+namespace shape
+{
 
 /**
  * @return true if the given shape is a TopoDS_CompSolid
@@ -62,9 +63,10 @@ bool IsVertex(const TopoDS_Shape& shape);
  */
 double Volume(const TopoDS_Shape& shape);
 
-}  // namespace shape
+} // namespace shape
 
-namespace shapes {
+namespace shapes
+{
 
 /**
  * Convert a solid vector to a shape vector
@@ -76,6 +78,6 @@ std::vector<TopoDS_Shape> FromSolids(const std::vector<TopoDS_Solid>& solids);
  */
 std::vector<TopoDS_Shape> FromFaces(const std::vector<TopoDS_Face>& faces);
 
-}  // namespace shapes
+} // namespace shapes
 
-}  // namespace occutils
+} // namespace occutils

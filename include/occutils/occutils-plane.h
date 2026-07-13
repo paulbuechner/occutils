@@ -4,7 +4,8 @@
 #include <gp_Pln.hxx>
 #include <gp_Pnt.hxx>
 
-namespace occutils::plane {
+namespace occutils::plane
+{
 
 /**
  * Construct an infinite plane from three points.
@@ -17,4 +18,4 @@ namespace occutils::plane {
  */
 gp_Pln FromPoints(const gp_Pnt& pO, const gp_Pnt& pX, const gp_Pnt& pY);
 
-}  // namespace occutils::plane
+} // namespace occutils::plane

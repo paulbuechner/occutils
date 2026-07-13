@@ -26,35 +26,38 @@
 
 using namespace occutils::xde;
 
-class test_xde_doc : public ::testing::Test {
- protected:
-  Doc m_doc;  // Instance of class to be tested
+class test_xde_doc : public ::testing::Test
+{
+protected:
+  Doc m_doc; // Instance of class to be tested
 
-  TDF_Label m_defaultMaterialLabel;  // Label of default material
+  TDF_Label m_defaultMaterialLabel; // Label of default material
 
-  void SetUp() override {
+  void SetUp() override
+  {
     // Add a default material to the application context
-    Material defaultMaterial("Steel", "High-grade steel", 7.85, "kg/m^3",
-                             "Density");
+    const Material defaultMaterial("Steel", "High-grade steel", 7.85, "kg/m^3", "Density");
     m_defaultMaterialLabel = m_doc.FindOrCreateMaterial(defaultMaterial);
   }
 
-  void TearDown() override {
+  void TearDown() override
+  {
     // Clean up after each test if necessary.
   }
 };
 
-TEST_F(test_xde_doc, DocTest_AddShapeWithProps) {
+TEST_F(test_xde_doc, DocTest_AddShapeWithProps)
+{
   // Create a simple box shape
-  TopoDS_Shape boxShape = BRepPrimAPI_MakeBox(10.0, 10.0, 10.0).Shape();
+  const TopoDS_Shape boxShape = BRepPrimAPI_MakeBox(10.0, 10.0, 10.0).Shape();
 
   // Define shape properties
   ShapeProperties props;
-  props.SetColor(Quantity_ColorRGBA(Quantity_NOC_RED, 0.1f));  // Example color
+  props.SetColor(Quantity_ColorRGBA(Quantity_NOC_RED, 0.1f)); // Example color
   props.SetName("TestBox");
 
   // Call the method under test
-  TDF_Label shapeLabel = m_doc.AddShapeWithProps(boxShape, props);
+  const TDF_Label shapeLabel = m_doc.AddShapeWithProps(boxShape, props);
 
   // Assert - Verify that the label is valid
   ASSERT_FALSE(shapeLabel.IsNull());
@@ -63,13 +66,13 @@ TEST_F(test_xde_doc, DocTest_AddShapeWithProps) {
   ASSERT_TRUE(m_doc.SaveSTEP("generated/STEP/box_with_props.stp"));
 }
 
-TEST_F(test_xde_doc, DocTest_FindExistingMaterial) {
+TEST_F(test_xde_doc, DocTest_FindExistingMaterial)
+{
   // Setup - Create a material that exists in the application context
-  Material existingMaterial("Steel", "High-grade steel", 7.85, "kg/m^3",
-                            "Density");
+  const Material existingMaterial("Steel", "High-grade steel", 7.85, "kg/m^3", "Density");
 
   // Act - Try to find or create this material
-  TDF_Label label = m_doc.FindOrCreateMaterial(existingMaterial);
+  const TDF_Label label = m_doc.FindOrCreateMaterial(existingMaterial);
 
   // Assert - Check if the returned label is valid and points to the existing
   // material
@@ -83,12 +86,13 @@ TEST_F(test_xde_doc, DocTest_FindExistingMaterial) {
   ASSERT_EQ(m_doc.GetMaterials().size(), 1);
 }
 
-TEST_F(test_xde_doc, DocTest_CreateNewMaterial) {
+TEST_F(test_xde_doc, DocTest_CreateNewMaterial)
+{
   // Setup - Define a new material that does not exist
-  Material newMaterial("NewMaterial", "Description", 1.23, "unit", "valueType");
+  const Material newMaterial("NewMaterial", "Description", 1.23, "unit", "valueType");
 
   // Act - Try to find or create this material
-  TDF_Label label = m_doc.FindOrCreateMaterial(newMaterial);
+  const TDF_Label label = m_doc.FindOrCreateMaterial(newMaterial);
 
   // Assert - Check if the returned label is valid and points to the new
   // material
@@ -98,7 +102,8 @@ TEST_F(test_xde_doc, DocTest_CreateNewMaterial) {
   ASSERT_EQ(m_doc.GetMaterials().size(), 2);
 }
 
-TEST_F(test_xde_doc, DocTest_LoadSaveSTEP) {
+TEST_F(test_xde_doc, DocTest_LoadSaveSTEP)
+{
   // Read the STEP file
   ASSERT_TRUE(m_doc.LoadSTEP("data/STEP/as1-oc-214.stp"));
 

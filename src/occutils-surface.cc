@@ -7,6 +7,7 @@
 #include <vector>
 
 // OCC includes
+#include <BRepBuilderAPI_MakeEdge.hxx>
 #include <BRepGProp.hxx>
 #include <BRepLib_FindSurface.hxx>
 #include <GC_MakeLine.hxx>
@@ -24,101 +25,123 @@
 // occutils includes
 #include "occutils/occutils-shape-components.h"
 
-namespace occutils {
+namespace occutils
+{
 
-namespace surface {
+namespace surface
+{
 
-double Area(const TopoDS_Shape& face) {
+double Area(const TopoDS_Shape& face)
+{
   GProp_GProps gprops;
   BRepGProp::SurfaceProperties(face, gprops);
   return gprops.Mass();
 }
 
-gp_Pnt CenterOfMass(const TopoDS_Shape& face) {
+gp_Pnt CenterOfMass(const TopoDS_Shape& face)
+{
   GProp_GProps gprops;
   BRepGProp::SurfaceProperties(face, gprops);
   return gprops.CentreOfMass();
 }
 
-GeomAdaptor_Surface FromFace(const TopoDS_Face& face) {
-  BRepLib_FindSurface bfs(face);
-  if (!bfs.Found()) {
+GeomAdaptor_Surface FromFace(const TopoDS_Face& face)
+{
+  const BRepLib_FindSurface bfs(face);
+  if (!bfs.Found())
+  {
     return {};
   }
   return bfs.Surface();
 }
 
-std::pair<double, gp_Pnt> AreaAndCenterOfMass(const TopoDS_Shape& face) {
+std::pair<double, gp_Pnt> AreaAndCenterOfMass(const TopoDS_Shape& face)
+{
   GProp_GProps gprops;
   BRepGProp::SurfaceProperties(face, gprops);
   return std::make_pair(gprops.Mass(), gprops.CentreOfMass());
 }
 
-gp_Ax1 Normal(const GeomAdaptor_Surface& surf, const gp_Pnt2d& uv,
-              double precision) {
+gp_Ax1 Normal(const GeomAdaptor_Surface& surf, const gp_Pnt2d& uv, const double precision)
+{
   return Normal(surf, uv.X(), uv.Y(), precision);
 }
 
-gp_Ax1 Normal(const GeomAdaptor_Surface& surf, const gp_XY& uv,
-              double precision) {
+gp_Ax1 Normal(const GeomAdaptor_Surface& surf, const gp_XY& uv, const double precision)
+{
   return Normal(surf, uv.X(), uv.Y(), precision);
 }
 
-gp_Ax1 Normal(const GeomAdaptor_Surface& surf, double u, double v,
-              double precision) {
-  GeomLProp_SLProps props(surf.Surface(), u, v, 1 /* max 1 derivation */,
-                          precision);
+gp_Ax1 Normal(const GeomAdaptor_Surface& surf,
+              const double               u,
+              const double               v,
+              const double               precision)
+{
+  GeomLProp_SLProps props(surf.Surface(), u, v, 1 /* max 1 derivation */, precision);
   return {props.Value(), props.Normal()};
 }
 
-gp_Dir NormalDirection(const GeomAdaptor_Surface& surf, double u, double v,
-                       double precision) {
-  GeomLProp_SLProps props(surf.Surface(), u, v, 1 /* max 1 derivation */,
-                          precision);
+gp_Dir NormalDirection(const GeomAdaptor_Surface& surf,
+                       const double               u,
+                       const double               v,
+                       const double               precision)
+{
+  GeomLProp_SLProps props(surf.Surface(), u, v, 1 /* max 1 derivation */, precision);
   return props.Normal();
 }
 
-bool IsPlane(const GeomAdaptor_Surface& surf) {
+bool IsPlane(const GeomAdaptor_Surface& surf)
+{
   return surf.GetType() == GeomAbs_Plane;
 }
 
-bool IsCylinder(const GeomAdaptor_Surface& surf) {
+bool IsCylinder(const GeomAdaptor_Surface& surf)
+{
   return surf.GetType() == GeomAbs_Cylinder;
 }
 
-bool IsCone(const GeomAdaptor_Surface& surf) {
+bool IsCone(const GeomAdaptor_Surface& surf)
+{
   return surf.GetType() == GeomAbs_Cone;
 }
 
-bool IsSphere(const GeomAdaptor_Surface& surf) {
+bool IsSphere(const GeomAdaptor_Surface& surf)
+{
   return surf.GetType() == GeomAbs_Sphere;
 }
 
-bool IsTorus(const GeomAdaptor_Surface& surf) {
+bool IsTorus(const GeomAdaptor_Surface& surf)
+{
   return surf.GetType() == GeomAbs_Torus;
 }
 
-bool IsBezierSurface(const GeomAdaptor_Surface& surf) {
+bool IsBezierSurface(const GeomAdaptor_Surface& surf)
+{
   return surf.GetType() == GeomAbs_BezierSurface;
 }
 
-bool IsBSplineSurface(const GeomAdaptor_Surface& surf) {
+bool IsBSplineSurface(const GeomAdaptor_Surface& surf)
+{
   return surf.GetType() == GeomAbs_BSplineSurface;
 }
 
-bool IsSurfaceOfRevolution(const GeomAdaptor_Surface& surf) {
+bool IsSurfaceOfRevolution(const GeomAdaptor_Surface& surf)
+{
   return surf.GetType() == GeomAbs_SurfaceOfRevolution;
 }
 
-bool IsSurfaceOfExtrusion(const GeomAdaptor_Surface& surf) {
+bool IsSurfaceOfExtrusion(const GeomAdaptor_Surface& surf)
+{
   return surf.GetType() == GeomAbs_SurfaceOfExtrusion;
 }
 
-bool IsOffsetSurface(const GeomAdaptor_Surface& surf) {
+bool IsOffsetSurface(const GeomAdaptor_Surface& surf)
+{
   return surf.GetType() == GeomAbs_OffsetSurface;
 }
 
-bool IsOtherSurface(const GeomAdaptor_Surface& surf) {
+bool IsOtherSurface(const GeomAdaptor_Surface& surf)
+{
   return surf.GetType() == GeomAbs_OtherSurface;
 }
 
@@ -126,34 +149,39 @@ bool IsOtherSurface(const GeomAdaptor_Surface& surf) {
  * Sample the point on the given surface at the given U/V coordinates.
  * The point represents the 0th derivative.
  */
-gp_Pnt PointAt(const GeomAdaptor_Surface& surf, double u, double v) {
+gp_Pnt PointAt(const GeomAdaptor_Surface& surf, double u, double v)
+{
   return surf.Value(u, v);
 }
 
-gp_Pnt PointAt(const GeomAdaptor_Surface& surf, const gp_Pnt2d& uv) {
+gp_Pnt PointAt(const GeomAdaptor_Surface& surf, const gp_Pnt2d& uv)
+{
   return surf.Value(uv.X(), uv.Y());
 }
 
-gp_Pnt PointAt(const GeomAdaptor_Surface& surf, const gp_XY& uv) {
+gp_Pnt PointAt(const GeomAdaptor_Surface& surf, const gp_XY& uv)
+{
   return surf.Value(uv.X(), uv.Y());
 }
 
 std::vector<gp_XY> UniformUVSampleLocations(const GeomAdaptor_Surface& surf,
-                                            size_t uSamples, size_t vSamples) {
-  double u0 = surf.FirstUParameter();
-  double v0 = surf.FirstVParameter();
+                                            const size_t               uSamples,
+                                            const size_t               vSamples)
+{
+  const double u0 = surf.FirstUParameter();
+  const double v0 = surf.FirstVParameter();
 
-  double uInterval =
-      (surf.LastUParameter() - u0) /
-      static_cast<double>(uSamples - 1);  // -1: include both end points
-  double vInterval =
-      (surf.LastVParameter() - v0) /
-      static_cast<double>(vSamples - 1);  // -1: include both end points
+  const double uInterval =
+    (surf.LastUParameter() - u0) / static_cast<double>(uSamples - 1); // -1: include both end points
+  const double vInterval =
+    (surf.LastVParameter() - v0) / static_cast<double>(vSamples - 1); // -1: include both end points
 
   std::vector<gp_XY> ret;
   ret.reserve(uSamples * vSamples);
-  for (size_t u = 0; u < uSamples; u++) {
-    for (size_t v = 0; v < vSamples; v++) {
+  for (size_t u = 0; u < uSamples; u++)
+  {
+    for (size_t v = 0; v < vSamples; v++)
+    {
       ret.emplace_back(u0 + uInterval * static_cast<double>(u),
                        v0 + vInterval * static_cast<double>(v));
     }
@@ -161,20 +189,22 @@ std::vector<gp_XY> UniformUVSampleLocations(const GeomAdaptor_Surface& surf,
   return ret;
 }
 
-std::vector<gp_XY> UniformUVSampleLocationsWithin(
-    const GeomAdaptor_Surface& surf, size_t uSamples, size_t vSamples) {
-  double u0 = surf.FirstUParameter();
-  double v0 = surf.FirstVParameter();
+std::vector<gp_XY> UniformUVSampleLocationsWithin(const GeomAdaptor_Surface& surf,
+                                                  const size_t               uSamples,
+                                                  const size_t               vSamples)
+{
+  const double u0 = surf.FirstUParameter();
+  const double v0 = surf.FirstVParameter();
 
-  double uInterval =
-      (surf.LastUParameter() - u0) / static_cast<double>(uSamples + 1);
-  double vInterval =
-      (surf.LastVParameter() - v0) / static_cast<double>(vSamples + 1);
+  const double uInterval = (surf.LastUParameter() - u0) / static_cast<double>(uSamples + 1);
+  const double vInterval = (surf.LastVParameter() - v0) / static_cast<double>(vSamples + 1);
 
   std::vector<gp_XY> ret;
   ret.reserve(uSamples * vSamples);
-  for (size_t u = 1; u < uSamples; u++) {
-    for (size_t v = 1; v < vSamples; v++) {
+  for (size_t u = 1; u < uSamples; u++)
+  {
+    for (size_t v = 1; v < vSamples; v++)
+    {
       ret.emplace_back(u0 + uInterval * static_cast<double>(u),
                        v0 + vInterval * static_cast<double>(v));
     }
@@ -182,146 +212,170 @@ std::vector<gp_XY> UniformUVSampleLocationsWithin(
   return ret;
 }
 
-std::optional<gp_Pnt> Intersection(const gp_Lin& line,
-                                   const GeomAdaptor_Surface& surface) {
-  GC_MakeLine mkLine(line);
-  if (!mkLine.IsDone()) {
+std::optional<gp_Pnt> Intersection(const gp_Lin& line, const GeomAdaptor_Surface& surface)
+{
+  const GC_MakeLine mkLine(line);
+  if (!mkLine.IsDone())
+  {
     return std::nullopt;
   }
-  auto intersector = GeomAPI_IntCS(mkLine.Value(), surface.Surface());
-  if (!intersector
-           .IsDone()) {  // Algorithm failure, returned as no intersection
+  const auto intersector = GeomAPI_IntCS(mkLine.Value(), surface.Surface());
+  if (!intersector.IsDone())
+  { // Algorithm failure, returned as no intersection
     return std::nullopt;
   }
-  if (intersector.NbPoints() == 0 || intersector.NbPoints() > 1) {
+  if (intersector.NbPoints() == 0 || intersector.NbPoints() > 1)
+  {
     return std::nullopt;
   }
   return intersector.Point(1);
 }
 
 std::optional<TopoDS_Edge> Intersection(const GeomAdaptor_Surface& S1,
-                                        const GeomAdaptor_Surface& S2) {
-  auto intersector =
-      GeomAPI_IntSS(S1.Surface(), S2.Surface(), Precision::Confusion());
-  if (!intersector
-           .IsDone()) {  // Algorithm failure, returned as no intersection
+                                        const GeomAdaptor_Surface& S2)
+{
+  const auto intersector = GeomAPI_IntSS(S1.Surface(), S2.Surface(), Precision::Confusion());
+  if (!intersector.IsDone())
+  { // Algorithm failure, returned as no intersection
     return std::nullopt;
   }
-  if (intersector.NbLines() == 0 || intersector.NbLines() > 1) {
+  if (intersector.NbLines() == 0 || intersector.NbLines() > 1)
+  {
     return std::nullopt;
   }
   return BRepBuilderAPI_MakeEdge(intersector.Line(1)).Edge();
 }
 
-}  // namespace surface
+} // namespace surface
 
-namespace surfaces {
+namespace surfaces
+{
 
-std::vector<SurfaceInfo> FromShape(const TopoDS_Shape& shape) {
-  auto faces = shape_components::AllFacesWithin(shape);
+std::vector<SurfaceInfo> FromShape(const TopoDS_Shape& shape)
+{
+  const auto faces = shape_components::AllFacesWithin(shape);
   // Create return vector
   std::vector<SurfaceInfo> ret;
   ret.reserve(faces.size());
-  for (const auto& face : faces) {
+  for (const auto& face : faces)
+  {
     SurfaceInfo info;
-    info.face = face;
+    info.face    = face;
     info.surface = surface::FromFace(face);
-    if (!info.surface.Surface().IsNull()) {  // If we have found the surface
+    if (!info.surface.Surface().IsNull())
+    { // If we have found the surface
       ret.push_back(info);
     }
   }
   return ret;
 }
 
-std::vector<SurfaceInfo> Only(const std::vector<SurfaceInfo>& surfaces,
-                              GeomAbs_SurfaceType type) {
-  return Filter(surfaces, [&type](const GeomAdaptor_Surface& surf) {
-    return surf.GetType() == type;
-  });
+std::vector<SurfaceInfo> Only(const std::vector<SurfaceInfo>& surfaces, GeomAbs_SurfaceType type)
+{
+  return Filter(surfaces,
+                [&type](const GeomAdaptor_Surface& surf) { return surf.GetType() == type; });
 }
 
 /**
  * Filter surfaces by a custom filter function
  */
 template <typename FilterFunc>
-std::vector<SurfaceInfo> Filter(const std::vector<SurfaceInfo>& surfaces,
-                                const FilterFunc& filter) {
+std::vector<SurfaceInfo> Filter(const std::vector<SurfaceInfo>& surfaces, const FilterFunc& filter)
+{
   // Create output vector
   std::vector<SurfaceInfo> ret;
   ret.reserve(surfaces.size());
   // Run algorithm
-  std::copy_if(surfaces.begin(), surfaces.end(), std::back_inserter(ret),
+  std::copy_if(surfaces.begin(),
+               surfaces.end(),
+               std::back_inserter(ret),
                [&](const SurfaceInfo& surf) { return filter(surf.surface); });
   return ret;
 }
 
-void SurfaceTypeStats::Add(GeomAbs_SurfaceType typ, size_t cnt) {
-  if (count.count(typ) == 0) {
+void SurfaceTypeStats::Add(const GeomAbs_SurfaceType typ, const size_t cnt)
+{
+  if (count.count(typ) == 0)
+  {
     count[typ] = cnt;
-  } else {
+  }
+  else
+  {
     count[typ] = count[typ] + cnt;
   }
 }
 
-size_t SurfaceTypeStats::Count(GeomAbs_SurfaceType typ) {
-  if (count.count(typ) == 0) {
+size_t SurfaceTypeStats::Count(const GeomAbs_SurfaceType typ)
+{
+  if (count.count(typ) == 0)
+  {
     return 0;
-  } else {
-    return count[typ];
   }
+  return count[typ];
 }
 
-std::string SurfaceTypeStats::Summary() {
+std::string SurfaceTypeStats::Summary()
+{
   std::ostringstream ss;
   ss << "{\n";
-  if (Count(GeomAbs_Plane)) {
+  if (Count(GeomAbs_Plane))
+  {
     ss << "\tGeomAbs_Plane = " << Count(GeomAbs_Plane) << '\n';
   }
-  if (Count(GeomAbs_Cylinder)) {
+  if (Count(GeomAbs_Cylinder))
+  {
     ss << "\tGeomAbs_Cylinder = " << Count(GeomAbs_Cylinder) << '\n';
   }
-  if (Count(GeomAbs_Cone)) {
+  if (Count(GeomAbs_Cone))
+  {
     ss << "\tGeomAbs_Cone = " << Count(GeomAbs_Cone) << '\n';
   }
-  if (Count(GeomAbs_Sphere)) {
+  if (Count(GeomAbs_Sphere))
+  {
     ss << "\tGeomAbs_Sphere = " << Count(GeomAbs_Sphere) << '\n';
   }
-  if (Count(GeomAbs_Torus)) {
+  if (Count(GeomAbs_Torus))
+  {
     ss << "\tGeomAbs_Torus = " << Count(GeomAbs_Torus) << '\n';
   }
-  if (Count(GeomAbs_BezierSurface)) {
+  if (Count(GeomAbs_BezierSurface))
+  {
     ss << "\tGeomAbs_BezierSurface = " << Count(GeomAbs_BezierSurface) << '\n';
   }
-  if (Count(GeomAbs_BSplineSurface)) {
-    ss << "\tGeomAbs_BSplineSurface = " << Count(GeomAbs_BSplineSurface)
-       << '\n';
+  if (Count(GeomAbs_BSplineSurface))
+  {
+    ss << "\tGeomAbs_BSplineSurface = " << Count(GeomAbs_BSplineSurface) << '\n';
   }
-  if (Count(GeomAbs_SurfaceOfRevolution)) {
-    ss << "\tGeomAbs_SurfaceOfRevolution = "
-       << Count(GeomAbs_SurfaceOfRevolution) << '\n';
+  if (Count(GeomAbs_SurfaceOfRevolution))
+  {
+    ss << "\tGeomAbs_SurfaceOfRevolution = " << Count(GeomAbs_SurfaceOfRevolution) << '\n';
   }
-  if (Count(GeomAbs_SurfaceOfExtrusion)) {
-    ss << "\tGeomAbs_SurfaceOfExtrusion = " << Count(GeomAbs_SurfaceOfExtrusion)
-       << '\n';
+  if (Count(GeomAbs_SurfaceOfExtrusion))
+  {
+    ss << "\tGeomAbs_SurfaceOfExtrusion = " << Count(GeomAbs_SurfaceOfExtrusion) << '\n';
   }
-  if (Count(GeomAbs_OffsetSurface)) {
+  if (Count(GeomAbs_OffsetSurface))
+  {
     ss << "\tGeomAbs_OffsetSurface = " << Count(GeomAbs_OffsetSurface) << '\n';
   }
-  if (Count(GeomAbs_OtherSurface)) {
+  if (Count(GeomAbs_OtherSurface))
+  {
     ss << "\tGeomAbs_OtherSurface = " << Count(GeomAbs_OtherSurface) << '\n';
   }
   ss << "}";
   return ss.str();
 }
 
-SurfaceTypeStats Statistics(const std::vector<SurfaceInfo>& surfaces) {
+SurfaceTypeStats Statistics(const std::vector<SurfaceInfo>& surfaces)
+{
   SurfaceTypeStats stats;
-  for (const auto& info : surfaces) {
-    stats.Add(info.surface.GetType());
+  for (const auto& [face, surface] : surfaces)
+  {
+    stats.Add(surface.GetType());
   }
   return stats;
 }
 
-}  // namespace surfaces
+} // namespace surfaces
 
-}  // namespace occutils
+} // namespace occutils

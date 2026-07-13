@@ -25,9 +25,10 @@
 
 using namespace occutils::bbox;
 
-TEST(test_bounding_box, Is1DTest_FlatAlongAxis) {
-  Bnd_Box bbox;
-  const double tolerance = 1e-6;
+TEST(test_bounding_box, Is1DTest_FlatAlongAxis)
+{
+  Bnd_Box          bbox;
+  constexpr double tolerance = 1e-6;
 
   // Flat along X and Y axes
   bbox.Update(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
@@ -66,9 +67,10 @@ TEST(test_bounding_box, Is1DTest_FlatAlongAxis) {
 
 //------------------------------------------------------------------------------
 
-TEST(test_bounding_box, Is2DTest_FlatAlongAxis) {
-  Bnd_Box bbox;
-  const double tolerance = 1e-6;
+TEST(test_bounding_box, Is2DTest_FlatAlongAxis)
+{
+  Bnd_Box          bbox;
+  constexpr double tolerance = 1e-6;
 
   bbox.Update(0.0, 0.0, 0.0, 0.0, 1.0, 1.0);
   EXPECT_TRUE(Is2D(bbox, tolerance)) << "Flat along X-axis";
@@ -100,9 +102,10 @@ TEST(test_bounding_box, Is2DTest_FlatAlongAxis) {
 
 //------------------------------------------------------------------------------
 
-TEST(test_bounding_box, Is3DTest_NotFlatAlongAnyAxis) {
-  Bnd_Box bbox;
-  const double tolerance = 1e-6;
+TEST(test_bounding_box, Is3DTest_NotFlatAlongAnyAxis)
+{
+  Bnd_Box          bbox;
+  constexpr double tolerance = 1e-6;
 
   // 3D bounding box
   bbox.Update(0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
@@ -141,11 +144,12 @@ TEST(test_bounding_box, Is3DTest_NotFlatAlongAnyAxis) {
 
 //------------------------------------------------------------------------------
 
-TEST(test_bounding_box, ShapeTest_HandlesVoidBoundingBox) {
+TEST(test_bounding_box, ShapeTest_HandlesVoidBoundingBox)
+{
   // Create a void bounding box
-  const Bnd_Box bbox;
+  constexpr Bnd_Box bbox;
 
-  const double tolerance = Precision::Confusion();
+  constexpr double tolerance = Precision::Confusion();
 
   // Call the function
   const TopoDS_Shape result = Shape(bbox, tolerance);
@@ -156,12 +160,13 @@ TEST(test_bounding_box, ShapeTest_HandlesVoidBoundingBox) {
 
 //------------------------------------------------------------------------------
 
-TEST(test_bounding_box, ShapeTest_Handles1DBoundingBox) {
+TEST(test_bounding_box, ShapeTest_Handles1DBoundingBox)
+{
   // Create a 1D bounding box
   Bnd_Box bbox;
-  bbox.Update(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);  // Edge along the Z-axis
+  bbox.Update(0.0, 0.0, 0.0, 0.0, 0.0, 1.0); // Edge along the Z-axis
 
-  const double tolerance = Precision::Confusion();
+  constexpr double tolerance = Precision::Confusion();
 
   // Call the function
   const TopoDS_Shape result = Shape(bbox, tolerance);
@@ -173,13 +178,14 @@ TEST(test_bounding_box, ShapeTest_Handles1DBoundingBox) {
 
 //------------------------------------------------------------------------------
 
-TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox01) {
+TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox01)
+{
   // Create a 2D bounding box
   Bnd_Box bbox;
   bbox.Update(0.0, 0.0, 0.0, 1.0, 1.0,
-              0.0);  // Flat along the Z-axis (XY plane)
+              0.0); // Flat along the Z-axis (XY plane)
 
-  const double tolerance = Precision::Confusion();
+  constexpr double tolerance = Precision::Confusion();
 
   // Call the function
   const TopoDS_Shape result = Shape(bbox, tolerance);
@@ -191,12 +197,13 @@ TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox01) {
   ASSERT_TRUE(result.ShapeType() == TopAbs_FACE) << "Result is a face";
 }
 
-TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox02) {
+TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox02)
+{
   // Create a 2D bounding box
   Bnd_Box bbox;
   bbox.Update(56.32, -6, 1.2, 69.12, -4.4, 1.2);
 
-  const double tolerance = Precision::Confusion();
+  constexpr double tolerance = Precision::Confusion();
 
   // Call the function
   const TopoDS_Shape result = Shape(bbox, tolerance);
@@ -208,12 +215,13 @@ TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox02) {
   ASSERT_TRUE(result.ShapeType() == TopAbs_FACE) << "Result is a face";
 }
 
-TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox03) {
+TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox03)
+{
   // Create a 2D bounding box
   Bnd_Box bbox;
   bbox.Update(69, -10, 6.5, 69, 10, 7);
 
-  const double tolerance = Precision::Confusion();
+  constexpr double tolerance = Precision::Confusion();
 
   // Call the function
   const TopoDS_Shape result = Shape(bbox, tolerance);
@@ -225,12 +233,13 @@ TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox03) {
   ASSERT_TRUE(result.ShapeType() == TopAbs_FACE) << "Result is a face";
 }
 
-TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox04) {
+TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox04)
+{
   // Create a 2D bounding box
   Bnd_Box bbox;
   bbox.Update(56, 9.2, 1.1999999999999997, 69, 9.7, 1.2000000000000002);
 
-  const double tolerance = Precision::Confusion();
+  constexpr double tolerance = Precision::Confusion();
 
   // Call the function
   const TopoDS_Shape result = Shape(bbox, tolerance);
@@ -244,12 +253,13 @@ TEST(test_bounding_box, ShapeTest_Handles2DBoundingBox04) {
 
 //------------------------------------------------------------------------------
 
-TEST(test_bounding_box, ShapeTest_Handles3DBoundingBox) {
+TEST(test_bounding_box, ShapeTest_Handles3DBoundingBox)
+{
   // Create a 3D bounding box
   Bnd_Box bbox;
   bbox.Update(0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
 
-  const double tolerance = Precision::Confusion();
+  constexpr double tolerance = Precision::Confusion();
 
   // Call the function
   const TopoDS_Shape result = Shape(bbox, tolerance);

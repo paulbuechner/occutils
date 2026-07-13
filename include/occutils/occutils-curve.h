@@ -4,11 +4,13 @@
 #include <GeomAdaptor_Curve.hxx>
 #include <Geom_Curve.hxx>
 #include <Geom_TrimmedCurve.hxx>
-#include <TopoDS_Edge.hxx>
+#include <Standard_Handle.hxx>
 
-namespace occutils {
+namespace occutils
+{
 
-namespace curve {
+namespace curve
+{
 
 /**
  * Get a curve from the given edge.
@@ -33,7 +35,7 @@ double Length(const GeomAdaptor_Curve& curve);
  * parameters by itself. Use GeomAdaptor_Curve or
  * Geom_TrimmedCurve instead.
  */
-double Length(const Handle(Geom_Curve) & curve);
+double Length(const occ::handle<Geom_Curve>& curve);
 
 /**
  * Length of a curve (by curve handle)
@@ -50,33 +52,37 @@ bool IsBSpline(const GeomAdaptor_Curve& curve);
 bool IsOffsetCurve(const GeomAdaptor_Curve& curve);
 bool IsOther(const GeomAdaptor_Curve& curve);
 
-}  // namespace curve
+} // namespace curve
 
-namespace curves {
+namespace curves
+{
 
 /**
  * Filter a list of curves: Get only curves that match the given type
  */
-std::vector<GeomAdaptor_Curve> Only(
-    const std::vector<GeomAdaptor_Curve>& curves, GeomAbs_CurveType type);
+std::vector<GeomAdaptor_Curve> Only(const std::vector<GeomAdaptor_Curve>& curves,
+                                    GeomAbs_CurveType                     type);
 
 /**
  * Filter a list of curves: Get only curves for which the given predicate
  * returns true
  */
 template <typename Predicate>
-std::vector<GeomAdaptor_Curve> Filter(
-    const std::vector<GeomAdaptor_Curve>& curves, Predicate predicate) {
+std::vector<GeomAdaptor_Curve> Filter(const std::vector<GeomAdaptor_Curve>& curves,
+                                      Predicate                             predicate)
+{
   std::vector<GeomAdaptor_Curve> ret;
   ret.reserve(curves.size());
-  for (const auto& curve : curves) {
-    if (predicate(curve)) {
+  for (const auto& curve : curves)
+  {
+    if (predicate(curve))
+    {
       ret.push_back(curve);
     }
   }
   return ret;
 }
 
-}  // namespace curves
+} // namespace curves
 
-}  // namespace occutils
+} // namespace occutils

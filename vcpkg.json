@@ -9,17 +9,17 @@
   "dependencies": [
     {
       "name": "gtest",
-      "version>=": "1.12.1"
+      "version>=": "1.17.0#2"
     },
     {
       "name": "opencascade",
-      "version>=": "7.6.0"
+      "version>=": "8.0.0#1"
     }
   ],
   "overrides": [
     {
       "name": "opencascade",
-      "version": "7.6.0"
+      "version": "8.0.0#1"
     }
   ],
   "features": {

@@ -2,11 +2,10 @@
 
 // OCC includes
 #include <TopoDS_Shape.hxx>
-#include <TopoDS_Wire.hxx>
 
-namespace occutils::pipe {
+namespace occutils::pipe
+{
 
-TopoDS_Shape FromSplineAndProfile(const TopoDS_Wire& wire,
-                                  const TopoDS_Shape& profile);
+TopoDS_Shape FromSplineAndProfile(const TopoDS_Wire& wire, const TopoDS_Shape& profile);
 
-}  // namespace occutils::pipe
+} // namespace occutils::pipe

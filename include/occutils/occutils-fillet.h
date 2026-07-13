@@ -5,13 +5,13 @@
 
 // OCC includes
 #include <BRepFilletAPI_MakeFillet.hxx>
+#include <NCollection_IndexedMap.hxx>
 #include <TopExp.hxx>
-#include <TopTools_IndexedMapOfShape.hxx>
 #include <TopoDS.hxx>
-#include <TopoDS_Edge.hxx>
 #include <TopoDS_Shape.hxx>
 
-namespace occutils::fillet {
+namespace occutils::fillet
+{
 
 /**
  * Fillet all edges of the given shape using a single radius
@@ -33,17 +33,19 @@ TopoDS_Shape FilletAll(const TopoDS_Shape& shape, double radius = 1.0);
  * Usually the shape is a solid.
  */
 template <typename RadiusFunc>
-TopoDS_Shape FilletAdaptiveRadius(const TopoDS_Shape& shape,
-                                  const RadiusFunc& radiusByEdge) {
+TopoDS_Shape FilletAdaptiveRadius(const TopoDS_Shape& shape, const RadiusFunc& radiusByEdge)
+{
   BRepFilletAPI_MakeFillet filletMaker(shape);
   // Iterate edges
-  TopTools_IndexedMapOfShape edges;
+  NCollection_IndexedMap<TopoDS_Shape, TopTools_ShapeMapHasher> edges;
   TopExp::MapShapes(shape, TopAbs_EDGE, edges);
 
-  for (Standard_Integer i = 1; i <= edges.Extent(); i++) {
-    const TopoDS_Edge& edge = TopoDS::Edge(edges(i));
-    double radius = radiusByEdge(edge);
-    if (!std::isnan(radius)) {  // NaN => dont fillet this edge!
+  for (int i = 1; i <= edges.Extent(); i++)
+  {
+    const TopoDS_Edge& edge   = TopoDS::Edge(edges(i));
+    double             radius = radiusByEdge(edge);
+    if (!std::isnan(radius))
+    { // NaN => dont fillet this edge!
       filletMaker.Add(radius, edge);
     }
   }
@@ -51,4 +53,4 @@ TopoDS_Shape FilletAdaptiveRadius(const TopoDS_Shape& shape,
   return filletMaker.Shape();
 }
 
-}  // namespace occutils::fillet
+} // namespace occutils::fillet

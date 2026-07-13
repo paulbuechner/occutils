@@ -17,7 +17,8 @@
 #include <TopoDS_Vertex.hxx>
 #include <TopoDS_Wire.hxx>
 
-namespace occutils::shape_components {
+namespace occutils::shape_components
+{
 
 /**
  * Iterate over all components of shape and count how many
@@ -41,8 +42,7 @@ std::vector<TopoDS_Solid> AllSolidsWithin(const TopoDS_Shape& shape);
  * Get all solids in the given shapes
  * (not including the shapes itself, if it is a solid)
  */
-std::vector<TopoDS_Solid> AllSolidsWithin(
-    const std::vector<TopoDS_Shape>& shapes);
+std::vector<TopoDS_Solid> AllSolidsWithin(const std::vector<TopoDS_Shape>& shapes);
 
 //------------------------------------------------------------------------------
 
@@ -56,8 +56,7 @@ std::vector<TopoDS_Shell> AllShellsWithin(const TopoDS_Shape& shape);
  * Get all shells in the given shapes
  * (not including the shapes itself, if it is a shell)
  */
-std::vector<TopoDS_Shell> AllShellsWithin(
-    const std::vector<TopoDS_Shape>& shapes);
+std::vector<TopoDS_Shell> AllShellsWithin(const std::vector<TopoDS_Shape>& shapes);
 
 //------------------------------------------------------------------------------
 
@@ -71,8 +70,7 @@ std::vector<TopoDS_Face> AllFacesWithin(const TopoDS_Shape& shape);
  * Get all faces in the given shapes
  * (not including the shapes itself, if it is a face)
  */
-std::vector<TopoDS_Face> AllFacesWithin(
-    const std::vector<TopoDS_Shape>& shapes);
+std::vector<TopoDS_Face> AllFacesWithin(const std::vector<TopoDS_Shape>& shapes);
 
 //------------------------------------------------------------------------------
 
@@ -86,8 +84,7 @@ std::vector<TopoDS_Edge> AllEdgesWithin(const TopoDS_Shape& shape);
  * Get all edges in the given shapes
  * (not including the shapes itself, if it is a edge)
  */
-std::vector<TopoDS_Edge> AllEdgesWithin(
-    const std::vector<TopoDS_Shape>& shapes);
+std::vector<TopoDS_Edge> AllEdgesWithin(const std::vector<TopoDS_Shape>& shapes);
 
 /**
  * Get all edges in the given shapes
@@ -107,8 +104,7 @@ std::vector<TopoDS_Wire> AllWiresWithin(const TopoDS_Shape& shape);
  * Get all wires in the given shapes
  * (not including the shapes itself, if it is a wire)
  */
-std::vector<TopoDS_Wire> AllWiresWithin(
-    const std::vector<TopoDS_Shape>& shapes);
+std::vector<TopoDS_Wire> AllWiresWithin(const std::vector<TopoDS_Shape>& shapes);
 
 //------------------------------------------------------------------------------
 
@@ -122,8 +118,7 @@ std::vector<TopoDS_Vertex> AllVerticesWithin(const TopoDS_Shape& shape);
  * Get all vertices in the given shapes
  * (not including the shapes itself, if it is a vertex)
  */
-std::vector<TopoDS_Vertex> AllVerticesWithin(
-    const std::vector<TopoDS_Shape>& shapes);
+std::vector<TopoDS_Vertex> AllVerticesWithin(const std::vector<TopoDS_Shape>& shapes);
 
 //------------------------------------------------------------------------------
 
@@ -139,8 +134,7 @@ std::vector<gp_Pnt> AllVertexCoordinatesWithin(const TopoDS_Shape& shape);
  * Like AllVerticesWithin() but converts the TopoDS_Vertex instances
  * to gp_Pnts (not including the shape itself, if it is a vertex)
  */
-std::vector<gp_Pnt> AllVertexCoordinatesWithin(
-    const std::vector<TopoDS_Shape>& shapes);
+std::vector<gp_Pnt> AllVertexCoordinatesWithin(const std::vector<TopoDS_Shape>& shapes);
 
 //------------------------------------------------------------------------------
 
@@ -154,7 +148,7 @@ std::vector<gp_Pnt> AllVertexCoordinatesWithin(
  *  - if [firstOfMultipleOK] == false => return std::nullopt
  */
 std::optional<TopoDS_Solid> TryGetSingleSolid(const TopoDS_Shape& shape,
-                                              bool firstOfMultipleOK = true);
+                                              bool                firstOfMultipleOK = true);
 
 /**
  * If [shape] is a shell, return shape.
@@ -166,7 +160,7 @@ std::optional<TopoDS_Solid> TryGetSingleSolid(const TopoDS_Shape& shape,
  *  - if [firstOfMultipleOK] == false => return std::nullopt
  */
 std::optional<TopoDS_Shell> TryGetSingleShell(const TopoDS_Shape& shape,
-                                              bool firstOfMultipleOK = true);
+                                              bool                firstOfMultipleOK = true);
 
 /**
  * If [shape] is a face, return shape.
@@ -178,7 +172,7 @@ std::optional<TopoDS_Shell> TryGetSingleShell(const TopoDS_Shape& shape,
  *  - if [firstOfMultipleOK] == false => return std::nullopt
  */
 std::optional<TopoDS_Face> TryGetSingleFace(const TopoDS_Shape& shape,
-                                            bool firstOfMultipleOK = true);
+                                            bool                firstOfMultipleOK = true);
 
 /**
  * If [shape] is a edge, return shape.
@@ -190,7 +184,7 @@ std::optional<TopoDS_Face> TryGetSingleFace(const TopoDS_Shape& shape,
  *  - if [firstOfMultipleOK] == false => return std::nullopt
  */
 std::optional<TopoDS_Edge> TryGetSingleEdge(const TopoDS_Shape& shape,
-                                            bool firstOfMultipleOK = true);
+                                            bool                firstOfMultipleOK = true);
 
 /**
  * If [shape] is a edge, return shape.
@@ -202,7 +196,7 @@ std::optional<TopoDS_Edge> TryGetSingleEdge(const TopoDS_Shape& shape,
  *  - if [firstOfMultipleOK] == false => return std::nullopt
  */
 std::optional<TopoDS_Wire> TryGetSingleWire(const TopoDS_Shape& shape,
-                                            bool firstOfMultipleOK = true);
+                                            bool                firstOfMultipleOK = true);
 
 /**
  * If [shape] is a vertex, return shape.
@@ -214,7 +208,7 @@ std::optional<TopoDS_Wire> TryGetSingleWire(const TopoDS_Shape& shape,
  *  - if [firstOfMultipleOK] == false => return std::nullopt
  */
 std::optional<TopoDS_Vertex> TryGetSingleVertex(const TopoDS_Shape& shape,
-                                                bool firstOfMultipleOK = true);
+                                                bool                firstOfMultipleOK = true);
 
 //------------------------------------------------------------------------------
 
@@ -227,8 +221,7 @@ std::optional<TopoDS_Vertex> TryGetSingleVertex(const TopoDS_Shape& shape,
  *  - if [firstOfMultipleOK] == false => throws
  * OCCTopologyCountMismatchException().
  */
-TopoDS_Solid GetSingleSolid(const TopoDS_Shape& shape,
-                            bool firstOfMultipleOK = true);
+TopoDS_Solid GetSingleSolid(const TopoDS_Shape& shape, bool firstOfMultipleOK = true);
 
 /**
  * If [shape] is a shell, return shape.
@@ -239,8 +232,7 @@ TopoDS_Solid GetSingleSolid(const TopoDS_Shape& shape,
  *  - if [firstOfMultipleOK] == false => throws
  * OCCTopologyCountMismatchException().
  */
-TopoDS_Shell GetSingleShell(const TopoDS_Shape& shape,
-                            bool firstOfMultipleOK = true);
+TopoDS_Shell GetSingleShell(const TopoDS_Shape& shape, bool firstOfMultipleOK = true);
 
 /**
  * If [shape] is a face, return shape.
@@ -251,8 +243,7 @@ TopoDS_Shell GetSingleShell(const TopoDS_Shape& shape,
  *  - if [firstOfMultipleOK] == false => throws
  * OCCTopologyCountMismatchException().
  */
-TopoDS_Face GetSingleFace(const TopoDS_Shape& shape,
-                          bool firstOfMultipleOK = true);
+TopoDS_Face GetSingleFace(const TopoDS_Shape& shape, bool firstOfMultipleOK = true);
 
 /**
  * If [shape] is an edge, return shape.
@@ -263,8 +254,7 @@ TopoDS_Face GetSingleFace(const TopoDS_Shape& shape,
  *  - if [firstOfMultipleOK] == false => throws
  * OCCTopologyCountMismatchException().
  */
-TopoDS_Edge GetSingleEdge(const TopoDS_Shape& shape,
-                          bool firstOfMultipleOK = true);
+TopoDS_Edge GetSingleEdge(const TopoDS_Shape& shape, bool firstOfMultipleOK = true);
 
 /**
  * If [shape] is a wire, return shape.
@@ -275,8 +265,7 @@ TopoDS_Edge GetSingleEdge(const TopoDS_Shape& shape,
  *  - if [firstOfMultipleOK] == false => throws
  * OCCTopologyCountMismatchException().
  */
-TopoDS_Wire GetSingleWire(const TopoDS_Shape& shape,
-                          bool firstOfMultipleOK = true);
+TopoDS_Wire GetSingleWire(const TopoDS_Shape& shape, bool firstOfMultipleOK = true);
 
 /**
  * If [shape] is an vertex, return shape.
@@ -287,7 +276,6 @@ TopoDS_Wire GetSingleWire(const TopoDS_Shape& shape,
  *  - if [firstOfMultipleOK] == false => throws
  * OCCTopologyCountMismatchException().
  */
-TopoDS_Vertex GetSingleVertex(const TopoDS_Shape& shape,
-                              bool firstOfMultipleOK = true);
+TopoDS_Vertex GetSingleVertex(const TopoDS_Shape& shape, bool firstOfMultipleOK = true);
 
-}  // namespace occutils::shape_components
+} // namespace occutils::shape_components
