@@ -29,7 +29,7 @@ gp_Pln FromPoints(const gp_Pnt& pO, const gp_Pnt& pX, const gp_Pnt& pY)
   {
     throw OCCConstructionFailedException("Plane construction failed: pX coincides with pY");
   }
-  
+
   const gp_Dir xAx(gp_Vec(pO, pX));
   const gp_Dir yAx(gp_Vec(pO, pY));
   if (!xAx.IsNormal(yAx, Precision::Angular()))

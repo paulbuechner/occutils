@@ -7,8 +7,8 @@
 #include <NCollection_List.hxx>
 #include <TopoDS_CompSolid.hxx>
 #include <TopoDS_Compound.hxx>
-#include <TopoDS_Face.hxx>
 #include <TopoDS_Edge.hxx>
+#include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Shell.hxx>
 #include <TopoDS_Solid.hxx>

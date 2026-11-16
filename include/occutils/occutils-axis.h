@@ -13,16 +13,17 @@ gp_Ax1 operator+(const gp_Ax1& axis, const gp_Vec& vec);
  */
 gp_Ax1 operator+(const gp_Ax1& axis, const gp_XYZ& vec);
 
-namespace occutils {
+namespace occutils
+{
 
-namespace axis {
+namespace axis
+{
 
 /**
  * Check if the given axis contains the given point,
  * i.e. if the distance between the point and the axis is <= tolerance
  */
-bool Contains(const gp_Ax1& axis, const gp_Pnt& pnt,
-              double tolerance = Precision::Confusion());
+bool Contains(const gp_Ax1& axis, const gp_Pnt& pnt, double tolerance = Precision::Confusion());
 
 /**
  * Get the distance between axis and pnt,
@@ -31,9 +32,10 @@ bool Contains(const gp_Ax1& axis, const gp_Pnt& pnt,
  */
 double Distance(const gp_Ax1& axis, const gp_Pnt& pnt);
 
-}  // namespace axis
+} // namespace axis
 
-namespace ax1 {
+namespace ax1
+{
 
 /**
  * Get the Ax1 with:
@@ -77,9 +79,10 @@ gp_Ax1 OMinusY();
  */
 gp_Ax1 OMinusZ();
 
-}  // namespace ax1
+} // namespace ax1
 
-namespace ax2 {
+namespace ax2
+{
 
 /**
  * Initialize a gp_Ax2 from a gp_Ax1.
@@ -137,6 +140,6 @@ gp_Ax2 OMinusY();
  */
 gp_Ax2 OMinusZ();
 
-}  // namespace ax2
+} // namespace ax2
 
-}  // namespace occutils
+} // namespace occutils

@@ -52,17 +52,19 @@
 #include <Standard_Type.hxx>
 #include <XCAFApp_Application.hxx>
 
-namespace occutils::xde {
+namespace occutils::xde
+{
 
 /**
  * @brief Represents the XCAF Application to manage XDE Documents.
  */
-class App : public XCAFApp_Application {
- public:
+class App : public XCAFApp_Application
+{
+public:
   // OCCT RTTI
   DEFINE_STANDARD_RTTI_INLINE(App, XCAFApp_Application)
 
- public:
+public:
   /**
    * @brief Get the static instance of XCAF Application
    *
@@ -70,8 +72,8 @@ class App : public XCAFApp_Application {
    */
   static occ::handle<App> Instance();
 
- protected:
+protected:
   App();
 };
 
-}  // namespace occutils::xde
+} // namespace occutils::xde

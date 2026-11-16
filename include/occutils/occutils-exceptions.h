@@ -6,14 +6,16 @@
 /**
  * All OCCUtils exceptions derive from this
  */
-struct OCCUtilsBaseException : std::invalid_argument {
+struct OCCUtilsBaseException : std::invalid_argument
+{
   using invalid_argument::invalid_argument;
 };
 
 /**
  * Baseclass for exceptions that incorporate an invalid argument
  */
-struct OCCInvalidArgumentException : OCCUtilsBaseException {
+struct OCCInvalidArgumentException : OCCUtilsBaseException
+{
   using OCCUtilsBaseException::OCCUtilsBaseException;
 };
 
@@ -21,7 +23,8 @@ struct OCCInvalidArgumentException : OCCUtilsBaseException {
  * Baseclass for exceptions that refer to a runtime error which can't assigned
  * more specific exception type.
  */
-struct OCCRuntimeException : OCCUtilsBaseException {
+struct OCCRuntimeException : OCCUtilsBaseException
+{
   using OCCUtilsBaseException::OCCUtilsBaseException;
 };
 
@@ -29,14 +32,16 @@ struct OCCRuntimeException : OCCUtilsBaseException {
  * Baseclass for exceptions that directly relate to the
  * BRep topology.
  */
-struct OCCConstructionFailedException : OCCUtilsBaseException {
+struct OCCConstructionFailedException : OCCUtilsBaseException
+{
   using OCCUtilsBaseException::OCCUtilsBaseException;
 };
 
 /**
  * Exception occurring related to IO of data
  */
-struct OCCIOException : OCCUtilsBaseException {
+struct OCCIOException : OCCUtilsBaseException
+{
   using OCCUtilsBaseException::OCCUtilsBaseException;
 };
 
@@ -44,7 +49,8 @@ struct OCCIOException : OCCUtilsBaseException {
  * Baseclass for exceptions that directly relate to the
  * BRep topology.
  */
-struct OCCTopologyException : OCCUtilsBaseException {
+struct OCCTopologyException : OCCUtilsBaseException
+{
   using OCCUtilsBaseException::OCCUtilsBaseException;
 };
 
@@ -54,6 +60,7 @@ struct OCCTopologyException : OCCUtilsBaseException {
  * e.g. too many or too few edges in a face.
  * "Too many" or "Too few" is relative to what the calling code expects.
  */
-struct OCCTopologyCountMismatchException : OCCTopologyException {
+struct OCCTopologyCountMismatchException : OCCTopologyException
+{
   using OCCTopologyException::OCCTopologyException;
 };

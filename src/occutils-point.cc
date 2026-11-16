@@ -96,8 +96,8 @@ double Distance(const gp_Pnt& pnt, const gp_Ax1& axis)
 
 gp_Pnt OrthogonalProjectOnto(const gp_Pnt& pnt, const gp_Ax1& ax)
 {
-  occ::handle<Geom_Line> hax  = new Geom_Line(ax);
-  auto              projector = GeomAPI_ProjectPointOnCurve(pnt, hax);
+  occ::handle<Geom_Line> hax       = new Geom_Line(ax);
+  auto                   projector = GeomAPI_ProjectPointOnCurve(pnt, hax);
   projector.Perform(pnt);
   if (projector.NbPoints() == 0)
   {
@@ -109,8 +109,8 @@ gp_Pnt OrthogonalProjectOnto(const gp_Pnt& pnt, const gp_Ax1& ax)
 
 gp_Pnt2d OrthogonalProjectOnto(const gp_Pnt2d& pnt, const gp_Ax2d& ax)
 {
-  occ::handle<Geom2d_Line> hax  = new Geom2d_Line(ax);
-  auto                projector = Geom2dAPI_ProjectPointOnCurve(pnt, hax);
+  occ::handle<Geom2d_Line> hax       = new Geom2d_Line(ax);
+  auto                     projector = Geom2dAPI_ProjectPointOnCurve(pnt, hax);
   if (projector.NbPoints() == 0)
   {
     // TODO use more appropriate exception

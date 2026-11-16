@@ -11,7 +11,8 @@
 #include <TopoDS_Shape.hxx>
 #include <XCAFDoc_ColorType.hxx>
 
-namespace occutils::xde {
+namespace occutils::xde
+{
 
 /**
  * @brief Represents material properties in the application.
@@ -21,8 +22,9 @@ namespace occutils::xde {
  * methods to set and retrieve these properties, allowing for a structured and
  * convenient handling of material data in the application.
  */
-class Material {
- public:
+class Material
+{
+public:
   /**
    * @brief Constructor for Material with optional parameters for
    * initialization.
@@ -33,14 +35,18 @@ class Material {
    * @param densName The name associated with the density measurement.
    * @param densValType The type of the density value (e.g., kg/m^3).
    */
-  explicit Material(std::string name = "", std::string description = "",
-                    double density = 0.0, std::string densName = "",
+  explicit Material(std::string name        = "",
+                    std::string description = "",
+                    double      density     = 0.0,
+                    std::string densName    = "",
                     std::string densValType = "")
       : m_name(std::move(name)),
         m_description(std::move(description)),
         m_density(density),
         m_densName(std::move(densName)),
-        m_densValType(std::move(densValType)) {}
+        m_densValType(std::move(densValType))
+  {
+  }
 
   /**
    * @brief Checks if two Material instances are equal.
@@ -49,10 +55,11 @@ class Material {
    * @return true if all properties of both instances are equal.
    * @return false otherwise.
    */
-  bool operator==(const Material& other) const {
-    return m_name == other.m_name && m_description == other.m_description &&
-           m_density == other.m_density && m_densName == other.m_densName &&
-           m_densValType == other.m_densValType;
+  bool operator==(const Material& other) const
+  {
+    return m_name == other.m_name && m_description == other.m_description
+           && m_density == other.m_density && m_densName == other.m_densName
+           && m_densValType == other.m_densValType;
   }
 
   /**
@@ -67,9 +74,7 @@ class Material {
    *
    * @param description The description to be assigned to the material.
    */
-  void SetDescription(const std::string_view description) {
-    m_description = description;
-  }
+  void SetDescription(const std::string_view description) { m_description = description; }
 
   /**
    * @brief Sets the density of the material.
@@ -90,9 +95,7 @@ class Material {
    *
    * @param densValType The density value type to be assigned to the material.
    */
-  void SetDensValType(const std::string_view densValType) {
-    m_densValType = densValType;
-  }
+  void SetDensValType(const std::string_view densValType) { m_densValType = densValType; }
 
   /**
    * @brief Retrieves the name of the material.
@@ -106,9 +109,7 @@ class Material {
    *
    * @return const std::string& The description of the material.
    */
-  [[nodiscard]] const std::string& GetDescription() const {
-    return m_description;
-  }
+  [[nodiscard]] const std::string& GetDescription() const { return m_description; }
 
   /**
    * @brief Retrieves the density of the material.
@@ -129,9 +130,7 @@ class Material {
    *
    * @return const std::string& The type of the density value of the material.
    */
-  [[nodiscard]] const std::string& GetDensityValueType() const {
-    return m_densValType;
-  }
+  [[nodiscard]] const std::string& GetDensityValueType() const { return m_densValType; }
 
   /**
    * @brief Checks if the material is null or empty.
@@ -143,12 +142,13 @@ class Material {
    * @return true if the material is null/empty.
    * @return false otherwise.
    */
-  [[nodiscard]] bool IsNull() const {
-    return m_name.empty() && m_description.empty() && m_density == 0.0 &&
-           m_densName.empty() && m_densValType.empty();
+  [[nodiscard]] bool IsNull() const
+  {
+    return m_name.empty() && m_description.empty() && m_density == 0.0 && m_densName.empty()
+           && m_densValType.empty();
   }
 
- private:
+private:
   /**
    * @brief Name of the material.
    */
@@ -175,4 +175,4 @@ class Material {
   std::string m_densValType;
 };
 
-}  // namespace occutils::xde
+} // namespace occutils::xde
