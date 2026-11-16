@@ -63,8 +63,9 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: libxi-dev libxmu-dev libxmu-headers libx11-dev mesa-common-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6 libfreetype6-dev tcl tcl-dev tk tk-dev
-          version: 1.0
+          # autoconf, autoconf-archive, automake, libtool: vcpkg's gperf port builds with the system's autotools
+          packages: libxi-dev libxmu-dev libxmu-headers libx11-dev mesa-common-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6 libfreetype6-dev tcl tcl-dev tk tk-dev autoconf autoconf-archive automake libtool
+          version: 1.1
 
       # Set env vars needed for vcpkg to leverage the GitHub Action cache as a storage
       # for Binary Caching.
