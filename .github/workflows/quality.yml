@@ -46,8 +46,9 @@ jobs:
       VCPKG_ROOT: ${{ github.workspace }}/deps/vcpkg
       # Tells vcpkg where binary packages are stored.
       VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/deps/vcpkg/bincache
-      # Let's use GitHub Action cache as storage for the vcpkg Binary Caching feature.
-      VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
+      # vcpkg's binary cache in that folder, kept between runs by actions/cache (vcpkg's x-gha provider used GitHub's
+      # retired cache API and cached nothing, so every run built all ports)
+      VCPKG_BINARY_SOURCES: 'clear;files,${{ github.workspace }}/deps/vcpkg/bincache,readwrite'
 
     steps:
       # First free up some disk space to prevent running out of disk space.
@@ -67,17 +68,20 @@ jobs:
           packages: libxi-dev libxmu-dev libxmu-headers libx11-dev mesa-common-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6 libfreetype6-dev tcl tcl-dev tk tk-dev autoconf autoconf-archive automake libtool
           version: 1.1
 
-      # Set env vars needed for vcpkg to leverage the GitHub Action cache as a storage
-      # for Binary Caching.
-      - uses: actions/github-script@v7
-        with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-
       - uses: actions/checkout@v4
         with:
           submodules: true
+
+      # vcpkg's binary cache, saved under a new key whenever the archives changed; a restore takes the newest. vcpkg's
+      # ABI hashes decide which archives fit, so a stale one is only rebuilt, never used.
+      - id: cache
+        uses: actions/cache/restore@v6
+        with:
+          path: deps/vcpkg/bincache
+          key: vcpkg-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'vcpkg/triplets/*.cmake') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            vcpkg-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'vcpkg/triplets/*.cmake') }}-
+            vcpkg-${{ runner.os }}-${{ runner.arch }}-
 
       ##########################################################################
       # Workaround for:
@@ -104,6 +108,11 @@ jobs:
       - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
         run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
         shell: bash
+
+      - id: archives-restored
+        name: Fingerprint of the restored binary cache
+        shell: bash
+        run: echo "hash=$(find "${{ github.workspace }}/deps/vcpkg/bincache" -type f | sort | shasum -a 256 | cut -c1-64)" >> "$GITHUB_OUTPUT"
 
       # Set up the build machine with the most recent versions of CMake and Ninja. Both are cached if not already: on subsequent runs both will be quickly restored from GitHub cache service.
       - uses: lukka/get-cmake@latest
@@ -140,6 +149,23 @@ jobs:
           buildPresetAdditionalArgs: "['--config Release']"
           # testPreset: 'occutils-ninja-multiconfiguration-vcpkg' # currently broken
           # testPresetAdditionalArgs: "['--config Release']" # currently broken
+
+      # Saved right after the vcpkg install, also when the build failed: the ports built so far are kept
+      - id: archives
+        if: ${{ !cancelled() }}
+        name: Did the vcpkg install change the binary cache?
+        shell: bash
+        run: |
+          hash=$(find "${{ github.workspace }}/deps/vcpkg/bincache" -type f | sort | shasum -a 256 | cut -c1-64)
+          if [[ "$hash" != "${{ steps.archives-restored.outputs.hash }}" ]]; then changed=true; else changed=false; fi
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+          echo "binary cache changed: $changed"
+
+      - if: ${{ !cancelled() && steps.archives.outputs.changed == 'true' }}
+        uses: actions/cache/save@v6
+        with:
+          path: deps/vcpkg/bincache
+          key: ${{ steps.cache.outputs.cache-primary-key }}
 
       # Test the whole project with CTest, again Release configuration only.
       - name: Test (Release configuration)
