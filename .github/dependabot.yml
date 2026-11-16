@@ -1,0 +1,11 @@
+# Monthly updates of the workflows' actions, one pull request for all of them (SHA pins included). vcpkg (the deps/vcpkg
+# submodule, the baseline in vcpkg-configuration.json, the overrides in vcpkg.json) stays manual.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]

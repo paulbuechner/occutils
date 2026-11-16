@@ -1,0 +1,33 @@
+# A pull request that changes what the library ships (include/, src/, cmake/, CMakeLists.txt, vcpkg*.json) adds a changelog
+# entry: a file in changes/ (python scripts/release.py change <type> "what changed"). The label "no changelog" skips the
+# check for changes users don't see; adding or removing a label runs it again.
+name: changelog
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUTF8: "1"
+
+jobs:
+  entries:
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'no changelog') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: check the changelog entries
+        run: python scripts/release.py changelog --check "origin/${{ github.base_ref }}"

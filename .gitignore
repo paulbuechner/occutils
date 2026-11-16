@@ -35,10 +35,6 @@
 /build
 /builds
 
-# Node
-/node_modules/
-.env
-
 # IDE files
 /.idea
 /.vscode/

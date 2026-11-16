@@ -1,460 +1,87 @@
-name: Release
+# The release PR, like changesets' "Version Packages": a push to main with entries in changes/ pending writes the next
+# release into CHANGELOG.md and its version into CMakeLists.txt and vcpkg.json (scripts/release.py release), and opens or
+# updates the pull request "Release occutils <version>". Merging it publishes: the merge's push finds CHANGELOG.md's
+# newest release without its tag and creates the GitHub release v<version>, the release's section as its notes.
+# Needs Settings > Actions > General > "Allow GitHub Actions to create and approve pull requests".
+name: release
 
 on:
+  # every push, not only one with entries: the pull request is rebuilt on the pushed commit (create-pull-request resets
+  # its branch onto the base), so the release commit comes after everything it releases
   push:
-    paths:
-      - '.changeset/**'
-      - 'src/**'
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
-    inputs:
-      commit_message:
-        description: 'Custom commit message'
-        required: false
-        default: 'Version Packages'
-      debug:
-        description: 'Set to true to enable debug mode'
-        required: false
-        default: 'false'
 
+permissions:
+  contents: read
+
+# runs queue rather than cancel each other: one may be publishing
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
 
+env:
+  PYTHONUTF8: "1"
+
 jobs:
-  build-ubuntu-macos:
-    name: Build ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest, macos-latest ]
-        include:
-          - os: ubuntu-latest
-            triplet: x64-linux
-          - os: macos-latest
-            triplet: x64-osx
-    env:
-      # Indicates the location of the vcpkg as a Git submodule of the project repository.
-      VCPKG_ROOT: ${{ github.workspace }}/deps/vcpkg
-      # Tells vcpkg where binary packages are stored.
-      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/deps/vcpkg/bincache
-      # Let's use GitHub Action cache as storage for the vcpkg Binary Caching feature.
-      VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
-
-    steps:
-      # First free up some disk space to prevent running out of disk space.
-      - name: Free up disk space
-        shell: bash
-        run: |
-          if [[ "${{ matrix.os }}" == "ubuntu-latest" || "${{ matrix.os }}" == "macos-latest" ]]; then
-            sudo rm -rf /usr/local/share/boost /usr/share/dotnet /usr/local/lib/android /opt/ghc 
-            df -h
-          fi
-
-      - name: Install dependencies (Ubuntu)
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: libxi-dev libxmu-dev libxmu-headers libx11-dev mesa-common-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6 libfreetype6-dev tcl tcl-dev tk tk-dev
-          version: 1.0
-
-      # Set env vars needed for vcpkg to leverage the GitHub Action cache as a storage
-      # for Binary Caching.
-      - uses: actions/github-script@v7
-        with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      ##########################################################################
-      # Workaround for:
-      #   - https://github.com/microsoft/vcpkg/issues/35332
-      #   - https://github.com/microsoft/vcpkg/pull/35348
-      #
-      - name: Set up Python
-        if: ${{ matrix.os == 'macos-latest' }}
-        # This is the version of the action for setting up Python, not the Python version.
-        uses: actions/setup-python@v5
-        with:
-          # Semantic version range syntax or exact version of a Python version
-          python-version: '3.13'
-          # Optional - x64 or x86 architecture, defaults to x64
-          architecture: 'x64'
-      # You can test your matrix by printing the current Python version
-      - name: Display Python version
-        if: ${{ matrix.os == 'macos-latest' || matrix.os == 'windows-latest' }}
-        run: python -c "import sys; print(sys.version)"
-      #
-      ##########################################################################
-
-      - name: Bump version
-        shell: bash
-        run: |
-          if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            RELEASE_VERSION=$(sed -nE 's/^##[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+)/\1/p' CHANGELOG.md | head -1)
-            sed -i "s/set(OCCUTILS_VERSION .*)/set(OCCUTILS_VERSION $RELEASE_VERSION)/" CMakeLists.txt
-          elif [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            RELEASE_VERSION=$(sed -nE 's/^##[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+)/\1/p' CHANGELOG.md | head -1)
-            sed -i "s/set(OCCUTILS_VERSION .*)/set(OCCUTILS_VERSION $RELEASE_VERSION)/" CMakeLists.txt
-          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-            RELEASE_VERSION=$(sed -nE 's/^##[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+)/\1/p' CHANGELOG.md | head -1)
-            sed -i '' -E "s/set\(OCCUTILS_VERSION .*\)/set(OCCUTILS_VERSION $RELEASE_VERSION)/" CMakeLists.txt
-          fi
-
-      # Create the directory to store the vcpkg's binary cache.
-      - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
-        run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
-        shell: bash
-
-      # Set up the build machine with the most recent versions of CMake and Ninja. Both are cached if not already: on subsequent runs both will be quickly restored from GitHub cache service.
-      - uses: lukka/get-cmake@latest
-
-      - name: List $RUNNER_WORKSPACE before vcpkg is setup
-        run: find $RUNNER_WORKSPACE
-        if: ${{ inputs.debug == 'true' }}
-        shell: bash
-
-      - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11
-        id: runvcpkg
-        with:
-          vcpkgDirectory: '${{ env.VCPKG_ROOT }}'
-          vcpkgJsonGlob: '**/vcpkg.json'
-
-      - name: List $RUNNER_WORKSPACE before build
-        run: find $RUNNER_WORKSPACE
-        if: ${{ inputs.debug == 'true' }}
-        shell: bash
-
-      - name: Prints output of run-vcpkg's action.
-        if: ${{ inputs.debug == 'true' }}
-        run: echo "root='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}', triplet='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_DEFAULT_TRIPLET_OUT }}' "
-
-      - name: Run CMake+vcpkg+Ninja
-        uses: lukka/run-cmake@v10
-        id: runcmake
-        with:
-          cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-          configurePreset: 'occutils-ninja-multiconfiguration-vcpkg'
-          buildPreset: 'occutils-ninja-multiconfiguration-vcpkg'
-
-      - name: List $RUNNER_WORKSPACE after build
-        run: find $RUNNER_WORKSPACE
-        if: ${{ inputs.debug == 'true' }}
-        shell: bash
-
-        # Test the whole project with CTest, again Release configuration only.
-      - name: Test (Release configuration)
-        shell: bash
-        run: |
-          ctest -C Release --preset occutils-ninja-multiconfiguration-vcpkg
-
-      # Upload vcpkg's logs as artifacts.
-      - name: Upload vcpkg build log files
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: vcpkg-log-files-${{ matrix.os }}
-          path: deps/vcpkg/buildtrees/**/*.log
-
-      # Upload builds logs as artifacts.
-      - name: Upload builds log files
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: builds-log-files-${{ matrix.os }}
-          path: builds/**/*.log
-
-      # Package (Release configuration only).
-      - name: Package (Release configuration)
-        if: "contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
-        shell: bash
-        run: |
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            cpack --preset occutils-ninja-multiconfiguration-vcpkg-linux
-          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-            cpack --preset occutils-ninja-multiconfiguration-vcpkg-osx
-          fi
-
-      # Upload packages as artifacts.
-      - name: Upload package artifacts
-        if: "success() && contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
-        uses: actions/upload-artifact@v4
-        with:
-          name: packages-${{ matrix.os }}
-          path: |
-            packages/*.*
-
-
-  build-windows:
-    if: false # Disable windows workflow for now, because 7zip permissions is restricted when cloning to C:\ drive because of limited disk space. https://github.com/paulbuechner/occutils/actions/runs/7378995739/job/20074749902
-    name: Build windows-latest
-    runs-on: windows-latest
-    env:
-      # Indicates the location of the vcpkg as a Git submodule of the project repository.
-      VCPKG_ROOT: C:/occutils/deps/vcpkg
-      # Tells vcpkg where binary packages are stored.
-      VCPKG_DEFAULT_BINARY_CACHE: C:/occutils/deps/vcpkg/bincache
-      # Let's use GitHub Action cache as storage for the vcpkg Binary Caching feature.
-      VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
-
-    steps:
-      # Set env vars needed for vcpkg to leverage the GitHub Action cache as a storage
-      # for Binary Caching.
-      - uses: actions/github-script@v7
-        with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-
-      - name: Checkout Repository
-        shell: bash
-        run: |
-          git clone --no-single-branch "https://github.com/${{ github.repository }}" C:/occutils
-          cd C:/occutils
-          git checkout ${{ github.head_ref }}
-          git submodule update --init --recursive
-
-      - name: Bump version
-        shell: bash
-        working-directory: C:/occutils
-        run: |
-          if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            RELEASE_VERSION=$(sed -nE 's/^##[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+)/\1/p' CHANGELOG.md | head -1)
-            sed -i "s/set(OCCUTILS_VERSION .*)/set(OCCUTILS_VERSION $RELEASE_VERSION)/" CMakeLists.txt
-          elif [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            RELEASE_VERSION=$(sed -nE 's/^##[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+)/\1/p' CHANGELOG.md | head -1)
-            sed -i "s/set(OCCUTILS_VERSION .*)/set(OCCUTILS_VERSION $RELEASE_VERSION)/" CMakeLists.txt
-          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-            RELEASE_VERSION=$(sed -nE 's/^##[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+)/\1/p' CHANGELOG.md | head -1)
-            sed -i '' -E "s/set\(OCCUTILS_VERSION .*\)/set(OCCUTILS_VERSION $RELEASE_VERSION)/" CMakeLists.txt
-          fi
-
-      # Create the directory to store the vcpkg's binary cache.
-      - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
-        run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
-        shell: bash
-
-      # Set up the build machine with the most recent versions of CMake and Ninja. Both are cached if not already: on subsequent runs both will be quickly restored from GitHub cache service.
-      - uses: lukka/get-cmake@latest
-
-      - name: List $RUNNER_WORKSPACE before vcpkg is setup
-        run: find $RUNNER_WORKSPACE
-        if: ${{ inputs.debug == 'true' }}
-        shell: bash
-
-      - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11
-        id: runvcpkg
-        with:
-          vcpkgDirectory: '${{ env.VCPKG_ROOT }}'
-          vcpkgJsonGlob: 'C:/occutils/vcpkg.json'
-          vcpkgConfigurationJsonGlob: 'C:/occutils/vcpkg-configuration.json'
-
-      - name: List $RUNNER_WORKSPACE before build
-        run: find $RUNNER_WORKSPACE
-        if: ${{ inputs.debug == 'true' }}
-        shell: bash
-
-      - name: Prints output of run-vcpkg's action.
-        if: ${{ inputs.debug == 'true' }}
-        run: echo "root='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}', triplet='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_DEFAULT_TRIPLET_OUT }}' "
-
-      - name: Run CMake+vcpkg+Ninja
-        uses: lukka/run-cmake@v10
-        id: runcmake
-        with:
-          cmakeListsTxtPath: 'C:/occutils/CMakeLists.txt'
-          configurePreset: 'occutils-ninja-multiconfiguration-vcpkg'
-          buildPreset: 'occutils-ninja-multiconfiguration-vcpkg'
-          buildPresetAdditionalArgs: "['--config Release']"
-          # testPreset: 'occutils-ninja-multiconfiguration-vcpkg' # currently broken
-          # testPresetAdditionalArgs: "['--config Release']" # currently broken
-          timeout-minutes: 240 # Set timeout to 4 hours
-
-      - name: List $RUNNER_WORKSPACE after build
-        run: find $RUNNER_WORKSPACE
-        if: ${{ inputs.debug == 'true' }}
-        shell: bash
-
-      # Test the whole project with CTest, again Release configuration only.
-      - name: Test (Release configuration)
-        working-directory: C:/occutils
-        shell: bash
-        run: |
-          ctest --preset occutils-ninja-multiconfiguration-vcpkg
-
-      # Upload vcpkg's logs as artifacts.
-      - name: Upload vcpkg build log files
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: vcpkg-log-files-windows-latest
-          path: C:/occutils/deps/vcpkg/buildtrees/**/*.log
-
-      # Upload builds logs as artifacts.
-      - name: Upload builds log files
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: builds-log-files-windows-latest
-          path: C:/occutils/builds/**/*.log
-
-      # Package (Release configuration only).
-      - name: Package (Release configuration)
-        if: "contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
-        shell: bash
-        run: |
-          cpack --preset occutils-ninja-multiconfiguration-vcpkg-windows
-
-      # Upload packages as artifacts.
-      - name: Upload package artifacts
-        if: "success() && contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
-        uses: actions/upload-artifact@v4
-        with:
-          name: packages-${{ matrix.os }}
-          path: |
-            packages/*.*
-
-
   publish:
-    name: Publish
-    needs: [ build-ubuntu-macos ] # [ build-ubuntu-macos, build-windows ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write   # the tag and the GitHub release
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
-          node-version-file: '.nvmrc'
-          registry-url: 'https://registry.npmjs.org'
-
-      - uses: pnpm/action-setup@v2
-        name: Install pnpm
-        id: pnpm-install
-        with:
-          version: 8
-          run_install: false
-
-      - name: Cache node modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: pnpm-deps-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            pnpm-deps-${{ hashFiles('pnpm-lock.yaml') }}
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Create Release Pull Request
-        id: changesets
-        uses: changesets/action@v1
+          python-version: "3.12"
+      - name: GitHub release of CHANGELOG.md's newest release, unless tagged
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract release version and notes from changelog
+          GH_TOKEN: ${{ github.token }}
         run: |
-          RELEASE_VERSION=$(sed -nE 's/^##[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+)/\1/p' CHANGELOG.md | head -1)
-          echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
-          echo "RELEASE_TAG=v$RELEASE_VERSION" >> $GITHUB_ENV
-          RELEASE_NOTES=$(awk -v ver="$RELEASE_VERSION" -v latest="## Latest Release" \
-          'BEGIN {RS=""; ORS="\n\n"; output=0} \
-          $0 ~ "## " ver {output=1; next} \
-          $0 ~ latest {output=0} \
-          output {print $0}' CHANGELOG.md)
-          if [ -z "$RELEASE_NOTES" ]; then
-            RELEASE_NOTES=$(awk -v ver="$RELEASE_VERSION" \
-            'BEGIN {RS=""; ORS="\n\n"; output=0} \
-            $0 ~ "## " ver {output=1; next} \
-            output {print $0}' CHANGELOG.md)
+          version=$(python scripts/release.py version --latest)
+          if [[ -z "$version" ]]; then
+            echo "no release in CHANGELOG.md"
+          elif git ls-remote --exit-code --tags origin "refs/tags/v$version" > /dev/null; then
+            echo "v$version is published"
+          else
+            python scripts/release.py changelog --version "$version" --output "$RUNNER_TEMP/release-notes.md"
+            gh release create "v$version" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+              --title "occutils $version" --notes-file "$RUNNER_TEMP/release-notes.md"
+            echo "occutils $version published" >> "$GITHUB_STEP_SUMMARY"
           fi
-          RELEASE_NOTES=$(echo "$RELEASE_NOTES" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
-          echo "$RELEASE_NOTES" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
 
-      - name: Create and push release tag
-        if: "contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
-        run: |
-          git tag ${{ env.RELEASE_TAG }}
-          git push origin ${{ env.RELEASE_TAG }}
-
-      - name: Create Release
-        if: "contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
-        id: create_release
-        uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.RELEASE_TAG }}
-          name: ${{ env.RELEASE_TAG }}
-          body: ${{ env.RELEASE_NOTES }}
-          draft: false
-          prerelease: false
-
-      - name: Commit version bump
-        if: "contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
-        run: |
-          pnpm version-bump
-          pnpm version-bump:commit
-
-      - name: Update changelog
-        if: "contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
-        run: |
-          pnpm changelog:latest
-          pnpm changelog:format
-          pnpm changelog:commit
-
-  upload:
-    name: Upload packages artifacts
-    if: "contains(github.event.head_commit.message, 'Version Packages') || contains(github.event.inputs.commit_message, 'Version Packages')"
-    #needs: [ build-ubuntu-macos, build-windows, publish ]
-    needs: [ build-ubuntu-macos, publish ]
-    runs-on: ubuntu-latest
+  release-pr:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download packages-windows-latest artifact
-        uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
-          name: packages-windows-latest
-          path: artifacts
-
-      - name: Download packages-ubuntu-latest artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: packages-ubuntu-latest
-          path: artifacts
-
-      - name: Download packages-macos-latest artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: packages-macos-latest
-          path: artifacts
-
-      - name: Get latest release
-        id: latest_release
+          python-version: "3.12"
+      - id: release
+        name: write the release into CHANGELOG.md, CMakeLists.txt and vcpkg.json
         run: |
-          RELEASE_ID=$(gh release list --repo $GITHUB_REPOSITORY | head -n 1 | awk '{print $1}')
-          echo "RELEASE_ID=$RELEASE_ID" >> $GITHUB_ENV
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload release assets (packages)
-        run: |
-          for file in artifacts/*; do
-            [ -e "$file" ] || continue
-            echo "Uploading $file"
-            gh release upload $RELEASE_ID "$file" --clobber --repo $GITHUB_REPOSITORY
-          done
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          version=$(python scripts/release.py release --if-pending)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [[ -n "$version" ]]; then
+            python scripts/release.py changelog --version "$version" --pull-request "$GITHUB_REF_NAME" \
+              --output "$RUNNER_TEMP/release-pr.md"
+          else
+            echo "nothing pending in changes/"
+          fi
+      - if: steps.release.outputs.version != ''
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          branch: release/${{ github.ref_name }}
+          delete-branch: true
+          sign-commits: true
+          commit-message: "chore(release): occutils ${{ steps.release.outputs.version }}"
+          title: "Release occutils ${{ steps.release.outputs.version }}"
+          body-path: ${{ runner.temp }}/release-pr.md
+          add-paths: |
+            CHANGELOG.md
+            CMakeLists.txt
+            vcpkg.json
+            changes

@@ -303,14 +303,14 @@ library in other projects.
 
 #### Official GitHub release
 
-The first option is to download the latest release for your platform from the
-libraries [GitHub releases page](https://github.com/paulbuechner/occutils/releases/latest).
+[GitHub releases](https://github.com/paulbuechner/occutils/releases/latest) tag
+the source as `v<version>`, with the notes from [CHANGELOG.md](CHANGELOG.md); no
+binaries. Check out a tag and build and install it from source as below.
 
 #### Build and install from source
 
-The second option is to build and install the library from source. To do so,
-follow the instructions in the [Build](#build) section. After the build is
-complete, run:
+To build and install the library from source, follow the instructions in the
+[Build](#build) section. After the build is complete, run:
 
 ```shell
 cmake --install {{ $build_dir }}/{{ $build_type }}
@@ -363,8 +363,34 @@ Coming soon.
 Pull requests are welcome. Please open an issue first to discuss what you would
 like to change for major changes.
 
-Please read [CONTRIBUTING](CONTRIBUTING.md) for details on the code of conduct,
-and the process for submitting pull requests.
+- **Changelog:** a pull request that changes the library (`include/`, `src/`,
+  `cmake/`, `CMakeLists.txt`, `vcpkg*.json`) adds an entry to `changes/`, or
+  gets the label `no changelog` (checked by `changelog.yml`):
+
+  ```shell
+  python scripts/release.py change fixed "SaveSTEP applies the header customizer"
+  # -> changes/savestep-applies-the-header-customizer.fixed.md
+  ```
+
+  Types and the version part they bump: `breaking`, `removed`: major;
+  `added`, `changed`, `deprecated`: minor; `fixed`, `security`: patch.
+- **Format:** clang-format 20.1.8 with `.clang-format` (checked by `format.yml`):
+
+  ```shell
+  pipx run --spec clang-format==20.1.8 clang-format -i $(git ls-files 'include/*.h' 'src/*.cc' 'test/*.cc')
+  ```
+
+### Releases
+
+Entries on `main` keep the pull request "Release occutils &lt;version&gt;" up to
+date (`release.yml`): it moves them into `CHANGELOG.md` and bumps the version in
+`CMakeLists.txt` and `vcpkg.json`. Merging it tags `v<version>` and creates the
+GitHub release, its notes the changelog section.
+
+```shell
+python scripts/release.py changelog   # the next release's notes
+python scripts/release.py release     # what the release PR does
+```
 
 ### Contributors
 

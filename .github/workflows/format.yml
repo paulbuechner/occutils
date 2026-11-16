@@ -1,0 +1,27 @@
+# The C++ of include/, src/ and test/ against .clang-format (OCCT's style). Needs no build.
+name: format
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      # pinned: another clang-format version formats some constructs differently
+      - name: clang-format
+        run: |
+          git ls-files -z -- 'include/*.h' 'src/*.h' 'src/*.cc' 'test/*.h' 'test/*.cc' \
+            | xargs -0 pipx run --spec clang-format==20.1.8 clang-format --dry-run --Werror
