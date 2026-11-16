@@ -157,6 +157,10 @@ bool Doc::SaveSTEP(const std::string&                                filename,
       if (stepModel.IsNull())
         return false;
 
+      // A new model has no header entities, so a header maker built on it has nothing to edit and
+      // the writer would later add the OCCT defaults. Add the defaults first, then edit the
+      // entities the model now holds.
+      APIHeaderSection_MakeHeader().Apply(stepModel);
       APIHeaderSection_MakeHeader headerMaker(stepModel);
 
       if (headerCustomizer)

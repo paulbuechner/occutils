@@ -16,6 +16,8 @@
 
 // std includes
 #include <filesystem>
+#include <fstream>
+#include <sstream>
 
 // OCC includes
 #include <BRepPrimAPI_MakeBox.hxx>
@@ -109,4 +111,25 @@ TEST_F(test_xde_doc, DocTest_LoadSaveSTEP)
 
   // Write the STEP file
   ASSERT_TRUE(m_doc.SaveSTEP("generated/STEP/as1-oc-214.stp"));
+}
+
+TEST_F(test_xde_doc, DocTest_SaveSTEPWithHeaderCustomizer)
+{
+  m_doc.AddShape(BRepPrimAPI_MakeBox(10.0, 10.0, 10.0).Shape(), "Box");
+
+  const std::string filename = "generated/STEP/box_with_header.stp";
+  ASSERT_TRUE(m_doc.SaveSTEP(filename, "MM", [](APIHeaderSection_MakeHeader& header) {
+    header.SetAuthorValue(1, new TCollection_HAsciiString("test-author"));
+    header.SetOrganizationValue(1, new TCollection_HAsciiString("test-organization"));
+  }));
+
+  std::ifstream     file(filename);
+  std::stringstream content;
+  content << file.rdbuf();
+
+  // The customized values replace the OCCT defaults ('Author', 'Open CASCADE'); the writer may
+  // wrap the line after the opening parenthesis, so only the quoted values are searched
+  EXPECT_NE(content.str().find("'test-author'"), std::string::npos);
+  EXPECT_NE(content.str().find("'test-organization'"), std::string::npos);
+  EXPECT_EQ(content.str().find("'Author'"), std::string::npos);
 }
