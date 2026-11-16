@@ -68,13 +68,13 @@ jobs:
 
       # Set env vars needed for vcpkg to leverage the GitHub Action cache as a storage
       # for Binary Caching.
-      - uses: actions/github-script@v7
+      - uses: actions/github-script@v9
         with:
           script: |
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: true
 
@@ -86,7 +86,7 @@ jobs:
       - name: Set up Python
         if: ${{ matrix.os == 'macos-latest' }}
         # This is the version of the action for setting up Python, not the Python version.
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           # Semantic version range syntax or exact version of a Python version
           python-version: '3.13'
@@ -154,7 +154,7 @@ jobs:
       # Upload vcpkg's logs as artifacts.
       - name: Upload vcpkg build log files
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vcpkg-log-files-${{ matrix.os }}
           path: deps/vcpkg/buildtrees/**/*.log
@@ -162,7 +162,7 @@ jobs:
       # Upload builds logs as artifacts.
       - name: Upload builds log files
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: builds-log-files-${{ matrix.os }}
           path: builds/**/*.log
@@ -182,7 +182,7 @@ jobs:
     steps:
       # Set env vars needed for vcpkg to leverage the GitHub Action cache as a storage
       # for Binary Caching.
-      - uses: actions/github-script@v7
+      - uses: actions/github-script@v9
         with:
           script: |
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
@@ -261,7 +261,7 @@ jobs:
       # Upload vcpkg's logs as artifacts.
       - name: Upload vcpkg build log files
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vcpkg-log-files-windows-latest
           path: C:/occutils/deps/vcpkg/buildtrees/**/*.log
@@ -269,7 +269,7 @@ jobs:
       # Upload builds logs as artifacts.
       - name: Upload builds log files
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: builds-log-files-windows-latest
           path: C:/occutils/builds/**/*.log
