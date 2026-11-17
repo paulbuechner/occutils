@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 
 option(OCCUTILS_BUILD_TESTS "Build tests" OFF)
 
-set(OCCUTILS_VERSION 0.0.0)
+set(OCCUTILS_VERSION 0.1.0)
 project(occutils VERSION ${OCCUTILS_VERSION} LANGUAGES CXX)
 
 # Needed to set the namespace for both the export targets and the
