@@ -94,12 +94,12 @@ jobs:
           restore-keys: |
             vcpkg-${{ matrix.os }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'vcpkg/triplets/*.cmake') }}-
             vcpkg-${{ matrix.os }}-
-      - id: restored
-        name: fingerprint of the restored binary cache
+      # vcpkg names each archive by its ABI hash, so the list of files tells whether the cache changed
+      - name: list the restored binary cache
         shell: bash
         run: |
           mkdir -p .vcpkg-cache
-          echo "hash=$(find .vcpkg-cache -type f | sort | shasum -a 256 | cut -c1-64)" >> "$GITHUB_OUTPUT"
+          find .vcpkg-cache -type f | sort > "$RUNNER_TEMP/vcpkg-cache-restored.txt"
 
       # the configure runs the vcpkg install (manifest mode); --clean-after-build deletes each port's build tree after
       # its build (a failed port's stays for the logs): OCCT's would fill the runner's disk
@@ -112,8 +112,8 @@ jobs:
         name: did the vcpkg install change the binary cache?
         shell: bash
         run: |
-          hash=$(find .vcpkg-cache -type f | sort | shasum -a 256 | cut -c1-64)
-          if [ "$hash" != "${{ steps.restored.outputs.hash }}" ]; then changed=true; else changed=false; fi
+          find .vcpkg-cache -type f | sort > "$RUNNER_TEMP/vcpkg-cache-installed.txt"
+          if cmp -s "$RUNNER_TEMP/vcpkg-cache-restored.txt" "$RUNNER_TEMP/vcpkg-cache-installed.txt"; then changed=false; else changed=true; fi
           echo "changed=$changed" >> "$GITHUB_OUTPUT"
           echo "binary cache changed: $changed"
       - if: ${{ !cancelled() && steps.archives.outputs.changed == 'true' }}
