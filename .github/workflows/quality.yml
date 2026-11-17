@@ -85,7 +85,8 @@ jobs:
           if [ "$RUNNER_OS" = "Windows" ]; then "$VCPKG_ROOT/bootstrap-vcpkg.bat" -disableMetrics; else "$VCPKG_ROOT/bootstrap-vcpkg.sh" -disableMetrics; fi
 
       # saved under a new key whenever the archives changed; a restore takes the newest. vcpkg's ABI hashes decide which
-      # archives fit (they also cover the compiler and CMake of the runner image), so a stale one is rebuilt, never used.
+      # archives fit (they also cover the compiler and CMake of the runner image), so a stale one is rebuilt, never used,
+      # and pruned after the install.
       - id: cache
         uses: actions/cache/restore@v6
         with:
@@ -105,6 +106,10 @@ jobs:
       # its build (a failed port's stays for the logs): OCCT's would fill the runner's disk
       - name: configure
         run: cmake --preset occutils-ninja-multiconfiguration-vcpkg -DVCPKG_INSTALL_OPTIONS=--clean-after-build
+
+      # drops the archives this install didn't use; only after a complete install, which used all archives that still fit
+      - name: prune the binary cache
+        run: python scripts/prune-vcpkg-archives.py .vcpkg-cache builds/occutils-ninja-multiconfiguration-vcpkg/vcpkg_installed
 
       # saved right after the install, also when it failed: the ports built so far are kept
       - id: archives
