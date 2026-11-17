@@ -130,19 +130,11 @@ required.
 
 This project is build with CMake and uses the
 [vcpkg](https://vcpkg.io/en/index.html) package manager to install the required
-dependencies. The project is configured to use vcpkg as a submodule, allowing it
-to integrate with the CI/CD pipeline. Feel free to use this setup or use your
-own vcpkg installation.
-
-To fetch vcpkg as a submodule run:
-
-```shell
-git submodule update --init --recursive
-```
-
-If you prefer a system-wide installation of vcpkg follow their official
-guidelines on how to set up
-vcpkg [here](https://vcpkg.io/en/getting-started.html).
+dependencies. Set up vcpkg as in its
+[guide](https://learn.microsoft.com/vcpkg/get_started/get-started) and point
+`VCPKG_ROOT` at it; the CMake preset takes the toolchain from there. The ports
+come from the registry baseline in `vcpkg-configuration.json`, so any recent
+vcpkg tool works (CI uses the one at that baseline).
 
 > Note: For WSL users, make sure to install vcpkg in a directory which grants
 > permission for all users. Otherwise, you will get an error when trying to
@@ -231,35 +223,28 @@ reflects the CI/CD pipeline.
 To configure the project run:
 
 ```shell
-cmake --preset occutils-ninja-multiconfiguration-vcpkg-{{ $os }} # $os = linux, windows, or macos
-
-# Example:
-cmake --preset occutils-ninja-multiconfiguration-vcpkg-windows
+cmake --preset occutils-ninja-multiconfiguration-vcpkg
 ```
 
-**Note**: The default value for `-DCMAKE_TOOLCHAIN_FILE` refers to
-the `submodule` initialized vcpkg installation. If you want to use your own
-vcpkg installation, change the value of `-DCMAKE_TOOLCHAIN_FILE` to reflect the
-path of your vcpkg installation:
+**Note**: The preset's `CMAKE_TOOLCHAIN_FILE` is
+`$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake`. Without `VCPKG_ROOT`, pass the
+toolchain file instead:
 
 ```shell
-cmake --preset occutils-ninja-multiconfiguration-vcpkg-{{ $os }} -DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
+cmake --preset occutils-ninja-multiconfiguration-vcpkg -DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
 ```
 
 To build the project run:
 
 ```shell
-cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-{{ $os }} # $os = linux, windows, or macos
-
-# Example:
-cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-windows
+cmake --build --preset occutils-ninja-multiconfiguration-vcpkg --config Release
 ```
 
 **Note**: The default build type is `Release`. To build a different build type,
 use the `--config` flag. For example, to build the `Debug` build type, run:
 
 ```shell
-cmake --build --preset occutils-ninja-multiconfiguration-vcpkg-{{ $os }} --config Debug
+cmake --build --preset occutils-ninja-multiconfiguration-vcpkg --config Debug
 ```
 
 #### Using plain CMake

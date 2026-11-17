@@ -1,5 +1,5 @@
-# Build and test occutils on Linux, macOS and Windows: vcpkg (the deps/vcpkg submodule, at the registry baseline of
-# vcpkg-configuration.json) installs the dependencies, CMake builds with the repository's preset, CTest runs the tests.
+# Build and test occutils on Linux, macOS and Windows: vcpkg (fetched at the registry baseline of vcpkg-configuration.json)
+# installs the dependencies, CMake builds with the repository's preset, CTest runs the tests.
 # A cold vcpkg cache builds OCCT, which takes about an hour per platform; vcpkg's binary cache keeps it between runs.
 name: Quality
 
@@ -22,7 +22,7 @@ permissions:
 
 env:
   # the preset's toolchain (CMakePresets.json) takes vcpkg from here, too
-  VCPKG_ROOT: ${{ github.workspace }}/deps/vcpkg
+  VCPKG_ROOT: ${{ github.workspace }}/.vcpkg-tool
   VCPKG_DISABLE_METRICS: "1"
   # vcpkg's binary cache, kept between runs by actions/cache
   VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite
@@ -38,8 +38,6 @@ jobs:
     timeout-minutes: 350
     steps:
       - uses: actions/checkout@v7
-        with:
-          submodules: true
 
       # vcpkg's gperf port builds with the system's autotools; OCCT's visualization needs the X11 and OpenGL headers
       - name: build tools (Linux)
@@ -76,9 +74,14 @@ jobs:
       - name: ninja
         run: python -m pip install --disable-pip-version-check ninja
 
+      # the tool and its scripts at the registry baseline; the ports come from the registry itself (a git registry)
       - name: vcpkg
         shell: bash
         run: |
+          commit=$(jq -r '."default-registry".baseline' vcpkg-configuration.json)
+          git init --quiet "$VCPKG_ROOT"
+          git -C "$VCPKG_ROOT" fetch --quiet --depth 1 https://github.com/microsoft/vcpkg.git "$commit"
+          git -C "$VCPKG_ROOT" checkout --quiet FETCH_HEAD
           if [ "$RUNNER_OS" = "Windows" ]; then "$VCPKG_ROOT/bootstrap-vcpkg.bat" -disableMetrics; else "$VCPKG_ROOT/bootstrap-vcpkg.sh" -disableMetrics; fi
 
       # saved under a new key whenever the archives changed; a restore takes the newest. vcpkg's ABI hashes decide which
@@ -131,6 +134,8 @@ jobs:
         with:
           name: logs-${{ matrix.os }}
           path: |
-            deps/vcpkg/buildtrees/**/*.log
+            .vcpkg-tool/buildtrees/**/*.log
             builds/**/*.log
+          # .vcpkg-tool is a hidden directory
+          include-hidden-files: true
           if-no-files-found: ignore

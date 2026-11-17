@@ -19,9 +19,6 @@
         },
         "OCCUTILS_BUILD_TESTS": "ON",
         "OCCUTILS_BUILD_WARNINGS": "ON"
-      },
-      "environment": {
-        "VCPKG_ROOT": "./deps/vcpkg"
       }
     }
   ],
